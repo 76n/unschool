@@ -25,9 +25,15 @@
     ],
     "headers": [
       {
-        "comment": "Preview site: keep unschool-v2.web.app out of search results. Remove at cutover.",
+        "comment": "Clean URLs never match **/*.html, so page defaults live here and the asset rules below override Cache-Control. The X-Robots-Tag keeps the unschool-v2.web.app preview out of search results and must be removed at cutover.",
         "source": "**",
-        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+        "headers": [
+          { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+          { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+        ]
       },
       {
         "source": "/_astro/**",
@@ -40,15 +46,6 @@
       {
         "source": "**/*.@(jpg|jpeg|png|gif|webp|avif|svg|ico)",
         "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
-      },
-      {
-        "source": "**/*.html",
-        "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-          { "key": "X-Content-Type-Options", "value": "nosniff" },
-          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-          { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
-        ]
       },
       {
         "source": "/*/checkout/**",
