@@ -1,0 +1,92 @@
+{
+  "hosting": {
+    "target": "site",
+    "public": "site/dist",
+    "cleanUrls": true,
+    "trailingSlash": true,
+    "ignore": ["**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "/api/**", "function": "api", "region": "europe-west3" },
+      { "source": "/ru/order/*/success", "destination": "/ru/order/status/index.html" },
+      { "source": "/he/order/*/success", "destination": "/he/order/status/index.html" },
+      { "source": "/en/order/*/success", "destination": "/en/order/status/index.html" },
+      { "source": "/", "function": "rootRedirect", "region": "europe-west3" }
+    ],
+    "redirects": [
+      { "source": "/index.html", "destination": "/", "type": 301 },
+      { "source": "/math{,/**}", "destination": "/ru/subjects/math/", "type": 301 },
+      { "source": "/english{,/**}", "destination": "/ru/subjects/english/", "type": 301 },
+      { "source": "/hebrew{,/**}", "destination": "/ru/subjects/hebrew/", "type": 301 },
+      { "source": "/contacts{,/**}", "destination": "/ru/contact/", "type": 301 },
+      { "source": "/signup{,/**}", "destination": "/ru/diagnostic/", "type": 301 },
+      { "source": "/login{,/**}", "destination": "/ru/", "type": 301 },
+      { "source": "/cabinet{,/**}", "destination": "/ru/", "type": 301 },
+      { "source": "/lk{,/**}", "destination": "/ru/", "type": 301 }
+    ],
+    "headers": [
+      {
+        "comment": "Preview site: keep unschool-v2.web.app out of search results. Remove at cutover.",
+        "source": "**",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      },
+      {
+        "source": "/_astro/**",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      },
+      {
+        "source": "/fonts/**",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      },
+      {
+        "source": "**/*.@(jpg|jpeg|png|gif|webp|avif|svg|ico)",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+        ]
+      },
+      {
+        "source": "/*/checkout/**",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      },
+      {
+        "source": "/*/order/**",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      },
+      {
+        "source": "/admin/**",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs20",
+      "ignore": ["node_modules", ".git", "*.log", "src", "tsconfig.json"],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "hosting": { "port": 5321, "host": "127.0.0.1" },
+    "functions": { "port": 5322, "host": "127.0.0.1" },
+    "firestore": { "port": 5323, "host": "127.0.0.1" },
+    "auth": { "port": 5324, "host": "127.0.0.1" },
+    "storage": { "port": 5325, "host": "127.0.0.1" },
+    "ui": { "enabled": true, "port": 5326, "host": "127.0.0.1" },
+    "singleProjectMode": true
+  }
+}

@@ -1,0 +1,647 @@
+---
+import { langParams, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { listByLang, listFaq, sortByOrder } from '~/lib/content';
+import { formatPrice } from '~/lib/format';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import FindLessons from '~/components/FindLessons.astro';
+import Marquee from '~/components/Marquee.astro';
+import SectionHead from '~/components/SectionHead.astro';
+import Callout from '~/components/Callout.astro';
+import PricePill from '~/components/PricePill.astro';
+import TeacherCard from '~/components/TeacherCard.astro';
+import ProductCard from '~/components/ProductCard.astro';
+import FaqList from '~/components/FaqList.astro';
+import Doodle from '~/components/Doodle.astro';
+import Icon from '~/components/Icon.astro';
+
+export function getStaticPaths() {
+  return langParams();
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+
+const teachers = sortByOrder(await listByLang('teachers', lang)).slice(0, 3);
+const products = sortByOrder(await listByLang('products', lang)).slice(0, 2);
+const faq = (await listFaq(lang)).slice(0, 5);
+
+const facts = [
+  // The range keeps Latin digit order even on the Hebrew page.
+  { value: '1–12', label: t('home.facts.grades'), ltr: true },
+  { value: '3', label: t('home.facts.languages'), ltr: false },
+  { value: formatPrice(lang, 90), label: t('home.facts.price'), ltr: false },
+  { value: formatPrice(lang, 0), label: t('home.facts.free'), ltr: false },
+];
+
+const steps = [
+  { title: t('home.diagnostic.step1.title'), text: t('home.diagnostic.step1.text') },
+  { title: t('home.diagnostic.step2.title'), text: t('home.diagnostic.step2.text') },
+  { title: t('home.diagnostic.step3.title'), text: t('home.diagnostic.step3.text') },
+];
+
+const marquee = [
+  'מתמטיקה',
+  'English',
+  'Иврит',
+  'Maths',
+  'עברית',
+  'Английский',
+  'אנגלית',
+  'Математика',
+  'Hebrew',
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: 'Unschool',
+  url: new URL(localePath(lang), Astro.site ?? 'https://unschool.cool').toString(),
+  description: t('site.tagline'),
+  areaServed: 'IL',
+  availableLanguage: ['he', 'ru', 'en'],
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={`Unschool — ${t('site.tagline')}`}
+  description={t('home.hero.subtitle')}
+  jsonLd={jsonLd}
+  bleed
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <p class="hero-badge">
+          <span class="hero-dot"></span>
+          {t('home.hero.badge')}
+        </p>
+
+        <h1 class="hero-title">
+          {t('home.hero.line1')}
+          <span class="hero-accent">
+            {t('home.hero.line2')}
+            <Doodle variant="underline" class="hero-underline" />
+          </span>
+        </h1>
+
+        <p class="lede">{t('home.hero.subtitle')}</p>
+
+        <div class="hero-actions">
+          <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_hero">
+            {t('cta.book')}
+            <Icon name="arrow" size={18} class="flip-rtl" />
+          </a>
+          <a class="btn btn--outline" href={localePath(lang, 'how-it-works')}>
+            {t('nav.howItWorks')}
+          </a>
+        </div>
+
+        <p class="hero-note">
+          <Icon name="check" size={16} />
+          {t('cta.bookNote')}
+        </p>
+      </div>
+
+      <ul class="facts">
+        {
+          facts.map((fact) => (
+            <li data-reveal>
+              <span class="fact-value" dir={fact.ltr ? 'ltr' : undefined}>
+                {fact.value}
+              </span>
+              <span class="fact-label">{fact.label}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <div data-cta-sentinel></div>
+
+  <Marquee items={marquee} />
+
+  <!-- Find lessons -->
+  <section class="section">
+    <div class="wrap finder-layout">
+      <FindLessons lang={lang} eyebrow={t('nav.programs')} />
+
+      <aside class="finder-aside">
+        <Callout
+          title={t('home.unsure.title')}
+          text={t('home.unsure.text')}
+          href={localePath(lang, 'diagnostic')}
+          linkLabel={t('cta.bookFree')}
+        />
+        <PricePill
+          label={t('home.price.badge')}
+          note={t('common.priceOnRequest')}
+          href={localePath(lang, 'formats-prices')}
+        />
+      </aside>
+    </div>
+  </section>
+
+  <!-- How the assessment works -->
+  <section class="section band band--dark">
+    <div class="wrap">
+      <SectionHead
+        eyebrow={t('nav.howItWorks')}
+        title={t('home.diagnostic.title')}
+        id="diagnostic-title"
+      />
+
+      <ol class="steps">
+        {
+          steps.map((step, index) => (
+            <li data-reveal>
+              <span class="step-num">{String(index + 1).padStart(2, '0')}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <a class="arrow-link steps-link" href={localePath(lang, 'how-it-works')}>
+        {t('nav.howItWorks')}
+        <Icon name="arrow" size={16} class="flip-rtl" />
+      </a>
+    </div>
+  </section>
+
+  <!-- Formats -->
+  <section class="section">
+    <div class="wrap">
+      <SectionHead
+        eyebrow={t('nav.formatsPrices')}
+        title={t('home.formats.title')}
+        id="formats-title"
+      >
+        <a class="btn btn--outline btn--sm formats-cta" href={localePath(lang, 'formats-prices')}>
+          {t('nav.formatsPrices')}
+          <Icon name="arrow" size={16} class="flip-rtl" />
+        </a>
+      </SectionHead>
+
+      <div class="formats">
+        <article class="format" data-reveal>
+          <span class="format-mark">01</span>
+          <h3>{t('home.formats.group.title')}</h3>
+          <p>{t('home.formats.group.text')}</p>
+        </article>
+        <article class="format" data-reveal>
+          <span class="format-mark">02</span>
+          <h3>{t('home.formats.individual.title')}</h3>
+          <p>{t('home.formats.individual.text')}</p>
+        </article>
+      </div>
+
+      <h3 class="values-title">{t('home.value.title')}</h3>
+      <ul class="values">
+        <li><Icon name="check" size={18} /><span>{t('home.value.item1')}</span></li>
+        <li><Icon name="check" size={18} /><span>{t('home.value.item2')}</span></li>
+        <li><Icon name="check" size={18} /><span>{t('home.value.item3')}</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Honesty, the actual differentiator -->
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="honesty" data-reveal>
+        <div class="honesty-head">
+          <Doodle variant="star" class="honesty-star" color="var(--grape)" />
+          <h2>{t('home.honesty.title')}</h2>
+          <p class="honesty-text">{t('home.honesty.text')}</p>
+        </div>
+        <ul class="honesty-list">
+          <li>{t('home.honesty.item1')}</li>
+          <li>{t('home.honesty.item2')}</li>
+          <li>{t('home.honesty.item3')}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teachers -->
+  {
+    teachers.length > 0 && (
+      <section class="section">
+        <div class="wrap">
+          <SectionHead
+            eyebrow={t('nav.teachers')}
+            title={t('home.teachers.title')}
+            text={t('home.teachers.text')}
+            id="teachers-title"
+          />
+          <div class="grid grid--3">
+            {teachers.map((teacher) => (
+              <div data-reveal>
+                <TeacherCard lang={lang} teacher={teacher} />
+              </div>
+            ))}
+          </div>
+          <a class="arrow-link section-link" href={localePath(lang, 'teachers')}>
+            {t('cta.allTeachers')}
+            <Icon name="arrow" size={16} class="flip-rtl" />
+          </a>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Materials -->
+  {
+    products.length > 0 && (
+      <section class="section band">
+        <div class="wrap">
+          <SectionHead
+            eyebrow={t('nav.materials')}
+            title={t('home.materials.title')}
+            text={t('home.materials.text')}
+            id="materials-title"
+          />
+          <div class="grid grid--2">
+            {products.map((product) => (
+              <div data-reveal>
+                <ProductCard lang={lang} product={product} />
+              </div>
+            ))}
+          </div>
+          <a class="arrow-link section-link" href={localePath(lang, 'shop')}>
+            {t('cta.toCatalog')}
+            <Icon name="arrow" size={16} class="flip-rtl" />
+          </a>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- FAQ -->
+  {
+    faq.length > 0 && (
+      <section class="section">
+        <div class="wrap grid--split">
+          <SectionHead eyebrow="FAQ" title={t('home.faq.title')} id="faq-title">
+            <a class="arrow-link" href={localePath(lang, 'contact')}>
+              {t('nav.contact')}
+              <Icon name="arrow" size={16} class="flip-rtl" />
+            </a>
+          </SectionHead>
+          <FaqList items={faq} />
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding-block: clamp(2rem, 7vw, 5rem) clamp(2.5rem, 8vw, 5rem);
+    background:
+      radial-gradient(70% 50% at 90% 0%, var(--brand-soft) 0%, rgba(235, 231, 248, 0) 70%),
+      radial-gradient(50% 40% at 0% 100%, var(--accent-soft) 0%, rgba(253, 241, 211, 0) 70%);
+  }
+
+  .hero-inner {
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: 0 0 var(--s5);
+    padding: 0.4rem var(--s4) 0.4rem var(--s3);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .hero-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--hebrew);
+    flex: none;
+  }
+
+  .hero-title {
+    max-width: 16ch;
+    margin-bottom: var(--s5);
+  }
+
+  .hero-accent {
+    position: relative;
+    display: inline-block;
+    color: var(--brand-deep);
+  }
+
+  /* Clears descenders so the stroke reads as an underline, not a strike. */
+  .hero-underline {
+    position: absolute;
+    inset-inline: 0;
+    bottom: -0.44em;
+    width: 100%;
+    height: auto;
+  }
+
+  .hero-copy .lede {
+    margin-bottom: var(--s5);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+  }
+
+  .hero-note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: var(--s4) 0 0;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+  }
+
+  .hero-note :global(.icon) {
+    color: var(--hebrew);
+  }
+
+  /* Honest numbers, no invented metrics */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s4);
+    list-style: none;
+    margin: clamp(2.5rem, 7vw, 3.5rem) 0 0;
+    padding: 0;
+  }
+
+  .facts li {
+    margin: 0;
+    padding-inline-start: var(--s4);
+    border-inline-start: 2px solid var(--line-strong);
+  }
+
+  .fact-value {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 6vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--grape);
+  }
+
+  .fact-label {
+    display: block;
+    margin-top: var(--s2);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Finder ---------- */
+  .finder-layout {
+    display: grid;
+    gap: var(--s6);
+  }
+
+  .finder-aside {
+    display: grid;
+    gap: var(--s3);
+    align-content: start;
+  }
+
+  /* ---------- Steps ---------- */
+  .steps {
+    display: grid;
+    gap: var(--s5);
+    list-style: none;
+    margin: 0 0 var(--s6);
+    padding: 0;
+    counter-reset: step;
+  }
+
+  .steps li {
+    position: relative;
+    margin: 0;
+    padding-top: var(--s5);
+    border-top: 1px solid rgba(251, 246, 238, 0.22);
+  }
+
+  .step-num {
+    display: block;
+    margin-bottom: var(--s3);
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 9vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: transparent;
+    -webkit-text-stroke: 1.2px var(--accent);
+  }
+
+  .steps h3 {
+    margin-bottom: var(--s2);
+  }
+
+  .steps p {
+    margin: 0;
+    color: #c9c2e4;
+    font-size: 0.9375rem;
+    max-width: 36ch;
+  }
+
+  .steps-link {
+    color: var(--accent);
+  }
+
+  /* ---------- Formats ---------- */
+  .formats {
+    display: grid;
+    gap: var(--s4);
+  }
+
+  .format {
+    position: relative;
+    padding: var(--s5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+  }
+
+  .format-mark {
+    display: block;
+    margin-bottom: var(--s3);
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--brand);
+  }
+
+  .format h3 {
+    margin-bottom: var(--s2);
+  }
+
+  .format p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.9375rem;
+  }
+
+  .formats-cta {
+    margin-top: var(--s4);
+  }
+
+  .values-title {
+    margin: var(--s7) 0 var(--s4);
+    font-size: 1.25rem;
+  }
+
+  .values {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s3);
+  }
+
+  .values li {
+    display: flex;
+    gap: var(--s3);
+    align-items: flex-start;
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+
+  .values :global(.icon) {
+    color: var(--hebrew);
+    margin-top: 3px;
+  }
+
+  /* ---------- Honesty ---------- */
+  .honesty {
+    display: grid;
+    gap: var(--s5);
+    padding: clamp(1.5rem, 5vw, 3rem);
+    background: var(--accent-soft);
+    border: 1.5px dashed var(--accent);
+    border-radius: var(--r-lg);
+  }
+
+  .honesty-head {
+    position: relative;
+  }
+
+  .honesty-star {
+    position: absolute;
+    inset-inline-end: 0;
+    top: -0.5rem;
+    opacity: 0.6;
+  }
+
+  .honesty h2 {
+    margin-bottom: var(--s2);
+    font-size: clamp(1.5rem, 5vw, 2.1rem);
+  }
+
+  .honesty-text {
+    margin: 0;
+    color: var(--ink-soft);
+    max-width: 34ch;
+  }
+
+  .honesty-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s3);
+  }
+
+  .honesty-list li {
+    position: relative;
+    margin: 0;
+    padding-inline-start: var(--s5);
+    font-size: 0.9375rem;
+  }
+
+  .honesty-list li::before {
+    content: '—';
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--brand);
+    font-weight: 700;
+  }
+
+  .section-link {
+    margin-top: var(--s5);
+  }
+
+  @media (min-width: 48rem) {
+    .facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .formats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .values {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s5);
+    }
+
+    .honesty {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      gap: var(--s8);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .finder-layout {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: var(--s8);
+      align-items: start;
+    }
+
+    .steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s6);
+    }
+  }
+
+  /* The hero splits only when the headline still has room to breathe. */
+  @media (min-width: 72rem) {
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
+      gap: var(--s9);
+      align-items: end;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 5vw, 4.25rem);
+    }
+
+    .facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 0;
+      gap: var(--s5);
+    }
+  }
+</style>

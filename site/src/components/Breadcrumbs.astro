@@ -1,0 +1,75 @@
+---
+import type { Lang } from '~/i18n/config';
+import { useTranslations } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  items: { href?: string; label: string }[];
+}
+
+const { lang, items } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<nav class="crumbs" aria-label={t('a11y.breadcrumb')}>
+  <ol>
+    {
+      items.map((item, index) => (
+        <li>
+          {item.href && index < items.length - 1 ? (
+            <a href={item.href}>{item.label}</a>
+          ) : (
+            <span aria-current="page">{item.label}</span>
+          )}
+          {index < items.length - 1 && (
+            <span class="sep" aria-hidden="true">
+              /
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .crumbs {
+    margin-bottom: var(--s4);
+  }
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8125rem;
+    letter-spacing: 0.01em;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: 0;
+  }
+
+  a {
+    color: var(--brand-deep);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  span[aria-current] {
+    color: var(--ink-soft);
+  }
+
+  .sep {
+    color: var(--line-strong);
+  }
+</style>

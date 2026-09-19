@@ -1,0 +1,127 @@
+---
+import { dirOf, LANGS, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import BaseHead from '~/components/seo/BaseHead.astro';
+import Header from '~/components/Header.astro';
+import Footer from '~/components/Footer.astro';
+import StickyCta from '~/components/StickyCta.astro';
+import FallbackNotice from '~/components/FallbackNotice.astro';
+import '~/styles/global.css';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  translations?: Lang[];
+  noindex?: boolean;
+  /** Full-bleed pages manage their own containers. */
+  bleed?: boolean;
+  narrow?: boolean;
+  stickyCta?: boolean;
+  fallbackFrom?: Lang | null;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  viewEvent?: string;
+  viewId?: string;
+}
+
+const {
+  lang,
+  title,
+  description,
+  translations = [...LANGS],
+  noindex = false,
+  bleed = false,
+  narrow = false,
+  stickyCta = true,
+  fallbackFrom = null,
+  jsonLd,
+  viewEvent,
+  viewId,
+} = Astro.props;
+
+const t = useTranslations(lang);
+const dir = dirOf(lang);
+const fullTitle = title.includes('Unschool') ? title : `${title} — Unschool`;
+const mainClass = bleed ? '' : `wrap page${narrow ? ' wrap--narrow' : ''}`;
+---
+
+<!doctype html>
+<html lang={lang} dir={dir}>
+  <head>
+    <BaseHead
+      lang={lang}
+      title={fullTitle}
+      description={description}
+      translations={translations}
+      noindex={noindex || Boolean(fallbackFrom)}
+      jsonLd={jsonLd}
+    />
+  </head>
+  <body data-view-event={viewEvent} data-view-id={viewId}>
+    <a class="skip-link" href="#main">{t('a11y.skipToContent')}</a>
+    <Header lang={lang} translations={translations} />
+
+    <main id="main" class={mainClass}>
+      {
+        fallbackFrom && (
+          <div class={bleed ? 'wrap' : ''}>
+            <FallbackNotice lang={lang} sourceLang={fallbackFrom} />
+          </div>
+        )
+      }
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
+
+    {
+      stickyCta && (
+        <StickyCta
+          href={localePath(lang, 'diagnostic')}
+          label={t('cta.bookFree')}
+          note={t('cta.bookNote')}
+        />
+      )
+    }
+
+    <style is:global>
+      .page {
+        padding-block: clamp(1.5rem, 5vw, 3rem);
+      }
+    </style>
+
+    <script>
+      // Reveal content as it scrolls in. Anything already on screen at load is
+      // shown immediately, so the first paint is never a blank page.
+      const revealables = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduced || !('IntersectionObserver' in window)) {
+        revealables.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry, index) => {
+              if (!entry.isIntersecting) return;
+              const el = entry.target as HTMLElement;
+              el.style.transitionDelay = `${Math.min(index * 50, 200)}ms`;
+              el.classList.add('is-in');
+              observer.unobserve(el);
+            });
+          },
+          { rootMargin: '0px 0px -6% 0px', threshold: 0.02 }
+        );
+
+        revealables.forEach((el) => {
+          if (el.getBoundingClientRect().top < window.innerHeight) {
+            el.style.transition = 'none';
+            el.classList.add('is-in');
+            return;
+          }
+          observer.observe(el);
+        });
+      }
+    </script>
+  </body>
+</html>

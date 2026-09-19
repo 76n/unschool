@@ -1,0 +1,134 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECT_GLYPH, SUBJECT_THEME } from '~/data/taxonomy';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  teacher: CollectionEntry<'teachers'>;
+}
+
+const { lang, teacher } = Astro.props;
+const t = useTranslations(lang);
+const { data } = teacher;
+const subject = data.subjects[0] ?? 'math';
+const theme = SUBJECT_THEME[subject];
+---
+
+<a
+  class="teacher"
+  href={localePath(lang, `teachers/${data.slug}`)}
+  style={`--accent:${theme.accent};--soft:${theme.soft}`}
+>
+  <span class="teacher-portrait">
+    {
+      data.photo ? (
+        <img src={data.photo} alt="" width="120" height="120" loading="lazy" decoding="async" />
+      ) : (
+        <span class="teacher-glyph" aria-hidden="true">
+          {SUBJECT_GLYPH[subject]}
+        </span>
+      )
+    }
+  </span>
+
+  <span class="teacher-body">
+    <span class="teacher-name">{data.name}</span>
+    <span class="teacher-role">{data.role}</span>
+    {
+      data.teachingLanguages.length > 0 && (
+        <span class="teacher-langs">
+          {t('teachers.languages')}: {data.teachingLanguages.join(', ')}
+        </span>
+      )
+    }
+  </span>
+
+  <Icon name="arrow" size={18} class="teacher-arrow flip-rtl" />
+</a>
+
+<style>
+  .teacher {
+    display: flex;
+    align-items: center;
+    gap: var(--s4);
+    height: 100%;
+    padding: var(--s4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      transform 0.25s var(--ease),
+      border-color 0.25s var(--ease);
+  }
+
+  .teacher:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+
+  .teacher-portrait {
+    display: grid;
+    place-items: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--soft);
+    overflow: hidden;
+  }
+
+  .teacher-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .teacher-glyph {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .teacher-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .teacher-name {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .teacher-role,
+  .teacher-langs {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .teacher-arrow {
+    color: var(--ink-soft);
+    transition: transform 0.25s var(--ease);
+  }
+
+  .teacher:hover .teacher-arrow {
+    transform: translateX(3px);
+  }
+
+  :global(:root[dir='rtl']) .teacher:hover .teacher-arrow {
+    transform: translateX(-3px);
+  }
+</style>

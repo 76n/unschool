@@ -1,0 +1,162 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECT_GLYPH, SUBJECT_THEME, stageNameKey, subjectNameKey } from '~/data/taxonomy';
+import { formatPrice } from '~/lib/format';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  program: CollectionEntry<'programs'>;
+  showSubjects?: boolean;
+}
+
+const { lang, program, showSubjects = true } = Astro.props;
+const t = useTranslations(lang);
+const { data } = program;
+const theme = SUBJECT_THEME[data.subjects[0]];
+
+const price =
+  data.priceFrom === null
+    ? t('common.priceOnRequest')
+    : `${t('common.from')} ${formatPrice(lang, data.priceFrom)} ${t('common.perLesson')}`;
+---
+
+<a
+  class="program"
+  href={localePath(lang, `programs/${data.slug}`)}
+  style={`--accent:${theme.accent};--soft:${theme.soft}`}
+>
+  <span class="program-glyph" aria-hidden="true">{SUBJECT_GLYPH[data.subjects[0]]}</span>
+
+  <span class="program-body">
+    <span class="program-title">{data.title}</span>
+    <span class="program-subtitle">{data.subtitle}</span>
+
+    <span class="chip-row program-chips">
+      {
+        showSubjects &&
+          data.subjects.map((subject) => <span class="chip">{t(subjectNameKey(subject))}</span>)
+      }
+      {data.stages.map((stage) => <span class="chip chip--outline">{t(stageNameKey(stage))}</span>)}
+    </span>
+  </span>
+
+  <span class="program-foot">
+    <span class="program-price">{price}</span>
+    <Icon name="arrow" size={18} class="program-arrow flip-rtl" />
+  </span>
+</a>
+
+<style>
+  .program {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s4);
+    height: 100%;
+    padding: var(--s5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    color: var(--ink);
+    text-decoration: none;
+    overflow: hidden;
+    transition:
+      transform 0.25s var(--ease),
+      border-color 0.25s var(--ease),
+      box-shadow 0.25s var(--ease);
+  }
+
+  .program::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: inline-start;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .program:hover {
+    transform: translateY(-3px);
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+    color: var(--ink);
+  }
+
+  .program:hover::before {
+    transform: scaleX(1);
+  }
+
+  .program-glyph {
+    position: absolute;
+    inset-block-start: -0.28em;
+    inset-inline-end: -0.06em;
+    font-family: var(--font-display);
+    font-size: 7rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  .program-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+    flex: 1;
+  }
+
+  .program-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    max-width: 24ch;
+  }
+
+  .program-subtitle {
+    color: var(--ink-soft);
+    font-size: 0.9375rem;
+  }
+
+  .program-chips {
+    margin-top: var(--s2);
+  }
+
+  .program-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s3);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line);
+  }
+
+  .program-price {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .program-arrow {
+    color: var(--ink-soft);
+    transition: transform 0.25s var(--ease);
+  }
+
+  .program:hover .program-arrow {
+    transform: translateX(4px);
+    color: var(--ink);
+  }
+
+  :global(:root[dir='rtl']) .program:hover .program-arrow {
+    transform: translateX(-4px);
+  }
+</style>

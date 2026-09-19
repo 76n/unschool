@@ -1,0 +1,241 @@
+---
+import { render } from 'astro:content';
+import { LANGS, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import {
+  STAGES,
+  SUBJECTS,
+  SUBJECT_GLYPH,
+  SUBJECT_THEME,
+  stageGradesKey,
+  stageNameKey,
+  subjectNameKey,
+  type Stage,
+} from '~/data/taxonomy';
+import { findLocalized, listByLang, sortByOrder, translatedLangs } from '~/lib/content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionHead from '~/components/SectionHead.astro';
+import ProgramCard from '~/components/ProgramCard.astro';
+import Callout from '~/components/Callout.astro';
+import Icon from '~/components/Icon.astro';
+
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) => STAGES.map((stage) => ({ params: { lang, stage } })));
+}
+
+const lang = Astro.params.lang as Lang;
+const stage = Astro.params.stage as Stage;
+const t = useTranslations(lang);
+
+const localized = await findLocalized('stages', lang, stage);
+if (!localized) throw new Error(`Missing stage content: ${stage}`);
+
+const { entry, isFallback, sourceLang } = localized;
+const { Content } = await render(entry);
+const translations = await translatedLangs('stages', stage);
+
+const programs = sortByOrder(
+  (await listByLang('programs', lang)).filter((program) => program.data.stages.includes(stage))
+);
+---
+
+<BaseLayout
+  lang={lang}
+  title={entry.data.seoTitle ?? entry.data.title}
+  description={entry.data.seoDescription ?? entry.data.subtitle}
+  translations={translations}
+  fallbackFrom={isFallback ? sourceLang : null}
+  viewEvent="view_stage"
+  viewId={stage}
+  bleed
+>
+  <section class="stage-hero">
+    <div class="wrap">
+      <Breadcrumbs
+        lang={lang}
+        items={[{ href: localePath(lang), label: t('nav.home') }, { label: entry.data.title }]}
+      />
+      <p class="grades">{t(stageGradesKey(stage))}</p>
+      <h1>{entry.data.title}</h1>
+      <p class="lede">{entry.data.subtitle}</p>
+
+      <div class="hero-actions">
+        <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_stage">
+          {t('cta.bookFree')}
+          <Icon name="arrow" size={18} class="flip-rtl" />
+        </a>
+        <span class="hero-note">{t('cta.bookNote')}</span>
+      </div>
+    </div>
+  </section>
+
+  <div data-cta-sentinel></div>
+
+  <div class="wrap page">
+    <section class="section section--tight prose">
+      <Content />
+    </section>
+
+    <section class="section" aria-labelledby="subjects-title">
+      <SectionHead
+        eyebrow={t('subject.plural')}
+        title={t('stage.page.subjects')}
+        id="subjects-title"
+      />
+      <ul class="subject-links">
+        {
+          SUBJECTS.map((subject) => (
+            <li>
+              <a
+                href={localePath(lang, `subjects/${subject}`)}
+                style={`--accent:${SUBJECT_THEME[subject].accent};--soft:${SUBJECT_THEME[subject].soft}`}
+              >
+                <span class="subject-glyph" aria-hidden="true">
+                  {SUBJECT_GLYPH[subject]}
+                </span>
+                <span class="subject-name">{t(subjectNameKey(subject))}</span>
+                <span class="subject-stage">{t(stageNameKey(stage))}</span>
+                <Icon name="arrow" size={18} class="flip-rtl" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="programs-title">
+      <SectionHead
+        eyebrow={t('nav.programs')}
+        title={t('stage.page.programs')}
+        id="programs-title"
+      />
+      {
+        programs.length > 0 ? (
+          <div class="grid grid--2">
+            {programs.map((program) => (
+              <div data-reveal>
+                <ProgramCard lang={lang} program={program} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="muted">{t('programs.empty')}</p>
+        )
+      }
+    </section>
+
+    <section class="section section--tight">
+      <Callout
+        title={t('home.unsure.title')}
+        text={t('home.unsure.text')}
+        href={localePath(lang, 'how-it-works')}
+        linkLabel={t('nav.howItWorks')}
+      />
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .stage-hero {
+    background:
+      radial-gradient(60% 60% at 90% 0%, var(--brand-soft) 0%, rgba(235, 231, 248, 0) 70%),
+      var(--paper);
+    padding-block: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 6vw, 3.5rem);
+  }
+
+  .grades {
+    display: inline-block;
+    margin: 0 0 var(--s3);
+    padding: 0.3rem var(--s4);
+    border-radius: var(--r-pill);
+    background: var(--grape);
+    color: var(--paper);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .stage-hero h1 {
+    margin-bottom: var(--s3);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s4);
+    margin-top: var(--s5);
+  }
+
+  .hero-note {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .subject-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s3);
+  }
+
+  .subject-links li {
+    margin: 0;
+  }
+
+  .subject-links a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'glyph name arrow' 'glyph stage arrow';
+    align-items: center;
+    gap: 0 var(--s4);
+    padding: var(--s4);
+    background: var(--soft);
+    border-radius: var(--r-md);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.2s var(--ease);
+  }
+
+  .subject-links a:hover {
+    transform: translateY(-2px);
+    color: var(--ink);
+  }
+
+  .subject-glyph {
+    grid-area: glyph;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+    min-width: 2ch;
+    text-align: center;
+  }
+
+  .subject-name {
+    grid-area: name;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .subject-stage {
+    grid-area: stage;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .subject-links :global(.icon) {
+    grid-area: arrow;
+    color: var(--accent);
+  }
+
+  @media (min-width: 48rem) {
+    .subject-links {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

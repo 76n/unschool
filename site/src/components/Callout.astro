@@ -1,0 +1,73 @@
+---
+import Doodle from './Doodle.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  text: string;
+  href?: string;
+  linkLabel?: string;
+}
+
+const { title, text, href, linkLabel } = Astro.props;
+---
+
+<aside class="callout">
+  <Doodle variant="sparkle" class="callout-doodle" color="var(--grape)" />
+  <p class="callout-title">{title}</p>
+  <p class="callout-text">{text}</p>
+  {
+    href && linkLabel && (
+      <a class="arrow-link callout-link" href={href}>
+        {linkLabel}
+        <Icon name="arrow" size={16} class="flip-rtl" />
+      </a>
+    )
+  }
+</aside>
+
+<style>
+  .callout {
+    position: relative;
+    padding: var(--s5);
+    padding-inline-end: var(--s8);
+    background: var(--accent);
+    border-radius: var(--r-md);
+    color: var(--ink);
+  }
+
+  .callout-doodle {
+    position: absolute;
+    inset-inline-end: var(--s4);
+    top: var(--s4);
+    opacity: 0.55;
+  }
+
+  .callout-title {
+    margin: 0 0 var(--s2);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  .callout-text {
+    margin: 0;
+    font-size: 0.9375rem;
+    max-width: 34ch;
+  }
+
+  .callout-link {
+    margin-top: var(--s3);
+    color: var(--grape);
+    align-items: flex-start;
+  }
+
+  .callout-link :global(.icon) {
+    margin-top: 0.2em;
+  }
+
+  .callout-link:hover {
+    color: var(--ink);
+  }
+</style>

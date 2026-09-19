@@ -1,0 +1,96 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  label: string;
+  note?: string;
+}
+
+const { href, label, note } = Astro.props;
+---
+
+<div class="sticky-cta" data-sticky-cta hidden>
+  <div class="wrap sticky-inner">
+    {note && <p class="sticky-note">{note}</p>}
+    <a class="btn btn--primary btn--block" href={href} data-track="sticky_cta_click">
+      {label}
+      <Icon name="arrow" size={18} class="flip-rtl" />
+    </a>
+  </div>
+</div>
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 90;
+    padding-block: var(--s3) calc(var(--s3) + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--paper) 90%, transparent);
+    backdrop-filter: saturate(160%) blur(12px);
+    border-top: 1px solid var(--line);
+    transform: translateY(105%);
+    transition: transform 0.35s var(--ease);
+  }
+
+  .sticky-cta[data-visible] {
+    transform: translateY(0);
+  }
+
+  .sticky-note {
+    margin: 0 0 var(--s2);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 64rem) {
+    .sticky-cta {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-sticky-cta]');
+  const trigger = document.querySelector<HTMLElement>('[data-cta-sentinel]');
+  const footer = document.querySelector<HTMLElement>('[data-site-footer]');
+
+  if (bar) {
+    let pastHero = !trigger;
+    let footerVisible = false;
+
+    const apply = () => {
+      const show = pastHero && !footerVisible;
+      if (show) bar.hidden = false;
+      requestAnimationFrame(() => {
+        bar.toggleAttribute('data-visible', show);
+        if (!show) window.setTimeout(() => bar.toggleAttribute('hidden', !show), 350);
+      });
+      document.body.style.paddingBottom = show ? '5.5rem' : '';
+    };
+
+    if (trigger) {
+      new IntersectionObserver(
+        ([entry]) => {
+          pastHero = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+          apply();
+        },
+        { threshold: 0 }
+      ).observe(trigger);
+    }
+
+    if (footer) {
+      new IntersectionObserver(
+        ([entry]) => {
+          footerVisible = entry.isIntersecting;
+          apply();
+        },
+        { rootMargin: '0px 0px -10% 0px' }
+      ).observe(footer);
+    }
+
+    apply();
+  }
+</script>

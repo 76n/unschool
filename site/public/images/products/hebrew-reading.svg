@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img">
+  <rect width="600" height="400" fill="#dfeee9" />
+  <text
+    x="470"
+    y="330"
+    text-anchor="middle"
+    font-family="Georgia, serif"
+    font-size="330"
+    font-weight="700"
+    fill="#2b7a6b"
+    opacity="0.16"
+  >א</text>
+  <g transform="translate(88 70)">
+    <rect x="10" y="10" width="270" height="270" rx="12" fill="#c7e2da" />
+    <rect width="270" height="270" rx="12" fill="#ffffff" />
+    <path d="M135 0v270" stroke="#dcefe9" stroke-width="6" />
+    <g stroke="#c3ded6" stroke-width="9" stroke-linecap="round">
+      <path d="M32 62h72M32 100h72M32 138h52M166 62h72M166 100h72M166 138h60" />
+    </g>
+    <g stroke="#2b7a6b" stroke-width="9" stroke-linecap="round" opacity="0.5">
+      <path d="M32 200h72M166 200h48" />
+    </g>
+  </g>
+</svg>

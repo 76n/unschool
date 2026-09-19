@@ -1,0 +1,87 @@
+---
+interface Props {
+  variant?: 'sparkle' | 'underline' | 'circle' | 'arrow' | 'wave' | 'star';
+  color?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  variant = 'sparkle',
+  color = 'var(--accent)',
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const shapes: Record<string, { box: string; w: number; h: number; d: string; width: number }> = {
+  sparkle: {
+    box: '0 0 28 28',
+    w: 28,
+    h: 28,
+    width: 2.6,
+    d: 'M14 3.5v6M5 8l3.8 3.6M23 7.4 19.2 11',
+  },
+  underline: {
+    box: '0 0 200 14',
+    w: 200,
+    h: 14,
+    width: 4,
+    d: 'M4 9.5c38-6 116-8 192-3',
+  },
+  circle: {
+    box: '0 0 220 70',
+    w: 220,
+    h: 70,
+    width: 3.5,
+    d: 'M112 5C58 3 8 15 5 35c-3 21 55 32 112 30 48-2 99-13 98-32C214 15 165 6 118 5',
+  },
+  arrow: {
+    box: '0 0 90 46',
+    w: 90,
+    h: 46,
+    width: 3.2,
+    d: 'M4 8c26 2 52 12 66 30M70 38l14-4M70 38l-2-14',
+  },
+  wave: {
+    box: '0 0 320 18',
+    w: 320,
+    h: 18,
+    width: 3.4,
+    d: 'M3 12c22-14 44 6 66-2s44-16 66-2 44 16 66 2 44-14 66-2',
+  },
+  star: {
+    box: '0 0 26 26',
+    w: 26,
+    h: 26,
+    width: 2.4,
+    d: 'M13 3.5 15 11l7.5 2-7.5 2-2 7.5-2-7.5L3.5 13 11 11l2-7.5Z',
+  },
+};
+
+const shape = shapes[variant];
+---
+
+<svg
+  class={`doodle ${className}`}
+  {...rest}
+  width={shape.w}
+  height={shape.h}
+  viewBox={shape.box}
+  fill="none"
+  stroke={color}
+  stroke-width={shape.width}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={shape.d}></path>
+</svg>
+
+<style>
+  .doodle {
+    display: block;
+    pointer-events: none;
+    overflow: visible;
+  }
+</style>

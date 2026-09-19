@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img">
+  <rect width="600" height="400" fill="#ebe7f8" />
+  <text
+    x="470"
+    y="330"
+    text-anchor="middle"
+    font-family="Georgia, serif"
+    font-size="360"
+    font-weight="700"
+    fill="#655c97"
+    opacity="0.14"
+  >×</text>
+  <g transform="translate(96 62)">
+    <rect x="10" y="10" width="250" height="290" rx="10" fill="#d9d2f0" />
+    <rect width="250" height="290" rx="10" fill="#ffffff" />
+    <rect width="26" height="290" rx="10" fill="#655c97" />
+    <g stroke="#cfc7ea" stroke-width="10" stroke-linecap="round">
+      <path d="M58 62h150M58 106h150M58 150h104M58 194h150M58 238h80" />
+    </g>
+  </g>
+  <path d="M404 92v40M382 106l16 16M430 102l-16 18" stroke="#f5c64f" stroke-width="10" stroke-linecap="round" fill="none" />
+</svg>

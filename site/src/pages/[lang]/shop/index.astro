@@ -1,0 +1,210 @@
+---
+import { LANG_NAME, langParams, LANGS, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import {
+  PRODUCT_TYPES,
+  STAGES,
+  SUBJECTS,
+  productTypeKey,
+  stageNameKey,
+  subjectNameKey,
+} from '~/data/taxonomy';
+import { listByLang, sortByOrder } from '~/lib/content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import ProductCard from '~/components/ProductCard.astro';
+import Callout from '~/components/Callout.astro';
+
+export function getStaticPaths() {
+  return langParams();
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+const products = sortByOrder(await listByLang('products', lang));
+---
+
+<BaseLayout lang={lang} title={t('shop.title')} description={t('shop.intro')} stickyCta={false}>
+  <Breadcrumbs
+    lang={lang}
+    items={[{ href: localePath(lang), label: t('nav.home') }, { label: t('shop.title') }]}
+  />
+
+  <header class="shop-head">
+    <p class="eyebrow">{t('nav.materials')}</p>
+    <h1>{t('shop.title')}</h1>
+    <p class="lede">{t('shop.intro')}</p>
+  </header>
+
+  <form class="filters" id="shop-filters" aria-label={t('shop.title')}>
+    <label class="filter">
+      <span class="filter-label">{t('shop.filter.subject')}</span>
+      <select name="subject">
+        <option value="">{t('shop.filter.all')}</option>
+        {SUBJECTS.map((subject) => <option value={subject}>{t(subjectNameKey(subject))}</option>)}
+      </select>
+    </label>
+
+    <label class="filter">
+      <span class="filter-label">{t('shop.filter.stage')}</span>
+      <select name="stage">
+        <option value="">{t('shop.filter.all')}</option>
+        {STAGES.map((stage) => <option value={stage}>{t(stageNameKey(stage))}</option>)}
+      </select>
+    </label>
+
+    <label class="filter">
+      <span class="filter-label">{t('shop.filter.type')}</span>
+      <select name="type">
+        <option value="">{t('shop.filter.all')}</option>
+        {PRODUCT_TYPES.map((type) => <option value={type}>{t(productTypeKey(type))}</option>)}
+      </select>
+    </label>
+
+    <label class="filter">
+      <span class="filter-label">{t('shop.filter.language')}</span>
+      <select name="language">
+        <option value="">{t('shop.filter.all')}</option>
+        {LANGS.map((code) => <option value={code}>{LANG_NAME[code]}</option>)}
+      </select>
+    </label>
+
+    <button class="btn btn--outline btn--sm reset" type="reset" data-reset>
+      {t('shop.filter.reset')}
+    </button>
+  </form>
+
+  <p class="results tiny muted" id="shop-results" aria-live="polite">
+    {t('shop.results', { count: products.length })}
+  </p>
+
+  <div class="grid grid--3" id="shop-grid">
+    {
+      products.map((product) => (
+        <div data-reveal>
+          <ProductCard lang={lang} product={product} />
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="muted empty" id="shop-empty" hidden>{t('shop.empty')}</p>
+
+  <div class="section">
+    <Callout
+      title={t('home.unsure.title')}
+      text={t('product.relatedDiagnostic')}
+      href={localePath(lang, 'diagnostic')}
+      linkLabel={t('cta.bookFree')}
+    />
+  </div>
+</BaseLayout>
+
+<script define:vars={{ resultsTemplate: t('shop.results', { count: '__count__' }) }}>
+  const form = document.getElementById('shop-filters');
+  const grid = document.getElementById('shop-grid');
+  const results = document.getElementById('shop-results');
+  const empty = document.getElementById('shop-empty');
+
+  if (form instanceof HTMLFormElement && grid && results && empty) {
+    const cards = Array.from(grid.querySelectorAll('[data-product-card]'));
+
+    const apply = () => {
+      const data = new FormData(form);
+      const subject = String(data.get('subject') ?? '');
+      const stage = String(data.get('stage') ?? '');
+      const type = String(data.get('type') ?? '');
+      const language = String(data.get('language') ?? '');
+
+      let visible = 0;
+      cards.forEach((card) => {
+        const stages = (card.dataset.stages ?? '').split(' ').filter(Boolean);
+        const matches =
+          (!subject || card.dataset.subject === subject) &&
+          (!stage || stages.includes(stage)) &&
+          (!type || card.dataset.type === type) &&
+          (!language || card.dataset.language === language);
+
+        const holder = card.parentElement;
+        if (holder) holder.hidden = !matches;
+        if (matches) visible += 1;
+      });
+
+      results.textContent = resultsTemplate.replace('__count__', String(visible));
+      empty.hidden = visible > 0;
+    };
+
+    form.addEventListener('change', apply);
+    form.addEventListener('reset', () => window.requestAnimationFrame(apply));
+  }
+</script>
+
+<style>
+  .shop-head {
+    max-width: 34rem;
+    margin-bottom: var(--s6);
+  }
+
+  .shop-head h1 {
+    margin-bottom: var(--s3);
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s3);
+    padding: var(--s4);
+    margin-bottom: var(--s4);
+    background: var(--paper-2);
+    border-radius: var(--r-md);
+  }
+
+  .filter-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: var(--s2);
+  }
+
+  .filters select {
+    min-height: 2.75rem;
+    background-position:
+      calc(100% - 1.1rem) 1.25rem,
+      calc(100% - 0.75rem) 1.25rem;
+  }
+
+  :global(:root[dir='rtl']) .filters select {
+    background-position:
+      1.1rem 1.25rem,
+      0.75rem 1.25rem;
+  }
+
+  .reset {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .results {
+    margin-bottom: var(--s4);
+  }
+
+  .empty {
+    margin-top: var(--s5);
+  }
+
+  @media (min-width: 48rem) {
+    .filters {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: end;
+    }
+
+    .reset {
+      grid-column: auto;
+      justify-self: stretch;
+    }
+  }
+</style>

@@ -1,0 +1,228 @@
+---
+import type { Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECTS, subjectNameKey } from '~/data/taxonomy';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+
+const sections = [
+  { href: localePath(lang, 'how-it-works'), label: t('nav.howItWorks') },
+  { href: localePath(lang, 'formats-prices'), label: t('nav.formatsPrices') },
+  { href: localePath(lang, 'teachers'), label: t('nav.teachers') },
+  { href: localePath(lang, 'shop'), label: t('nav.materials') },
+  { href: localePath(lang, 'about'), label: t('nav.about') },
+  { href: localePath(lang, 'contact'), label: t('nav.contact') },
+  { href: localePath(lang, 'join'), label: t('nav.join') },
+];
+
+const legal = [
+  { href: localePath(lang, 'privacy'), label: t('footer.privacy') },
+  { href: localePath(lang, 'terms'), label: t('footer.terms') },
+  { href: localePath(lang, 'accessibility'), label: t('footer.accessibility') },
+];
+---
+
+<footer class="site-footer" data-site-footer>
+  <div class="wrap">
+    <div class="footer-cta">
+      <div>
+        <h2>{t('home.final.title')}</h2>
+        <p class="footer-cta-text">{t('cta.bookNote')}</p>
+      </div>
+      <a class="btn btn--accent" href={localePath(lang, 'diagnostic')} data-track="cta_footer">
+        {t('cta.bookFree')}
+        <Icon name="arrow" size={18} class="flip-rtl" />
+      </a>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-brand">
+        <p class="wordmark">unschool<span class="wordmark-dot"></span></p>
+        <p class="footer-about">{t('footer.about')}</p>
+      </div>
+
+      <nav aria-label={t('a11y.footerNav')} class="footer-nav">
+        <div>
+          <h3>{t('subject.plural')}</h3>
+          <ul>
+            {
+              SUBJECTS.map((subject) => (
+                <li>
+                  <a href={localePath(lang, `subjects/${subject}`)}>{t(subjectNameKey(subject))}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div>
+          <h3>{t('footer.sections')}</h3>
+          <ul>
+            {
+              sections.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div>
+          <h3>{t('footer.legal')}</h3>
+          <ul>
+            {
+              legal.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))
+            }
+            <li><a href="/dnd/">{t('footer.localProjects')}</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <p class="copyright">© {year} Unschool. {t('footer.rights')}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: clamp(3rem, 10vw, 7rem);
+    padding-block: clamp(2.5rem, 7vw, 4.5rem);
+    background: var(--grape);
+    color: var(--paper);
+  }
+
+  .footer-cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s5);
+    padding-bottom: clamp(2rem, 5vw, 3rem);
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+    border-bottom: 1px solid rgba(251, 246, 238, 0.16);
+  }
+
+  .footer-cta h2 {
+    margin: 0 0 var(--s2);
+    color: var(--paper);
+    font-size: clamp(1.6rem, 5.5vw, 2.4rem);
+    max-width: 16ch;
+  }
+
+  .footer-cta-text {
+    margin: 0;
+    color: #c9c2e4;
+    font-size: 0.9375rem;
+  }
+
+  .footer-cta .btn {
+    align-self: flex-start;
+  }
+
+  .footer-cols {
+    display: grid;
+    gap: var(--s7);
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    margin: 0 0 var(--s3);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    text-transform: lowercase;
+    color: var(--paper);
+  }
+
+  .wordmark-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .footer-about {
+    margin: 0;
+    max-width: 30ch;
+    color: #c9c2e4;
+    font-size: 0.9375rem;
+  }
+
+  .footer-nav {
+    display: grid;
+    gap: var(--s6);
+  }
+
+  .footer-nav h3 {
+    margin: 0 0 var(--s3);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .footer-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer-nav li + li {
+    margin-top: var(--s2);
+  }
+
+  .footer-nav a {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    opacity: 0.85;
+  }
+
+  .footer-nav a:hover {
+    opacity: 1;
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .copyright {
+    margin: clamp(2rem, 5vw, 3rem) 0 0;
+    padding-top: var(--s4);
+    border-top: 1px solid rgba(251, 246, 238, 0.16);
+    color: #c9c2e4;
+    font-size: 0.8125rem;
+  }
+
+  @media (min-width: 48rem) {
+    .footer-cta {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-nav {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .footer-cols {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+      gap: var(--s9);
+    }
+  }
+</style>

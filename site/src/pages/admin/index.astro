@@ -1,0 +1,380 @@
+---
+import { DEFAULT_LANG } from '~/i18n/config';
+import BaseHead from '~/components/seo/BaseHead.astro';
+import '~/styles/global.css';
+
+const firebaseConfig = {
+  apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY ?? '',
+  authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN ?? '',
+  projectId: import.meta.env.PUBLIC_FIREBASE_PROJECT_ID ?? '',
+  useEmulator: import.meta.env.PUBLIC_USE_AUTH_EMULATOR === 'true',
+  emulatorUrl: import.meta.env.PUBLIC_AUTH_EMULATOR_URL ?? 'http://127.0.0.1:5324',
+};
+---
+
+<!doctype html>
+<html lang="ru" dir="ltr">
+  <head>
+    <BaseHead
+      lang={DEFAULT_LANG}
+      title="Unschool — админка"
+      description="Служебная страница школы."
+      translations={[DEFAULT_LANG]}
+      noindex
+    />
+    <script
+      type="application/json"
+      id="firebase-config"
+      set:html={JSON.stringify(firebaseConfig)}
+    />
+  </head>
+  <body>
+    <main id="main" class="wrap admin">
+      <header class="admin-head">
+        <h1>Unschool — заявки и заказы</h1>
+        <div class="admin-account">
+          <span id="admin-email" class="small muted"></span>
+          <button class="btn btn--secondary" type="button" id="sign-in">Войти через Google</button>
+          <button class="btn btn--ghost" type="button" id="sign-out" hidden>Выйти</button>
+        </div>
+      </header>
+
+      <p class="form-status form-status--error" id="admin-error" hidden role="alert"></p>
+      <p class="muted" id="admin-loading" hidden>Загрузка…</p>
+
+      <div id="admin-content" hidden>
+        <section aria-labelledby="leads-title">
+          <h2 id="leads-title">Заявки на диагностику</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Предмет</th>
+                  <th>Класс</th>
+                  <th>Родитель</th>
+                  <th>Контакт</th>
+                  <th>Комментарий</th>
+                  <th>Обработана</th>
+                </tr>
+              </thead>
+              <tbody id="leads-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="orders-title">
+          <h2 id="orders-title">Заказы</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Товар</th>
+                  <th>Сумма</th>
+                  <th>Статус</th>
+                  <th>Почта</th>
+                  <th>Оплата</th>
+                  <th>Выдача</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="orders-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="mail-title">
+          <h2 id="mail-title">Письма</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Кому</th>
+                  <th>Тип</th>
+                  <th>Тема</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="mail-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      import { initializeApp } from 'firebase/app';
+      import {
+        GoogleAuthProvider,
+        connectAuthEmulator,
+        getAuth,
+        onAuthStateChanged,
+        signInWithPopup,
+        signOut,
+      } from 'firebase/auth';
+
+      const configNode = document.getElementById('firebase-config');
+      const config = JSON.parse(configNode?.textContent ?? '{}');
+
+      const errorBox = document.getElementById('admin-error');
+      const loading = document.getElementById('admin-loading');
+      const content = document.getElementById('admin-content');
+      const emailLabel = document.getElementById('admin-email');
+      const signInButton = document.getElementById('sign-in');
+      const signOutButton = document.getElementById('sign-out');
+
+      const fail = (message: string) => {
+        if (errorBox) {
+          errorBox.textContent = message;
+          errorBox.hidden = false;
+        }
+        if (loading) loading.hidden = true;
+      };
+
+      if (!config.apiKey) {
+        fail('Firebase не настроен: задайте PUBLIC_FIREBASE_API_KEY при сборке сайта.');
+      } else {
+        const app = initializeApp({
+          apiKey: config.apiKey,
+          authDomain: config.authDomain,
+          projectId: config.projectId,
+        });
+        const auth = getAuth(app);
+        if (config.useEmulator) {
+          connectAuthEmulator(auth, config.emulatorUrl, { disableWarnings: true });
+        }
+
+        const text = (value: unknown) =>
+          value === null || value === undefined ? '—' : String(value);
+
+        const formatDate = (iso: string | null) =>
+          iso
+            ? new Date(iso).toLocaleString('ru-IL', { dateStyle: 'short', timeStyle: 'short' })
+            : '—';
+
+        const request = async (path: string, init?: RequestInit) => {
+          const user = auth.currentUser;
+          if (!user) throw new Error('not signed in');
+          const token = await user.getIdToken();
+          const response = await fetch(path, {
+            ...init,
+            headers: {
+              ...(init?.headers ?? {}),
+              authorization: `Bearer ${token}`,
+              'content-type': 'application/json',
+            },
+          });
+          if (response.status === 403) throw new Error('Этот аккаунт не в списке администраторов.');
+          if (!response.ok) throw new Error('Не удалось загрузить данные.');
+          return response.json();
+        };
+
+        const renderLeads = (leads: any[]) => {
+          const body = document.getElementById('leads-body');
+          if (!body) return;
+          body.innerHTML = '';
+
+          leads.forEach((lead) => {
+            const row = document.createElement('tr');
+            [
+              formatDate(lead.createdAt),
+              text(lead.subject),
+              text(lead.grade),
+              text(lead.parentName),
+              `${text(lead.contact)} (${text(lead.contactMethod)})`,
+              text(lead.notes || '—'),
+            ].forEach((value) => {
+              const cell = document.createElement('td');
+              cell.textContent = value;
+              row.append(cell);
+            });
+
+            const actionCell = document.createElement('td');
+            const toggle = document.createElement('input');
+            toggle.type = 'checkbox';
+            toggle.checked = Boolean(lead.handled);
+            toggle.addEventListener('change', async () => {
+              try {
+                await request(`/api/admin/leads/${lead.id}/handled`, {
+                  method: 'POST',
+                  body: JSON.stringify({ handled: toggle.checked }),
+                });
+              } catch (error) {
+                toggle.checked = !toggle.checked;
+                fail((error as Error).message);
+              }
+            });
+            actionCell.append(toggle);
+            row.append(actionCell);
+            body.append(row);
+          });
+        };
+
+        const renderOrders = (orders: any[]) => {
+          const body = document.getElementById('orders-body');
+          if (!body) return;
+          body.innerHTML = '';
+
+          orders.forEach((order) => {
+            const row = document.createElement('tr');
+            [
+              formatDate(order.createdAt),
+              `${text(order.title)}${order.isDemoProduct ? ' (демо)' : ''}`,
+              `${text(order.price)} ${text(order.currency)}`,
+              text(order.status),
+              text(order.email),
+              `${text(order.provider)} ${text(order.providerRef ?? '')}`.trim(),
+              text(order.deliveryStatus ?? '—'),
+            ].forEach((value) => {
+              const cell = document.createElement('td');
+              cell.textContent = value;
+              row.append(cell);
+            });
+
+            const actionCell = document.createElement('td');
+            if (order.status === 'paid') {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.className = 'btn btn--ghost';
+              button.textContent = 'Отправить письмо';
+              button.addEventListener('click', async () => {
+                button.disabled = true;
+                try {
+                  await request(`/api/admin/orders/${order.id}/resend`, { method: 'POST' });
+                  button.textContent = 'Отправлено';
+                } catch (error) {
+                  fail((error as Error).message);
+                  button.disabled = false;
+                }
+              });
+              actionCell.append(button);
+            }
+            row.append(actionCell);
+            body.append(row);
+          });
+        };
+
+        const renderMail = (mail: any[]) => {
+          const body = document.getElementById('mail-body');
+          if (!body) return;
+          body.innerHTML = '';
+
+          mail.forEach((item) => {
+            const row = document.createElement('tr');
+            [
+              formatDate(item.createdAt),
+              text(item.to),
+              text(item.kind),
+              text(item.subject),
+              item.error ? `${text(item.state)}: ${text(item.error)}` : text(item.state),
+            ].forEach((value) => {
+              const cell = document.createElement('td');
+              cell.textContent = value;
+              row.append(cell);
+            });
+            body.append(row);
+          });
+        };
+
+        const load = async () => {
+          if (loading) loading.hidden = false;
+          if (errorBox) errorBox.hidden = true;
+          try {
+            const [leads, orders, mail] = await Promise.all([
+              request('/api/admin/leads'),
+              request('/api/admin/orders'),
+              request('/api/admin/mail'),
+            ]);
+            renderLeads(leads.leads ?? []);
+            renderOrders(orders.orders ?? []);
+            renderMail(mail.mail ?? []);
+            if (content) content.hidden = false;
+            if (loading) loading.hidden = true;
+          } catch (error) {
+            fail((error as Error).message);
+          }
+        };
+
+        signInButton?.addEventListener('click', async () => {
+          try {
+            await signInWithPopup(auth, new GoogleAuthProvider());
+          } catch (error) {
+            fail((error as Error).message);
+          }
+        });
+
+        signOutButton?.addEventListener('click', () => signOut(auth));
+
+        onAuthStateChanged(auth, (user) => {
+          if (emailLabel) emailLabel.textContent = user?.email ?? '';
+          if (signInButton) signInButton.hidden = Boolean(user);
+          if (signOutButton) signOutButton.hidden = !user;
+          if (content) content.hidden = !user;
+          if (user) void load();
+        });
+      }
+    </script>
+
+    <style>
+      .admin {
+        padding-block: var(--s6) var(--s10);
+      }
+
+      .admin-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--s3);
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--s6);
+      }
+
+      .admin-account {
+        display: flex;
+        align-items: center;
+        gap: var(--s2);
+      }
+
+      .admin section {
+        margin-bottom: var(--s9);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: var(--r-md);
+        background: var(--surface);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      th,
+      td {
+        text-align: start;
+        padding: var(--s2) var(--s3);
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+        white-space: nowrap;
+      }
+
+      td:nth-child(6) {
+        white-space: normal;
+        max-width: 22rem;
+      }
+
+      th {
+        background: var(--paper-2);
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+    </style>
+  </body>
+</html>

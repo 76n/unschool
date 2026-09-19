@@ -1,0 +1,431 @@
+---
+import { render } from 'astro:content';
+import { LANG_NAME, LANGS, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECT_THEME, productTypeKey, subjectNameKey } from '~/data/taxonomy';
+import { findLocalized, listByLang, listSlugs, sortByOrder, translatedLangs } from '~/lib/content';
+import { formatPrice } from '~/lib/format';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionHead from '~/components/SectionHead.astro';
+import InfoCard from '~/components/InfoCard.astro';
+import ProductCard from '~/components/ProductCard.astro';
+import Icon from '~/components/Icon.astro';
+
+export async function getStaticPaths() {
+  const slugs = await listSlugs('products');
+  return LANGS.flatMap((lang) => slugs.map((slug) => ({ params: { lang, slug } })));
+}
+
+const lang = Astro.params.lang as Lang;
+const slug = Astro.params.slug as string;
+const t = useTranslations(lang);
+
+const localized = await findLocalized('products', lang, slug);
+if (!localized) throw new Error(`Missing product content: ${slug}`);
+
+const { entry, isFallback, sourceLang } = localized;
+const { Content } = await render(entry);
+const translations = await translatedLangs('products', slug);
+const { data } = entry;
+const theme = SUBJECT_THEME[data.subject];
+
+const isDemo = data.status === 'demo';
+// Demo products can only be bought in a local emulator run, never in production.
+const demoCheckout = import.meta.env.PUBLIC_DEMO_CHECKOUT === 'true';
+const canBuy = !isDemo || demoCheckout;
+
+const related = sortByOrder(
+  (await listByLang('products', lang)).filter(
+    (item) => item.data.slug !== slug && item.data.subject === data.subject
+  )
+).slice(0, 3);
+
+const jsonLd =
+  data.status === 'published'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: data.title,
+        description: data.summary,
+        image: new URL(data.cover, Astro.site ?? 'https://unschool.cool').toString(),
+        offers: {
+          '@type': 'Offer',
+          price: data.price,
+          priceCurrency: data.currency,
+          availability: 'https://schema.org/InStock',
+          url: new URL(Astro.url.pathname, Astro.site ?? 'https://unschool.cool').toString(),
+        },
+      }
+    : undefined;
+
+const terms = [
+  { icon: 'download' as const, label: t('product.access'), text: data.accessNote },
+  { icon: 'file' as const, label: t('product.compatibility'), text: data.compatibilityNote },
+  { icon: 'info' as const, label: t('product.usage'), text: data.usageNote },
+  { icon: 'star' as const, label: t('product.refund'), text: data.refundNote },
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title={data.seoTitle ?? data.title}
+  description={data.seoDescription ?? data.summary}
+  translations={translations}
+  fallbackFrom={isFallback ? sourceLang : null}
+  stickyCta={false}
+  jsonLd={jsonLd}
+  viewEvent="view_product"
+  viewId={slug}
+>
+  <Breadcrumbs
+    lang={lang}
+    items={[{ href: localePath(lang, 'shop'), label: t('shop.title') }, { label: data.title }]}
+  />
+
+  <div class="product-layout" style={`--accent:${theme.accent};--soft:${theme.soft}`}>
+    <div class="product-head">
+      <img class="cover" src={data.cover} alt="" width="960" height="640" />
+
+      <ul class="chip-row meta-chips">
+        <li><span class="chip">{t(productTypeKey(data.type))}</span></li>
+        <li><span class="chip chip--outline">{t(subjectNameKey(data.subject))}</span></li>
+        <li><span class="chip chip--outline">{data.grades}</span></li>
+        <li><span class="chip chip--outline">{LANG_NAME[data.materialLanguage]}</span></li>
+        {
+          isDemo && (
+            <li>
+              <span class="chip chip--accent">{t('shop.demoBadge')}</span>
+            </li>
+          )
+        }
+      </ul>
+
+      <h1>{data.title}</h1>
+      <p class="lede">{data.summary}</p>
+    </div>
+
+    <aside class="product-aside">
+      <div class="buy-box">
+        <p class="buy-price">{formatPrice(lang, data.price)}</p>
+        {
+          canBuy ? (
+            <a
+              class="btn btn--primary btn--block"
+              href={`${localePath(lang, 'checkout')}?product=${data.slug}`}
+              data-track="checkout_start"
+            >
+              {t('product.buy')}
+              <Icon name="arrow" size={18} class="flip-rtl" />
+            </a>
+          ) : (
+            <p class="btn btn--outline btn--block" aria-disabled="true">
+              {t('product.notForSale')}
+            </p>
+          )
+        }
+        {isDemo && <p class="buy-note">{t('shop.demoNotice')}</p>}
+        <p class="buy-access">{data.accessNote}</p>
+      </div>
+    </aside>
+
+    <div class="product-body">
+      {
+        data.previews.length > 0 && (
+          <section class="section section--tight" aria-labelledby="preview-title">
+            <SectionHead title={t('product.preview')} id="preview-title" />
+            <ul class="previews">
+              {data.previews.map((preview) => (
+                <li>
+                  <img src={preview} alt="" width="400" height="560" loading="lazy" />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <section class="section section--tight prose">
+        <Content />
+      </section>
+
+      <section class="section section--tight" aria-labelledby="details-title">
+        <SectionHead title={t('product.whatYouGet')} id="details-title" />
+        <div class="grid grid--2">
+          {
+            data.contents.length > 0 && (
+              <InfoCard
+                icon="file"
+                label={t('product.contents')}
+                items={data.contents}
+                accent={theme.accent}
+              />
+            )
+          }
+          <InfoCard
+            icon="download"
+            label={t('product.fileFormat')}
+            text={data.fileFormat}
+            accent={theme.accent}
+          />
+          {
+            data.level && (
+              <InfoCard
+                icon="star"
+                label={t('product.level')}
+                text={data.level}
+                accent={theme.accent}
+              />
+            )
+          }
+          {
+            data.outcome && (
+              <InfoCard
+                icon="check"
+                label={t('product.outcome')}
+                text={data.outcome}
+                accent={theme.accent}
+              />
+            )
+          }
+        </div>
+      </section>
+
+      {
+        data.modules.length > 0 && (
+          <section class="section section--tight" aria-labelledby="modules-title">
+            <SectionHead title={t('product.modules')} id="modules-title" />
+            <ol class="modules">
+              {data.modules.map((module, index) => (
+                <li>
+                  <span class="module-index">{String(index + 1).padStart(2, '0')}</span>
+                  <span class="module-title">{module.title}</span>
+                  {module.duration && <span class="module-time">{module.duration}</span>}
+                </li>
+              ))}
+            </ol>
+            {data.totalDuration && (
+              <p class="tiny muted">
+                {t('product.duration')}: {data.totalDuration}
+              </p>
+            )}
+          </section>
+        )
+      }
+
+      <section class="section section--tight" aria-labelledby="terms-title">
+        <SectionHead title={t('product.access')} id="terms-title" />
+        <dl class="terms">
+          {
+            terms.map((term) => (
+              <div>
+                <dt>
+                  <Icon name={term.icon} size={16} />
+                  {term.label}
+                </dt>
+                <dd>{term.text}</dd>
+              </div>
+            ))
+          }
+          <div>
+            <dt><Icon name="mail" size={16} />{t('product.support')}</dt>
+            <dd><a href={`mailto:${data.supportContact}`}>{data.supportContact}</a></dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  </div>
+
+  {
+    related.length > 0 && (
+      <section class="section" aria-labelledby="related-title">
+        <SectionHead title={t('product.related')} id="related-title" />
+        <div class="grid grid--3">
+          {related.map((item) => (
+            <ProductCard lang={lang} product={item} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--tight">
+    <p class="muted">{t('product.relatedDiagnostic')}</p>
+    <a class="arrow-link" href={localePath(lang, 'diagnostic')}>
+      {t('cta.bookFree')}
+      <Icon name="arrow" size={16} class="flip-rtl" />
+    </a>
+  </section>
+</BaseLayout>
+
+<style>
+  .cover {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: var(--r-lg);
+    background: var(--soft);
+    margin-bottom: var(--s5);
+  }
+
+  .meta-chips {
+    margin-bottom: var(--s4);
+  }
+
+  .product-head h1 {
+    margin-bottom: var(--s3);
+  }
+
+  /* The buy box sits right under the summary on mobile and becomes a sticky
+     column on desktop. */
+  .product-aside {
+    margin-bottom: var(--s6);
+  }
+
+  .previews {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s3);
+  }
+
+  .previews li {
+    margin: 0;
+  }
+
+  .previews img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+  }
+
+  .modules {
+    list-style: none;
+    margin: 0 0 var(--s3);
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .modules li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s3);
+    margin: 0;
+    padding: var(--s4) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .module-index {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .module-title {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .module-time {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .terms {
+    margin: 0;
+    display: grid;
+    gap: var(--s4);
+  }
+
+  .terms div {
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line);
+  }
+
+  .terms dt {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin-bottom: var(--s2);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .terms dd {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+
+  .buy-box {
+    padding: var(--s5);
+    background: var(--surface);
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .buy-price {
+    margin: 0 0 var(--s4);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .buy-box p.btn {
+    margin: 0;
+  }
+
+  .buy-note {
+    margin: var(--s3) 0 0;
+    padding: var(--s3);
+    background: var(--accent-soft);
+    border-radius: var(--r-xs);
+    font-size: 0.8125rem;
+  }
+
+  .buy-access {
+    margin: var(--s3) 0 0;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 64rem) {
+    .product-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 20rem;
+      grid-template-areas: 'head aside' 'body aside';
+      column-gap: var(--s8);
+      align-items: start;
+    }
+
+    .product-head {
+      grid-area: head;
+    }
+
+    .product-body {
+      grid-area: body;
+    }
+
+    .product-aside {
+      grid-area: aside;
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+      margin-bottom: 0;
+    }
+
+    .previews {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  label: string;
+  href?: string;
+  note?: string;
+}
+
+const { label, href, note } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag class="price-pill" href={href}>
+  <span class="price-icon"><Icon name="wallet" size={20} /></span>
+  <span class="price-body">
+    <span class="price-label">{label}</span>
+    {note && <span class="price-note">{note}</span>}
+  </span>
+  {href && <Icon name="chevron" size={16} class="price-go flip-rtl" />}
+</Tag>
+
+<style>
+  .price-pill {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    padding: var(--s4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      border-color 0.2s var(--ease),
+      background-color 0.2s var(--ease);
+  }
+
+  a.price-pill:hover {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--ink);
+  }
+
+  .price-icon {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: #6b4d05;
+  }
+
+  .price-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .price-label {
+    font-weight: 600;
+  }
+
+  .price-note {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .price-go {
+    color: var(--ink-soft);
+  }
+</style>

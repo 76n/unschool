@@ -1,0 +1,102 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  items: CollectionEntry<'faq'>[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="faq">
+  {
+    items.map((item) => (
+      <details class="faq-item">
+        <summary>
+          <span class="faq-question">{item.data.question}</span>
+          <span class="faq-toggle" aria-hidden="true" />
+        </summary>
+        <div class="faq-answer">
+          <p>{item.data.answer}</p>
+        </div>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq {
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .faq-item summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--s5);
+    padding: var(--s5) 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-question {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 3.4vw, 1.25rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+
+  /* Plus that becomes a minus, drawn in CSS */
+  .faq-toggle {
+    position: relative;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: none;
+    margin-top: 0.15rem;
+    border-radius: 50%;
+    background: var(--brand-soft);
+  }
+
+  .faq-toggle::before,
+  .faq-toggle::after {
+    content: '';
+    position: absolute;
+    inset: 50% 0.35rem;
+    height: 2px;
+    background: var(--brand-deep);
+    border-radius: 2px;
+    transform: translateY(-50%);
+    transition: transform 0.25s var(--ease);
+  }
+
+  .faq-toggle::after {
+    transform: translateY(-50%) rotate(90deg);
+  }
+
+  .faq-item[open] .faq-toggle::after {
+    transform: translateY(-50%) rotate(0deg);
+  }
+
+  .faq-item[open] .faq-toggle {
+    background: var(--accent);
+  }
+
+  .faq-answer {
+    padding-bottom: var(--s5);
+    max-width: var(--measure);
+  }
+
+  .faq-answer p {
+    margin: 0;
+    color: var(--ink-soft);
+  }
+</style>

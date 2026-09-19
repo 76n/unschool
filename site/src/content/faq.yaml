@@ -1,0 +1,144 @@
+- id: ru-diagnostic
+  lang: ru
+  order: 10
+  question: Что происходит на бесплатной встрече?
+  answer: >-
+    Преподаватель знакомится с ребёнком, задаёт несколько задач по предмету и разговаривает с вами о
+    цели. Встреча идёт онлайн и занимает около 30 минут. После неё мы присылаем рекомендацию: какой
+    формат и какая программа подходят.
+
+- id: ru-choose
+  lang: ru
+  order: 20
+  question: Нужно ли выбирать группу заранее?
+  answer: >-
+    Нет. До диагностики выбирать группу не нужно — мы предложим варианты сами, когда увидим уровень
+    и расписание семьи.
+
+- id: ru-language
+  lang: ru
+  order: 30
+  question: На каком языке идут занятия?
+  answer: >-
+    Язык преподавания указан у каждой программы: иврит, русский или английский. Язык сайта и язык
+    занятий не связаны, поэтому можно читать сайт по-русски и заниматься на иврите.
+
+- id: ru-price
+  lang: ru
+  order: 40
+  question: Сколько стоят занятия?
+  answer: >-
+    Цена зависит от формата: групповые занятия начинаются от 90 ₪ за занятие, индивидуальные стоят
+    дороже. Точную цену конкретной программы мы подтверждаем после диагностики.
+
+- id: ru-online
+  lang: ru
+  order: 50
+  question: Занятия только онлайн?
+  answer: >-
+    Да, сейчас все занятия проходят онлайн. Для урока нужен компьютер или планшет, наушники и
+    спокойное место.
+
+- id: ru-materials
+  lang: ru
+  order: 60
+  question: Нужно ли покупать материалы, чтобы заниматься?
+  answer: >-
+    Нет. Каталог материалов — отдельное предложение. Покупать тетради и наборы заданий можно без
+    занятий, а заниматься — без покупки материалов.
+
+- id: he-diagnostic
+  lang: he
+  order: 10
+  question: מה קורה בפגישה החינמית?
+  answer: >-
+    המורה מכיר את הילד, נותן כמה שאלות במקצוע ומדבר אתכם על המטרה. הפגישה מתקיימת אונליין ונמשכת
+    כחצי שעה. אחריה נשלח המלצה: איזו מתכונת ואיזו תוכנית מתאימות.
+
+- id: he-choose
+  lang: he
+  order: 20
+  question: צריך לבחור קבוצה מראש?
+  answer: >-
+    לא. לפני האבחון אין צורך לבחור קבוצה — נציע אפשרויות בעצמנו אחרי שנראה את הרמה ואת לוח הזמנים
+    של המשפחה.
+
+- id: he-language
+  lang: he
+  order: 30
+  question: באיזו שפה מתקיימים השיעורים?
+  answer: >-
+    שפת ההוראה מצוינת בכל תוכנית: עברית, רוסית או אנגלית. שפת האתר ושפת השיעור אינן קשורות, אפשר
+    לקרוא את האתר בעברית וללמוד באנגלית.
+
+- id: he-price
+  lang: he
+  order: 40
+  question: כמה עולים השיעורים?
+  answer: >-
+    המחיר תלוי במתכונת: שיעורים בקבוצה מתחילים מ־90 ₪ לשיעור, ושיעור פרטי יקר יותר. את המחיר המדויק
+    של תוכנית מסוימת אנחנו מאשרים אחרי האבחון.
+
+- id: he-online
+  lang: he
+  order: 50
+  question: השיעורים מתקיימים רק אונליין?
+  answer: >-
+    כן, כרגע כל השיעורים מתקיימים אונליין. לשיעור דרושים מחשב או טאבלט, אוזניות ומקום שקט.
+
+- id: he-materials
+  lang: he
+  order: 60
+  question: צריך לקנות חומרים כדי ללמוד?
+  answer: >-
+    לא. קטלוג החומרים הוא הצעה נפרדת. אפשר לקנות חוברות ומאגרי תרגילים בלי שיעורים, וללמוד בלי
+    לקנות חומרים.
+
+- id: en-diagnostic
+  lang: en
+  order: 10
+  question: What happens at the free meeting?
+  answer: >-
+    A teacher meets your child, works through a few subject tasks and talks with you about the goal.
+    The meeting is online and takes about 30 minutes. Afterwards we send a recommendation: which
+    format and which program fit.
+
+- id: en-choose
+  lang: en
+  order: 20
+  question: Do we have to pick a group in advance?
+  answer: >-
+    No. You do not choose a group before the assessment — we suggest the options ourselves once we
+    have seen the level and your family's schedule.
+
+- id: en-language
+  lang: en
+  order: 30
+  question: Which language are lessons taught in?
+  answer: >-
+    The teaching language is listed on every program: Hebrew, Russian or English. The site language
+    and the lesson language are separate, so you can read in English and study in Hebrew.
+
+- id: en-price
+  lang: en
+  order: 40
+  question: How much do lessons cost?
+  answer: >-
+    It depends on the format: group lessons start from 90 ₪ per lesson and one-to-one lessons cost
+    more. We confirm the exact price of a specific program after the assessment.
+
+- id: en-online
+  lang: en
+  order: 50
+  question: Are lessons online only?
+  answer: >-
+    Yes, all lessons currently run online. Your child needs a computer or tablet, headphones and a
+    quiet place.
+
+- id: en-materials
+  lang: en
+  order: 60
+  question: Do we need to buy materials to take lessons?
+  answer: >-
+    No. The materials catalogue is a separate offer. You can buy workbooks and task sets without
+    lessons, and take lessons without buying materials.

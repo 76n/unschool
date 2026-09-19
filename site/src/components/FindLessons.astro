@@ -1,0 +1,316 @@
+---
+import type { Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import {
+  STAGES,
+  STAGE_THEME,
+  SUBJECTS,
+  SUBJECT_GLYPH,
+  SUBJECT_THEME,
+  stageRangeKey,
+  stageShortKey,
+  subjectNameKey,
+} from '~/data/taxonomy';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  initial?: 'subject' | 'age';
+  headingLevel?: 'h1' | 'h2';
+  eyebrow?: string;
+}
+
+const { lang, initial = 'subject', headingLevel = 'h2', eyebrow } = Astro.props;
+const t = useTranslations(lang);
+const Heading = headingLevel;
+
+const tiles = {
+  subject: SUBJECTS.map((subject) => ({
+    key: subject,
+    href: localePath(lang, `subjects/${subject}`),
+    mark: SUBJECT_GLYPH[subject],
+    name: t(subjectNameKey(subject)),
+    theme: SUBJECT_THEME[subject],
+    track: 'find_subject',
+  })),
+  age: STAGES.map((stage) => ({
+    key: stage,
+    href: localePath(lang, `stages/${stage}`),
+    mark: t(stageRangeKey(stage)),
+    name: t(stageShortKey(stage)),
+    theme: STAGE_THEME[stage],
+    track: 'find_stage',
+  })),
+};
+---
+
+<section class="finder" aria-labelledby="finder-title">
+  <div class="finder-head">
+    <div>
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <Heading id="finder-title" class="finder-title">{t('home.find.title')}</Heading>
+    </div>
+
+    <div class="switch" role="group" aria-label={t('home.find.title')}>
+      <input
+        type="radio"
+        name="find-mode"
+        id="find-subject"
+        class="visually-hidden"
+        checked={initial === 'subject'}
+      />
+      <label for="find-subject">{t('home.find.bySubject')}</label>
+
+      <input
+        type="radio"
+        name="find-mode"
+        id="find-age"
+        class="visually-hidden"
+        checked={initial === 'age'}
+      />
+      <label for="find-age">{t('home.find.byAge')}</label>
+      <span class="switch-thumb" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  {
+    (['subject', 'age'] as const).map((mode) => (
+      <div class="panel" data-panel={mode}>
+        <ul class="tiles">
+          {tiles[mode].map((tile) => (
+            <li>
+              <a
+                class="tile"
+                href={tile.href}
+                style={`--accent:${tile.theme.accent};--soft:${tile.theme.soft}`}
+                data-track={tile.track}
+                data-track-value={tile.key}
+              >
+                <span class="tile-mark" aria-hidden="true">
+                  {tile.mark}
+                </span>
+                <span class="tile-go" aria-hidden="true">
+                  <Icon name="arrow" size={16} class="flip-rtl" />
+                </span>
+                <span class="tile-name">{tile.name}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  .finder-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s4);
+    margin-bottom: var(--s5);
+  }
+
+  .finder-title {
+    margin: 0;
+  }
+
+  /* Segmented control: full width on phones, hugging on wider screens */
+  .switch {
+    position: relative;
+    display: flex;
+    width: 100%;
+    padding: 5px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+  }
+
+  .switch label {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.6rem;
+    padding-inline: var(--s4);
+    border-radius: var(--r-pill);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: color 0.25s var(--ease);
+  }
+
+  .switch input:checked + label {
+    color: var(--paper);
+  }
+
+  .switch input:focus-visible + label {
+    outline: 3px solid var(--brand);
+    outline-offset: 3px;
+  }
+
+  .switch-thumb {
+    position: absolute;
+    z-index: 0;
+    top: 5px;
+    bottom: 5px;
+    inset-inline-start: 5px;
+    width: calc(50% - 5px);
+    background: var(--grape);
+    border-radius: var(--r-pill);
+    transition: transform 0.3s var(--ease);
+  }
+
+  .finder:has(#find-age:checked) .switch-thumb {
+    transform: translateX(100%);
+  }
+
+  :global(:root[dir='rtl']) .finder:has(#find-age:checked) .switch-thumb {
+    transform: translateX(-100%);
+  }
+
+  .finder:has(#find-subject:checked) [data-panel='age'],
+  .finder:has(#find-age:checked) [data-panel='subject'] {
+    display: none;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tiles li {
+    margin: 0;
+  }
+
+  /* Mark and arrow share the top row, the label anchors the bottom, so
+     the tile never has an empty middle. */
+  .tile {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    gap: var(--s3) var(--s2);
+    min-height: 8.75rem;
+    height: 100%;
+    padding: var(--s3);
+    border-radius: var(--r-md);
+    background: var(--soft);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      transform 0.25s var(--ease),
+      box-shadow 0.25s var(--ease);
+  }
+
+  .tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    color: var(--ink);
+  }
+
+  .tile-mark {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 6vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .tile-go {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    transition: transform 0.25s var(--ease);
+  }
+
+  .tile:hover .tile-go {
+    transform: translateX(3px);
+  }
+
+  :global(:root[dir='rtl']) .tile:hover .tile-go {
+    transform: translateX(-3px);
+  }
+
+  .tile-name {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-self: end;
+    font-size: clamp(0.8125rem, 3.1vw, 1.0625rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  @media (min-width: 30rem) {
+    .tile {
+      min-height: 9.5rem;
+      padding: var(--s4);
+    }
+
+    .tile-go {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .finder-head {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s5);
+    }
+
+    .switch {
+      width: auto;
+      flex: none;
+    }
+
+    .switch label {
+      flex: none;
+      padding-inline: var(--s5);
+    }
+
+    .switch-thumb {
+      width: calc(50% - 5px);
+    }
+
+    .tile {
+      min-height: 11rem;
+      padding: var(--s5);
+    }
+
+    .tile-mark {
+      font-size: 3rem;
+    }
+
+    .tile-go {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+
+    .tile-name {
+      font-size: 1.125rem;
+    }
+  }
+</style>

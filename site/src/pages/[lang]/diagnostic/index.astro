@@ -1,0 +1,479 @@
+---
+import { langParams, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECTS, subjectNameKey } from '~/data/taxonomy';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import Icon from '~/components/Icon.astro';
+import Doodle from '~/components/Doodle.astro';
+
+export function getStaticPaths() {
+  return langParams();
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+
+const grades = Array.from({ length: 12 }, (_, index) => String(index + 1));
+
+const goals = [
+  t('diagnostic.goal.gaps'),
+  t('diagnostic.goal.keepUp'),
+  t('diagnostic.goal.exam'),
+  t('diagnostic.goal.language'),
+  t('diagnostic.goal.ahead'),
+];
+
+const teachingLanguages = [
+  { value: 'he', label: 'עברית' },
+  { value: 'ru', label: 'Русский' },
+  { value: 'en', label: 'English' },
+];
+
+const contactMethods = [
+  { value: 'phone', label: t('diagnostic.contactMethod.phone') },
+  { value: 'whatsapp', label: t('diagnostic.contactMethod.whatsapp') },
+  { value: 'email', label: t('diagnostic.contactMethod.email') },
+];
+
+const steps = [
+  t('home.diagnostic.step1.text'),
+  t('home.diagnostic.step2.text'),
+  t('home.diagnostic.step3.text'),
+];
+---
+
+<BaseLayout
+  lang={lang}
+  title={t('diagnostic.title')}
+  description={t('diagnostic.intro')}
+  stickyCta={false}
+>
+  <Breadcrumbs
+    lang={lang}
+    items={[{ href: localePath(lang), label: t('nav.home') }, { label: t('diagnostic.title') }]}
+  />
+
+  <div class="lead-layout">
+    <div class="lead-main">
+      <header class="lead-head">
+        <p class="eyebrow">{t('cta.bookFree')}</p>
+        <h1>{t('diagnostic.title')}</h1>
+        <p class="lede">{t('diagnostic.intro')}</p>
+      </header>
+
+      <form
+        class="lead-form"
+        id="lead-form"
+        novalidate
+        data-success={localePath(lang, 'diagnostic/success')}
+        data-lang={lang}
+      >
+        <p class="form-status form-status--error" id="form-error" hidden role="alert"></p>
+
+        <fieldset class="field" data-field="subject">
+          <legend class="field-label">{t('diagnostic.field.subject')}</legend>
+          <div class="choice-grid">
+            {
+              SUBJECTS.map((subject) => (
+                <label class="choice">
+                  <input type="radio" name="subject" value={subject} />
+                  <span>{t(subjectNameKey(subject))}</span>
+                </label>
+              ))
+            }
+            <label class="choice">
+              <input type="radio" name="subject" value="unknown" />
+              <span>{t('common.dontKnow')}</span>
+            </label>
+          </div>
+          <span class="field-error" data-error="subject" hidden></span>
+        </fieldset>
+
+        <label class="field" data-field="grade">
+          <span class="field-label">{t('diagnostic.field.grade')}</span>
+          <select name="grade">
+            <option value="">{t('common.select')}</option>
+            {
+              grades.map((grade) => (
+                <option value={grade}>{`${grade} — ${t('common.grades')}`}</option>
+              ))
+            }
+            <option value="unknown">{t('common.dontKnow')}</option>
+          </select>
+          <span class="field-error" data-error="grade" hidden></span>
+        </label>
+
+        <fieldset class="field">
+          <legend class="field-label">
+            {t('diagnostic.field.goal')}
+            <span class="field-hint">{t('common.optional')}</span>
+          </legend>
+          <div class="choice-grid">
+            {
+              goals.map((goal) => (
+                <label class="choice">
+                  <input type="radio" name="goal" value={goal} />
+                  <span>{goal}</span>
+                </label>
+              ))
+            }
+            <label class="choice">
+              <input type="radio" name="goal" value="unknown" />
+              <span>{t('common.dontKnow')}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend class="field-label">
+            {t('diagnostic.field.teachingLanguage')}
+            <span class="field-hint">{t('common.optional')}</span>
+          </legend>
+          <div class="choice-grid">
+            {
+              teachingLanguages.map((item) => (
+                <label class="choice">
+                  <input type="radio" name="teachingLanguage" value={item.label} />
+                  <span lang={item.value}>{item.label}</span>
+                </label>
+              ))
+            }
+            <label class="choice">
+              <input type="radio" name="teachingLanguage" value="unknown" />
+              <span>{t('common.dontKnow')}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <label class="field" data-field="parentName">
+          <span class="field-label">{t('diagnostic.field.parentName')}</span>
+          <input type="text" name="parentName" autocomplete="name" />
+          <span class="field-error" data-error="parentName" hidden></span>
+        </label>
+
+        <fieldset class="field">
+          <legend class="field-label">{t('diagnostic.field.contactMethod')}</legend>
+          <div class="choice-grid">
+            {
+              contactMethods.map((method, index) => (
+                <label class="choice">
+                  <input
+                    type="radio"
+                    name="contactMethod"
+                    value={method.value}
+                    checked={index === 0}
+                  />
+                  <span>{method.label}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <label class="field" data-field="contact">
+          <span class="field-label">{t('diagnostic.field.contact')}</span>
+          <input type="tel" name="contact" inputmode="tel" autocomplete="tel" data-contact-input />
+          <span class="field-error" data-error="contact" hidden></span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">
+            {t('diagnostic.field.notes')}
+            <span class="field-hint">{t('diagnostic.field.notes.hint')}</span>
+          </span>
+          <textarea name="notes" rows="4"></textarea>
+        </label>
+
+        <div class="honeypot" aria-hidden="true">
+          <label>
+            Company
+            <input type="text" name="company" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        <button class="btn btn--primary btn--block" type="submit" data-submit>
+          {t('diagnostic.submit')}
+          <Icon name="arrow" size={18} class="flip-rtl" />
+        </button>
+        <p class="cta-note privacy">
+          {t('diagnostic.privacy')}
+          <a href={localePath(lang, 'privacy')}>{t('footer.privacy')}</a>
+        </p>
+      </form>
+    </div>
+
+    <aside class="lead-aside">
+      <div class="reassure">
+        <Doodle variant="sparkle" class="reassure-doodle" color="var(--accent)" />
+        <h2>{t('home.diagnostic.title')}</h2>
+        <ol class="reassure-steps">
+          {steps.map((step) => <li>{step}</li>)}
+        </ol>
+        <p class="reassure-note">{t('cta.bookNote')}</p>
+      </div>
+
+      <div class="honest">
+        <p class="honest-title">{t('home.honesty.title')}</p>
+        <p>{t('home.honesty.item1')}</p>
+      </div>
+    </aside>
+  </div>
+</BaseLayout>
+
+<script
+  define:vars={{
+    messages: {
+      subject: t('diagnostic.error.subject'),
+      grade: t('diagnostic.error.grade'),
+      parentName: t('diagnostic.error.name'),
+      contactRequired: t('diagnostic.error.contact'),
+      contactInvalid: t('diagnostic.error.contactInvalid'),
+      server: t('diagnostic.error.server'),
+      sending: t('common.sending'),
+    },
+  }}
+>
+  const form = document.getElementById('lead-form');
+  if (form instanceof HTMLFormElement) {
+    const submit = form.querySelector('[data-submit]');
+    const submitLabel = submit?.innerHTML ?? '';
+    const errorBox = document.getElementById('form-error');
+    const contactInput = form.querySelector('[data-contact-input]');
+
+    let started = false;
+    form.addEventListener('input', () => {
+      if (started) return;
+      started = true;
+      window.track?.('lead_start');
+    });
+
+    // Match the keyboard to the contact channel the parent picked.
+    form.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.name !== 'contactMethod') return;
+      if (!(contactInput instanceof HTMLInputElement)) return;
+
+      const wantsEmail = target.value === 'email';
+      contactInput.type = wantsEmail ? 'email' : 'tel';
+      contactInput.inputMode = wantsEmail ? 'email' : 'tel';
+      contactInput.autocomplete = wantsEmail ? 'email' : 'tel';
+    });
+
+    const showError = (name, message) => {
+      const holder = form.querySelector(`[data-field="${name}"]`);
+      const output = form.querySelector(`[data-error="${name}"]`);
+      if (holder) holder.setAttribute('data-invalid', 'true');
+      if (output) {
+        output.textContent = message;
+        output.hidden = false;
+      }
+    };
+
+    const clearErrors = () => {
+      form.querySelectorAll('[data-invalid]').forEach((el) => el.removeAttribute('data-invalid'));
+      form.querySelectorAll('[data-error]').forEach((el) => {
+        el.textContent = '';
+        el.hidden = true;
+      });
+      if (errorBox) errorBox.hidden = true;
+    };
+
+    const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(value);
+    const isPhone = (value) => /^[+]?[\d\s()-]{7,20}$/.test(value);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearErrors();
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      const payload = { ...data, lang: form.dataset.lang };
+      const problems = [];
+
+      if (!payload.subject) problems.push(['subject', messages.subject]);
+      if (!payload.grade) problems.push(['grade', messages.grade]);
+      if (!String(payload.parentName || '').trim())
+        problems.push(['parentName', messages.parentName]);
+
+      const contact = String(payload.contact || '').trim();
+      if (!contact) problems.push(['contact', messages.contactRequired]);
+      else if (!isEmail(contact) && !isPhone(contact))
+        problems.push(['contact', messages.contactInvalid]);
+
+      if (problems.length > 0) {
+        problems.forEach(([name, message]) => showError(name, message));
+        const first = form.querySelector('[data-invalid]');
+        if (first instanceof HTMLElement) {
+          first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          const focusable = first.querySelector('input, select, textarea');
+          if (focusable instanceof HTMLElement) focusable.focus({ preventScroll: true });
+        }
+        return;
+      }
+
+      if (submit instanceof HTMLButtonElement) {
+        submit.disabled = true;
+        submit.textContent = messages.sending;
+      }
+
+      try {
+        const response = await fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          if (result.errors) {
+            Object.entries(result.errors).forEach(([name, code]) => {
+              const message =
+                name === 'contact' && code === 'invalid'
+                  ? messages.contactInvalid
+                  : messages[name] || messages.server;
+              showError(name, message);
+            });
+          } else if (errorBox) {
+            errorBox.textContent = messages.server;
+            errorBox.hidden = false;
+          }
+          return;
+        }
+
+        window.track?.('lead_submitted');
+        window.location.assign(form.dataset.success);
+      } catch {
+        if (errorBox) {
+          errorBox.textContent = messages.server;
+          errorBox.hidden = false;
+        }
+      } finally {
+        if (submit instanceof HTMLButtonElement) {
+          submit.disabled = false;
+          submit.innerHTML = submitLabel;
+        }
+      }
+    });
+  }
+</script>
+
+<style>
+  .lead-layout {
+    display: grid;
+    gap: var(--s7);
+  }
+
+  .lead-head {
+    margin-bottom: var(--s6);
+    max-width: 34rem;
+  }
+
+  .lead-head h1 {
+    margin-bottom: var(--s3);
+  }
+
+  fieldset.field {
+    border: 0;
+    padding: 0;
+    margin-inline: 0;
+  }
+
+  legend.field-label {
+    padding: 0;
+  }
+
+  .privacy {
+    text-align: center;
+  }
+
+  .reassure {
+    position: relative;
+    padding: var(--s5);
+    background: var(--grape);
+    color: var(--paper);
+    border-radius: var(--r-md);
+  }
+
+  .reassure h2 {
+    margin-bottom: var(--s4);
+    color: var(--paper);
+    font-size: 1.35rem;
+  }
+
+  .reassure-doodle {
+    position: absolute;
+    inset-inline-end: var(--s4);
+    top: var(--s4);
+  }
+
+  .reassure-steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    display: grid;
+    gap: var(--s4);
+  }
+
+  .reassure-steps li {
+    counter-increment: step;
+    position: relative;
+    margin: 0;
+    padding-inline-start: 2.25rem;
+    font-size: 0.9375rem;
+    color: #d6d0ec;
+  }
+
+  .reassure-steps li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .reassure-note {
+    margin: var(--s5) 0 0;
+    padding-top: var(--s4);
+    border-top: 1px solid rgba(251, 246, 238, 0.2);
+    font-size: 0.8125rem;
+    color: #c9c2e4;
+  }
+
+  .honest {
+    margin-top: var(--s4);
+    padding: var(--s5);
+    border: 1.5px dashed var(--accent);
+    border-radius: var(--r-md);
+    background: var(--accent-soft);
+  }
+
+  .honest-title {
+    margin: 0 0 var(--s2);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .honest p:last-child {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+
+  @media (min-width: 64rem) {
+    .lead-layout {
+      grid-template-columns: minmax(0, 1fr) 21rem;
+      gap: var(--s8);
+      align-items: start;
+    }
+
+    .lead-aside {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+  }
+</style>

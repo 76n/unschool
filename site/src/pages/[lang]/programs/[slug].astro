@@ -1,0 +1,351 @@
+---
+import { render } from 'astro:content';
+import { LANGS, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECT_GLYPH, SUBJECT_THEME, stageNameKey, subjectNameKey } from '~/data/taxonomy';
+import { findLocalized, listSlugs, translatedLangs } from '~/lib/content';
+import { formatPrice } from '~/lib/format';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionHead from '~/components/SectionHead.astro';
+import InfoCard from '~/components/InfoCard.astro';
+import TeacherCard from '~/components/TeacherCard.astro';
+import Icon from '~/components/Icon.astro';
+
+export async function getStaticPaths() {
+  const slugs = await listSlugs('programs');
+  return LANGS.flatMap((lang) => slugs.map((slug) => ({ params: { lang, slug } })));
+}
+
+const lang = Astro.params.lang as Lang;
+const slug = Astro.params.slug as string;
+const t = useTranslations(lang);
+
+const localized = await findLocalized('programs', lang, slug);
+if (!localized) throw new Error(`Missing program content: ${slug}`);
+
+const { entry, isFallback, sourceLang } = localized;
+const { Content } = await render(entry);
+const translations = await translatedLangs('programs', slug);
+const { data } = entry;
+
+const teacher = data.teacher ? await findLocalized('teachers', lang, data.teacher) : null;
+const primarySubject = data.subjects[0];
+const theme = SUBJECT_THEME[primarySubject];
+
+const price =
+  data.priceFrom === null
+    ? t('common.priceOnRequest')
+    : `${t('common.from')} ${formatPrice(lang, data.priceFrom)}`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={data.seoTitle ?? data.title}
+  description={data.seoDescription ?? data.subtitle}
+  translations={translations}
+  fallbackFrom={isFallback ? sourceLang : null}
+  viewEvent="view_program"
+  viewId={slug}
+  bleed
+>
+  <section class="program-hero" style={`--accent:${theme.accent};--soft:${theme.soft}`}>
+    <div class="wrap">
+      <Breadcrumbs
+        lang={lang}
+        items={[
+          {
+            href: localePath(lang, `subjects/${primarySubject}`),
+            label: t(subjectNameKey(primarySubject)),
+          },
+          { label: data.title },
+        ]}
+      />
+
+      <div class="hero-grid">
+        <div>
+          <ul class="chip-row hero-chips">
+            {
+              data.subjects.map((item) => (
+                <li>
+                  <span class="chip">{t(subjectNameKey(item))}</span>
+                </li>
+              ))
+            }
+            {
+              data.stages.map((item) => (
+                <li>
+                  <span class="chip chip--outline">{t(stageNameKey(item))}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <h1>{data.title}</h1>
+          <p class="lede">{data.subtitle}</p>
+        </div>
+
+        <span class="hero-glyph" aria-hidden="true">{SUBJECT_GLYPH[primarySubject]}</span>
+      </div>
+    </div>
+  </section>
+
+  <div data-cta-sentinel></div>
+
+  <div class="wrap page program-layout">
+    <div class="program-main">
+      <section class="section section--tight" aria-labelledby="facts-title">
+        <h2 id="facts-title" class="visually-hidden">{t('program.audience')}</h2>
+        <div class="grid grid--2">
+          <InfoCard
+            icon="people"
+            label={t('program.audience')}
+            text={data.audience}
+            accent={theme.accent}
+          />
+          <InfoCard
+            icon="monitor"
+            label={t('program.format')}
+            text={data.format}
+            accent={theme.accent}
+          />
+          <InfoCard icon="coins" label={t('program.price')} text={price} accent={theme.accent}>
+            {data.priceNote && <p class="note">{data.priceNote}</p>}
+          </InfoCard>
+          <InfoCard
+            icon="clipboard"
+            label={t('program.howToStart')}
+            text={t('program.howToStart.text')}
+            accent={theme.accent}
+          />
+        </div>
+      </section>
+
+      {
+        data.goals.length > 0 && (
+          <section class="section section--tight" aria-labelledby="goals-title">
+            <SectionHead title={t('program.goals')} id="goals-title" level="h2" />
+            <ul class="goals">
+              {data.goals.map((goal) => (
+                <li style={`--accent:${theme.accent}`}>
+                  <Icon name="check" size={18} />
+                  <span>{goal}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <section class="section section--tight prose">
+        <Content />
+      </section>
+
+      <section class="section section--tight" aria-labelledby="meta-title">
+        <h2 id="meta-title" class="visually-hidden">{t('programs.title')}</h2>
+        <dl class="meta">
+          <div>
+            <dt>{t('program.subjects')}</dt>
+            <dd>{data.subjects.map((item) => t(subjectNameKey(item))).join(' · ')}</dd>
+          </div>
+          <div>
+            <dt>{t('program.stages')}</dt>
+            <dd>{data.stages.map((item) => t(stageNameKey(item))).join(' · ')}</dd>
+          </div>
+          {
+            data.teachingLanguages.length > 0 && (
+              <div>
+                <dt>{t('program.teachingLanguages')}</dt>
+                <dd>{data.teachingLanguages.join(' · ')}</dd>
+              </div>
+            )
+          }
+        </dl>
+      </section>
+
+      {
+        teacher && (
+          <section class="section section--tight" aria-labelledby="teacher-title">
+            <SectionHead title={t('program.teacher')} id="teacher-title" level="h2" />
+            <TeacherCard lang={lang} teacher={teacher.entry} />
+          </section>
+        )
+      }
+    </div>
+
+    <aside class="program-aside">
+      <div class="booking">
+        <p class="booking-price">{price}</p>
+        {data.priceNote && <p class="booking-note">{data.priceNote}</p>}
+        <a
+          class="btn btn--primary btn--block"
+          href={localePath(lang, 'diagnostic')}
+          data-track="cta_program"
+        >
+          {t('cta.bookFree')}
+          <Icon name="arrow" size={18} class="flip-rtl" />
+        </a>
+        <p class="booking-hint">{t('cta.bookNote')}</p>
+      </div>
+    </aside>
+  </div>
+</BaseLayout>
+
+<style>
+  .program-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--soft);
+    padding-block: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 6vw, 3.5rem);
+  }
+
+  .hero-grid {
+    position: relative;
+  }
+
+  .hero-chips {
+    margin-bottom: var(--s4);
+  }
+
+  .program-hero h1 {
+    margin-bottom: var(--s3);
+    max-width: 20ch;
+  }
+
+  .program-hero .lede {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-glyph {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .hero-glyph {
+      display: block;
+      position: absolute;
+      inset-inline-end: -0.06em;
+      bottom: -0.4em;
+      font-family: var(--font-display);
+      font-size: clamp(9rem, 20vw, 15rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.1;
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+
+  .note {
+    margin: var(--s2) 0 0;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .goals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s3);
+  }
+
+  .goals li {
+    display: flex;
+    gap: var(--s3);
+    align-items: flex-start;
+    margin: 0;
+  }
+
+  .goals :global(.icon) {
+    color: var(--accent);
+    margin-top: 3px;
+  }
+
+  .meta {
+    margin: 0;
+    display: grid;
+    gap: var(--s4);
+  }
+
+  .meta div {
+    display: grid;
+    gap: 2px;
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line);
+  }
+
+  .meta dt {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .meta dd {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .booking {
+    padding: var(--s5);
+    background: var(--grape);
+    color: var(--paper);
+    border-radius: var(--r-md);
+  }
+
+  .booking-price {
+    margin: 0 0 var(--s2);
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .booking-note {
+    margin: 0 0 var(--s4);
+    font-size: 0.8125rem;
+    color: #c9c2e4;
+  }
+
+  .booking .btn {
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  .booking .btn:hover {
+    background: #ffd268;
+    color: var(--ink);
+  }
+
+  .booking-hint {
+    margin: var(--s3) 0 0;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #c9c2e4;
+  }
+
+  @media (min-width: 48rem) {
+    .meta {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .program-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 20rem;
+      gap: var(--s8);
+      align-items: start;
+    }
+
+    .program-aside {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+      padding-top: clamp(1.5rem, 5vw, 3rem);
+    }
+  }
+</style>

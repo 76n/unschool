@@ -1,0 +1,310 @@
+---
+import { render } from 'astro:content';
+import { LANGS, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import {
+  STAGES,
+  SUBJECTS,
+  SUBJECT_GLYPH,
+  SUBJECT_THEME,
+  stageGradesKey,
+  stageNameKey,
+  subjectNameKey,
+  type Subject,
+} from '~/data/taxonomy';
+import { findLocalized, listByLang, sortByOrder, translatedLangs } from '~/lib/content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionHead from '~/components/SectionHead.astro';
+import ProgramCard from '~/components/ProgramCard.astro';
+import TeacherCard from '~/components/TeacherCard.astro';
+import Icon from '~/components/Icon.astro';
+
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) => SUBJECTS.map((subject) => ({ params: { lang, subject } })));
+}
+
+const lang = Astro.params.lang as Lang;
+const subject = Astro.params.subject as Subject;
+const t = useTranslations(lang);
+
+const localized = await findLocalized('subjects', lang, subject);
+if (!localized) throw new Error(`Missing subject content: ${subject}`);
+
+const { entry, isFallback, sourceLang } = localized;
+const { Content } = await render(entry);
+const translations = await translatedLangs('subjects', subject);
+const theme = SUBJECT_THEME[subject];
+
+const programs = sortByOrder(
+  (await listByLang('programs', lang)).filter((program) => program.data.subjects.includes(subject))
+);
+const teachers = sortByOrder(
+  (await listByLang('teachers', lang)).filter((teacher) => teacher.data.subjects.includes(subject))
+);
+---
+
+<BaseLayout
+  lang={lang}
+  title={entry.data.seoTitle ?? entry.data.title}
+  description={entry.data.seoDescription ?? entry.data.subtitle}
+  translations={translations}
+  fallbackFrom={isFallback ? sourceLang : null}
+  viewEvent="view_subject"
+  viewId={subject}
+  bleed
+>
+  <section class="subject-hero" style={`--accent:${theme.accent};--soft:${theme.soft}`}>
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <Breadcrumbs
+          lang={lang}
+          items={[{ href: localePath(lang), label: t('nav.home') }, { label: entry.data.title }]}
+        />
+        <p class="eyebrow">{t('subject.plural')}</p>
+        <h1>{entry.data.title}</h1>
+        <p class="lede">{entry.data.subtitle}</p>
+
+        <div class="hero-actions">
+          <a
+            class="btn btn--primary"
+            href={localePath(lang, 'diagnostic')}
+            data-track="cta_subject"
+          >
+            {t('cta.bookFree')}
+            <Icon name="arrow" size={18} class="flip-rtl" />
+          </a>
+          <span class="hero-note">{t('cta.bookNote')}</span>
+        </div>
+      </div>
+
+      <span class="hero-glyph" aria-hidden="true">{SUBJECT_GLYPH[subject]}</span>
+    </div>
+  </section>
+
+  <div data-cta-sentinel></div>
+
+  <div class="wrap page">
+    {
+      entry.data.goals.length > 0 && (
+        <section class="section section--tight">
+          <SectionHead title={t('subject.page.goals')} id="goals-title" />
+          <ul class="goals">
+            {entry.data.goals.map((goal) => (
+              <li data-reveal style={`--accent:${theme.accent}`}>
+                <Icon name="check" size={18} />
+                <span>{goal}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="section section--tight prose">
+      <Content />
+    </section>
+
+    <section class="section" aria-labelledby="programs-title">
+      <SectionHead
+        eyebrow={t('nav.programs')}
+        title={t('subject.page.programs')}
+        id="programs-title"
+      />
+      {
+        programs.length > 0 ? (
+          <div class="grid grid--2">
+            {programs.map((program) => (
+              <div data-reveal>
+                <ProgramCard lang={lang} program={program} showSubjects={false} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="muted">{t('programs.empty')}</p>
+        )
+      }
+    </section>
+
+    <section class="section" aria-labelledby="stages-title">
+      <SectionHead title={t('subject.page.stages')} id="stages-title" />
+      <ul class="stage-links">
+        {
+          STAGES.map((stage) => (
+            <li>
+              <a href={localePath(lang, `stages/${stage}`)}>
+                <span class="stage-grades">{t(stageGradesKey(stage))}</span>
+                <span class="stage-name">{t(stageNameKey(stage))}</span>
+                <Icon name="arrow" size={18} class="flip-rtl" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      teachers.length > 0 && (
+        <section class="section" aria-labelledby="teachers-title">
+          <SectionHead title={t('subject.page.teachers')} id="teachers-title" />
+          <div class="grid grid--2">
+            {teachers.map((teacher) => (
+              <TeacherCard lang={lang} teacher={teacher} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <section class="section section--tight">
+      <p class="eyebrow">{t('subject.plural')}</p>
+      <ul class="chip-row">
+        {
+          SUBJECTS.filter((item) => item !== subject).map((item) => (
+            <li>
+              <a class="chip" href={localePath(lang, `subjects/${item}`)}>
+                {t(subjectNameKey(item))}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .subject-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--soft);
+    padding-block: clamp(1.5rem, 5vw, 3rem) clamp(2.5rem, 7vw, 4.5rem);
+  }
+
+  .hero-inner {
+    position: relative;
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 34rem;
+  }
+
+  .subject-hero :global(.eyebrow) {
+    color: var(--accent);
+  }
+
+  .subject-hero h1 {
+    margin-bottom: var(--s3);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s4);
+    margin-top: var(--s5);
+  }
+
+  .hero-note {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  /* Decorative only: hidden on phones where it would sit under the buttons. */
+  .hero-glyph {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .hero-glyph {
+      display: block;
+      position: absolute;
+      inset-inline-end: -0.08em;
+      bottom: -0.34em;
+      font-family: var(--font-display);
+      font-size: clamp(12rem, 26vw, 20rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.12;
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+
+  .goals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s3);
+  }
+
+  .goals li {
+    display: flex;
+    gap: var(--s3);
+    align-items: flex-start;
+    margin: 0;
+    padding: var(--s3) var(--s4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+  }
+
+  .goals :global(.icon) {
+    color: var(--accent);
+    margin-top: 3px;
+  }
+
+  .stage-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .stage-links li {
+    margin: 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .stage-links a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--s4);
+    padding: var(--s4) var(--s2);
+    color: var(--ink);
+    text-decoration: none;
+    transition: background-color 0.2s var(--ease);
+  }
+
+  .stage-links a:hover {
+    background: var(--paper-2);
+  }
+
+  .stage-grades {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--brand);
+    min-width: 5.5ch;
+  }
+
+  .stage-name {
+    font-weight: 600;
+  }
+
+  .stage-links :global(.icon) {
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 48rem) {
+    .goals {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

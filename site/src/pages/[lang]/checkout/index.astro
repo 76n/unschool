@@ -1,0 +1,257 @@
+---
+import { langParams, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return langParams();
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+---
+
+<BaseLayout
+  lang={lang}
+  title={t('checkout.title')}
+  description={t('checkout.guest')}
+  noindex
+  stickyCta={false}
+  narrow
+>
+  <h1>{t('checkout.title')}</h1>
+
+  <p class="form-status form-status--error" id="checkout-error" hidden role="alert"></p>
+
+  <section class="summary" id="order-summary" hidden aria-labelledby="summary-title">
+    <h2 id="summary-title" class="summary-heading">{t('checkout.order')}</h2>
+    <div class="summary-row">
+      <span data-summary-title></span>
+      <span data-summary-price></span>
+    </div>
+    <p class="summary-note muted small" data-summary-demo hidden>{t('shop.demoNotice')}</p>
+    <div class="summary-total">
+      <span>{t('checkout.total')}</span>
+      <span data-summary-total></span>
+    </div>
+  </section>
+
+  <form class="checkout-form" id="checkout-form" novalidate hidden data-lang={lang}>
+    <label class="field" data-field="email">
+      <span class="field-label">
+        {t('checkout.email')}
+        <span class="field-hint">{t('checkout.emailHint')}</span>
+      </span>
+      <input type="email" name="email" inputmode="email" autocomplete="email" required />
+      <span class="field-error" data-error="email" hidden></span>
+    </label>
+
+    <label class="field">
+      <span class="field-label">
+        {t('checkout.name')}
+        <span class="field-hint">{t('common.optional')}</span>
+      </span>
+      <input type="text" name="name" autocomplete="name" />
+    </label>
+
+    <div class="honeypot" aria-hidden="true">
+      <label>Company <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+    </div>
+
+    <button class="btn btn--primary btn--block" type="submit" data-submit
+      >{t('checkout.pay')}</button
+    >
+    <p class="cta-note">{t('checkout.guest')}</p>
+    <p class="small muted">
+      {t('checkout.terms')}
+      <a href={localePath(lang, 'terms')}>{t('footer.terms')}</a>
+    </p>
+  </form>
+
+  <p class="muted" id="checkout-missing" hidden>
+    {t('checkout.missingProduct')}
+    <a href={localePath(lang, 'shop')}>{t('cta.toCatalog')}</a>
+  </p>
+</BaseLayout>
+
+<script
+  define:vars={{
+    lang,
+    messages: {
+      email: t('checkout.error.email'),
+      server: t('checkout.error.server'),
+      notForSale: t('product.notForSale'),
+      sending: t('common.sending'),
+    },
+    shopUrl: localePath(lang, 'shop'),
+  }}
+>
+  const form = document.getElementById('checkout-form');
+  const summary = document.getElementById('order-summary');
+  const missing = document.getElementById('checkout-missing');
+  const errorBox = document.getElementById('checkout-error');
+
+  const slug = new URLSearchParams(window.location.search).get('product');
+
+  const showMissing = () => {
+    if (missing) missing.hidden = false;
+  };
+
+  const money = (amount) =>
+    new Intl.NumberFormat(`${lang}-IL`, {
+      style: 'currency',
+      currency: 'ILS',
+      maximumFractionDigits: 0,
+    }).format(amount);
+
+  async function init() {
+    if (!slug || !(form instanceof HTMLFormElement) || !summary) {
+      showMissing();
+      return;
+    }
+
+    let product;
+    try {
+      const catalog = await fetch('/catalog.json').then((response) => response.json());
+      product =
+        catalog.find((item) => item.slug === slug && item.lang === lang) ??
+        catalog.find((item) => item.slug === slug);
+    } catch {
+      showMissing();
+      return;
+    }
+
+    if (!product) {
+      showMissing();
+      return;
+    }
+
+    summary.querySelector('[data-summary-title]').textContent = product.title;
+    summary.querySelector('[data-summary-price]').textContent = money(product.price);
+    summary.querySelector('[data-summary-total]').textContent = money(product.price);
+    if (product.status === 'demo') {
+      summary.querySelector('[data-summary-demo]').hidden = false;
+    }
+
+    summary.hidden = false;
+    form.hidden = false;
+    window.track?.('checkout_start', { item_id: product.slug });
+
+    const submit = form.querySelector('[data-submit]');
+    const submitLabel = submit?.textContent ?? '';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      const email = String(data.email ?? '').trim();
+      const field = form.querySelector('[data-field="email"]');
+      const fieldError = form.querySelector('[data-error="email"]');
+
+      field?.removeAttribute('data-invalid');
+      if (fieldError) fieldError.hidden = true;
+      if (errorBox) errorBox.hidden = true;
+
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+        field?.setAttribute('data-invalid', 'true');
+        if (fieldError) {
+          fieldError.textContent = messages.email;
+          fieldError.hidden = false;
+        }
+        return;
+      }
+
+      if (submit instanceof HTMLButtonElement) {
+        submit.disabled = true;
+        submit.textContent = messages.sending;
+      }
+
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            slug: product.slug,
+            lang,
+            email,
+            name: data.name,
+            company: data.company,
+          }),
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          if (errorBox) {
+            errorBox.textContent =
+              result.error === 'not_for_sale' ? messages.notForSale : messages.server;
+            errorBox.hidden = false;
+          }
+          window.track?.('checkout_error', { item_id: product.slug });
+          return;
+        }
+
+        window.location.assign(result.redirectUrl);
+      } catch {
+        if (errorBox) {
+          errorBox.textContent = messages.server;
+          errorBox.hidden = false;
+        }
+      } finally {
+        if (submit instanceof HTMLButtonElement) {
+          submit.disabled = false;
+          submit.textContent = submitLabel;
+        }
+      }
+    });
+  }
+
+  init();
+</script>
+
+<style>
+  /* A short form should not stretch across a desktop page. */
+  .summary,
+  .checkout-form,
+  #checkout-error,
+  #checkout-missing {
+    max-width: 34rem;
+  }
+
+  .summary {
+    margin-block: var(--s6) var(--s5);
+    padding: var(--s5);
+    background: var(--paper-2);
+    border-radius: var(--r-md);
+  }
+
+  .summary-heading {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: var(--s3);
+  }
+
+  .summary-row,
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s3);
+  }
+
+  .summary-note {
+    margin: var(--s2) 0 0;
+  }
+
+  .summary-total {
+    margin-top: var(--s3);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line-strong);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Paid product files are private. They are served only through the
+// token-gated download endpoint in Cloud Functions.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

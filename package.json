@@ -1,0 +1,31 @@
+{
+  "name": "unschool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Unschool — trilingual school website with digital product shop",
+  "workspaces": [
+    "site",
+    "functions"
+  ],
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "dev": "concurrently -n emulators,site -c magenta,cyan \"npm:dev:emulators\" \"npm:dev:site\"",
+    "dev:site": "npm --prefix site run dev",
+    "dev:emulators": "npm --prefix functions run build && firebase emulators:start --project demo-unschool",
+    "demo": "npm --prefix functions run build && npm --prefix site run build:demo && firebase emulators:start --project demo-unschool",
+    "build": "npm --prefix functions run build && npm --prefix site run build",
+    "deploy": "PUBLIC_SITE_URL=https://unschool-v2.web.app npm run build && firebase deploy --only hosting:site,functions:api,functions:rootRedirect",
+    "deploy:hosting": "PUBLIC_SITE_URL=https://unschool-v2.web.app npm --prefix site run build && firebase deploy --only hosting:site",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm --prefix site run check && npm --prefix functions run check"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "firebase-tools": "^13.35.1",
+    "prettier": "^3.4.2",
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

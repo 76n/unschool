@@ -1,0 +1,82 @@
+---
+import { Font } from 'astro:assets';
+import { DEFAULT_LANG, LANGS, OG_LOCALE, type Lang } from '~/i18n/config';
+import { switchLangPath } from '~/i18n/routes';
+import Analytics from './Analytics.astro';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  /** Languages in which this page really exists; drives hreflang. */
+  translations?: Lang[];
+  noindex?: boolean;
+  image?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  lang,
+  title,
+  description,
+  translations = [...LANGS],
+  noindex = false,
+  image = '/images/og-default.svg',
+  jsonLd,
+} = Astro.props;
+
+const path = Astro.url.pathname;
+const canonical = new URL(path, Astro.site ?? 'https://unschool.cool');
+const ogImage = new URL(image, Astro.site ?? 'https://unschool.cool');
+
+const alternates = noindex
+  ? []
+  : translations.map((code) => ({
+      lang: code,
+      href: new URL(switchLangPath(path, code), Astro.site ?? 'https://unschool.cool').toString(),
+    }));
+
+const xDefault = alternates.find((alt) => alt.lang === DEFAULT_LANG) ?? alternates[0];
+const structured = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+
+<script is:inline>
+  // Lets CSS know scripted enhancements are safe to apply, before first paint.
+  document.documentElement.classList.add('js');
+</script>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#655c97" />
+<meta name="color-scheme" content="light" />
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical.toString()} />
+
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+{alternates.map((alt) => <link rel="alternate" hreflang={alt.lang} href={alt.href} />)}
+{xDefault && <link rel="alternate" hreflang="x-default" href={xDefault.href} />}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Unschool" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical.toString()} />
+<meta property="og:image" content={ogImage.toString()} />
+<meta property="og:locale" content={OG_LOCALE[lang]} />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="sitemap" href="/sitemap.xml" />
+
+<Font cssVariable="--font-brand" preload />
+
+{
+  structured.map((block) => (
+    <script type="application/ld+json" set:html={JSON.stringify(block)} is:inline />
+  ))
+}
+
+<Analytics />

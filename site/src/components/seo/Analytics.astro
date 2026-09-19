@@ -1,0 +1,45 @@
+---
+const measurementId = import.meta.env.PUBLIC_GA4_ID;
+---
+
+{
+  measurementId && (
+    <script
+      is:inline
+      async
+      src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+      data-ga-id={measurementId}
+    />
+  )
+}
+
+<script is:inline define:vars={{ measurementId }}>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+
+  if (measurementId) {
+    gtag('js', new Date());
+    gtag('config', measurementId, { anonymize_ip: true });
+  }
+
+  // Single entry point for product events. Never receives personal data.
+  window.track = function track(name, params) {
+    if (measurementId) gtag('event', name, params || {});
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var view = document.body.dataset.viewEvent;
+    if (view) window.track(view, { item_id: document.body.dataset.viewId || undefined });
+  });
+
+  document.addEventListener('click', function (event) {
+    var target = event.target instanceof Element ? event.target.closest('[data-track]') : null;
+    if (!target) return;
+    window.track(target.getAttribute('data-track'), {
+      item_id: target.getAttribute('data-track-value') || undefined,
+    });
+  });
+</script>

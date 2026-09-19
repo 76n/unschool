@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "unschool-cool"
+  },
+  "targets": {
+    "unschool-cool": {
+      "hosting": {
+        "site": ["unschool-v2"]
+      }
+    }
+  }
+}

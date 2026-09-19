@@ -1,0 +1,138 @@
+---
+import { DEFAULT_LANG, LANGS, LANG_NAME } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECTS, SUBJECT_GLYPH, SUBJECT_THEME, subjectNameKey } from '~/data/taxonomy';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Icon from '~/components/Icon.astro';
+
+const t = useTranslations(DEFAULT_LANG);
+---
+
+<BaseLayout
+  lang={DEFAULT_LANG}
+  title={t('error.404.title')}
+  description={t('error.404.text')}
+  noindex
+  stickyCta={false}
+>
+  <section class="not-found">
+    <p class="code" aria-hidden="true">404</p>
+    <h1>{t('error.404.title')}</h1>
+    <p class="lede">{t('error.404.text')}</p>
+
+    <ul class="subject-links">
+      {
+        SUBJECTS.map((subject) => (
+          <li>
+            <a
+              href={localePath(DEFAULT_LANG, `subjects/${subject}`)}
+              style={`--accent:${SUBJECT_THEME[subject].accent};--soft:${SUBJECT_THEME[subject].soft}`}
+            >
+              <span class="glyph" aria-hidden="true">
+                {SUBJECT_GLYPH[subject]}
+              </span>
+              {t(subjectNameKey(subject))}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="actions">
+      <a class="btn btn--primary" href={localePath(DEFAULT_LANG)}>
+        {t('cta.backHome')}
+        <Icon name="arrow" size={18} class="flip-rtl" />
+      </a>
+    </div>
+
+    <ul class="langs">
+      {
+        LANGS.map((code) => (
+          <li>
+            <a href={localePath(code)} lang={code} hreflang={code}>
+              {LANG_NAME[code]}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-block: clamp(2rem, 8vw, 5rem);
+    max-width: 36rem;
+  }
+
+  .code {
+    margin: 0 0 var(--s3);
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 18vw, 8rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--brand);
+  }
+
+  .subject-links {
+    list-style: none;
+    margin: var(--s6) 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s3);
+  }
+
+  .subject-links li {
+    margin: 0;
+  }
+
+  .subject-links a {
+    display: flex;
+    align-items: center;
+    gap: var(--s3);
+    padding: var(--s3) var(--s4);
+    background: var(--soft);
+    border-radius: var(--r-md);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .subject-links a:hover {
+    color: var(--ink);
+    transform: translateY(-2px);
+  }
+
+  .glyph {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .actions {
+    margin-bottom: var(--s6);
+  }
+
+  .langs {
+    display: flex;
+    gap: var(--s4);
+    list-style: none;
+    margin: 0;
+    padding-top: var(--s5);
+    border-top: 1px solid var(--line);
+  }
+
+  .langs li {
+    margin: 0;
+  }
+
+  @media (min-width: 40rem) {
+    .subject-links {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

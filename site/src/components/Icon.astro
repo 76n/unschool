@@ -1,0 +1,56 @@
+---
+import { ICON_PATHS, type IconName } from './icons';
+
+interface Props {
+  name: IconName;
+  size?: number;
+  class?: string;
+  title?: string;
+  /** Carries the scope attribute Astro adds when a parent styles this icon. */
+  [key: string]: unknown;
+}
+
+const { name, size = 24, class: className = '', title, ...rest } = Astro.props;
+---
+
+<svg
+  class={`icon ${className}`}
+  {...rest}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden={title ? undefined : 'true'}
+  role={title ? 'img' : undefined}
+  focusable="false"
+>
+  {title && <title>{title}</title>}
+  {
+    name === 'aleph' ? (
+      <text
+        x="12"
+        y="18"
+        text-anchor="middle"
+        font-size="18"
+        font-weight="600"
+        fill="currentColor"
+        stroke="none"
+      >
+        א
+      </text>
+    ) : (
+      <Fragment set:html={ICON_PATHS[name]} />
+    )
+  }
+</svg>
+
+<style>
+  .icon {
+    display: block;
+    flex: none;
+  }
+</style>

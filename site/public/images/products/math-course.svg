@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img">
+  <rect width="600" height="400" fill="#2c2553" />
+  <text
+    x="500"
+    y="330"
+    text-anchor="middle"
+    font-family="Georgia, serif"
+    font-size="340"
+    font-weight="700"
+    fill="#ffffff"
+    opacity="0.07"
+  >×</text>
+  <rect x="80" y="78" width="330" height="200" rx="18" fill="#3a3169" />
+  <circle cx="245" cy="178" r="52" fill="#f5c64f" />
+  <path d="M231 150l44 28-44 28z" fill="#2c2553" />
+  <rect x="80" y="308" width="330" height="12" rx="6" fill="#ffffff" opacity="0.18" />
+  <rect x="80" y="308" width="118" height="12" rx="6" fill="#f5c64f" />
+</svg>

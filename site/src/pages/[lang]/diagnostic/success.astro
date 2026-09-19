@@ -1,0 +1,75 @@
+---
+import { langParams, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Icon from '~/components/Icon.astro';
+import Doodle from '~/components/Doodle.astro';
+
+export function getStaticPaths() {
+  return langParams();
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+---
+
+<BaseLayout
+  lang={lang}
+  title={t('diagnostic.success.title')}
+  description={t('diagnostic.success.text')}
+  noindex
+  stickyCta={false}
+  narrow
+>
+  <section class="done">
+    <span class="done-icon">
+      <Icon name="check" size={30} />
+      <Doodle variant="sparkle" class="done-spark" />
+    </span>
+    <h1>{t('diagnostic.success.title')}</h1>
+    <p class="lede">{t('diagnostic.success.text')}</p>
+
+    <div class="actions">
+      <a class="btn btn--primary" href={localePath(lang, 'how-it-works')}>
+        {t('nav.howItWorks')}
+        <Icon name="arrow" size={18} class="flip-rtl" />
+      </a>
+      <a class="btn btn--outline" href={localePath(lang, 'shop')}>{t('cta.toCatalog')}</a>
+    </div>
+
+    <p class="tiny muted">{t('diagnostic.success.next')}</p>
+  </section>
+</BaseLayout>
+
+<style>
+  .done {
+    padding-block: clamp(3rem, 10vw, 6rem);
+    max-width: 34rem;
+  }
+
+  .done-icon {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: var(--s5);
+    border-radius: 50%;
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+
+  .done-spark {
+    position: absolute;
+    inset-inline-end: -1rem;
+    top: -0.75rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    margin-block: var(--s6) var(--s5);
+  }
+</style>

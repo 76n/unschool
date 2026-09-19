@@ -1,0 +1,60 @@
+---
+import { DEFAULT_LANG } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import BaseHead from '~/components/seo/BaseHead.astro';
+import Doodle from '~/components/Doodle.astro';
+import Icon from '~/components/Icon.astro';
+import '~/styles/global.css';
+
+const title = 'D&D в Unschool';
+const description = 'Локальный проект Unschool: настольные игры D&D. Страница в подготовке.';
+---
+
+<!doctype html>
+<html lang="ru" dir="ltr">
+  <head>
+    <BaseHead
+      lang={DEFAULT_LANG}
+      title={`${title} — Unschool`}
+      description={description}
+      translations={[DEFAULT_LANG]}
+      noindex
+    />
+  </head>
+  <body>
+    <main id="main" class="wrap wrap--narrow">
+      <section class="stub">
+        <p class="eyebrow">Локальный проект</p>
+        <h1>
+          {title}
+          <Doodle variant="sparkle" class="stub-spark" />
+        </h1>
+        <p class="lede">
+          Отдельная локальная страница вне основного маршрута занятий и материалов. Содержание
+          добавит школа.
+        </p>
+        <a class="btn btn--outline" href={localePath(DEFAULT_LANG)}>
+          <Icon name="arrow" size={18} class="flip-rtl" />
+          На главную Unschool
+        </a>
+      </section>
+    </main>
+  </body>
+</html>
+
+<style>
+  .stub {
+    padding-block: clamp(4rem, 15vw, 9rem);
+  }
+
+  .stub h1 {
+    position: relative;
+    display: inline-block;
+  }
+
+  .stub-spark {
+    position: absolute;
+    inset-inline-end: -1.75rem;
+    top: -0.5rem;
+  }
+</style>

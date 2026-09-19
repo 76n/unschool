@@ -1,0 +1,48 @@
+---
+import { LANG_NAME, type Lang } from '~/i18n/config';
+import { switchLangPath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  sourceLang: Lang;
+}
+
+const { lang, sourceLang } = Astro.props;
+const t = useTranslations(lang);
+const originalHref = switchLangPath(Astro.url.pathname, sourceLang);
+---
+
+<aside class="fallback" lang={lang}>
+  <span class="fallback-icon"><Icon name="info" size={18} /></span>
+  <p>
+    {t('fallback.notice')}
+    <a href={originalHref} lang={sourceLang} hreflang={sourceLang}>
+      {t('fallback.openOriginal')} — {LANG_NAME[sourceLang]}
+    </a>
+  </p>
+</aside>
+
+<style>
+  .fallback {
+    display: flex;
+    gap: var(--s3);
+    align-items: flex-start;
+    margin-top: var(--s4);
+    padding: var(--s4);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: var(--r-md);
+  }
+
+  .fallback-icon {
+    color: #6b4d05;
+    flex: none;
+  }
+
+  .fallback p {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+</style>

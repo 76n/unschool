@@ -1,0 +1,214 @@
+---
+import { langParams, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Icon from '~/components/Icon.astro';
+
+export function getStaticPaths() {
+  return langParams();
+}
+
+const lang = Astro.params.lang as Lang;
+const t = useTranslations(lang);
+---
+
+<BaseLayout
+  lang={lang}
+  title={t('order.success.title')}
+  description={t('order.success.text')}
+  noindex
+  stickyCta={false}
+>
+  <section class="order" id="order-view" data-lang={lang}>
+    <div id="order-paid" hidden>
+      <span class="status-icon status-icon--ok"><Icon name="check" size={28} /></span>
+      <h1>{t('order.success.title')}</h1>
+      <p class="lede">{t('order.success.text')}</p>
+
+      <dl class="order-meta">
+        <div>
+          <dt>{t('checkout.order')}</dt>
+          <dd data-order-title></dd>
+        </div>
+        <div>
+          <dt>{t('checkout.total')}</dt>
+          <dd data-order-total></dd>
+        </div>
+        <div>
+          <dt>{t('checkout.email')}</dt>
+          <dd data-order-email></dd>
+        </div>
+      </dl>
+
+      <a class="btn btn--primary btn--block" id="order-download" href="#" hidden>
+        {t('order.download')}
+      </a>
+      <p class="small muted">{t('order.linkNote')}</p>
+
+      <button class="btn btn--secondary btn--block" type="button" id="order-resend">
+        {t('order.resend')}
+      </button>
+      <p class="form-status form-status--ok" id="order-resent" hidden>{t('order.resent')}</p>
+    </div>
+
+    <!-- Shown first: the seconds right after paying are the anxious ones. -->
+    <div id="order-pending">
+      <span class="status-icon status-icon--wait"><Icon name="wallet" size={26} /></span>
+      <h1>{t('order.pending.title')}</h1>
+      <p class="lede">{t('order.pending.text')}</p>
+    </div>
+
+    <div id="order-failed" hidden>
+      <h1>{t('order.failed.title')}</h1>
+      <p class="lede">{t('order.failed.text')}</p>
+      <a class="btn btn--secondary" href={localePath(lang, 'shop')}>{t('cta.toCatalog')}</a>
+    </div>
+
+    <div id="order-missing" hidden>
+      <h1>{t('order.notFound')}</h1>
+      <p class="lede">
+        {t('order.support')}: <a href="mailto:hello@unschool.cool">hello@unschool.cool</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ lang }}>
+  const views = {
+    paid: document.getElementById('order-paid'),
+    pending: document.getElementById('order-pending'),
+    failed: document.getElementById('order-failed'),
+    missing: document.getElementById('order-missing'),
+  };
+
+  // URL shape is /{lang}/order/{id}/success/, rewritten to this page by hosting.
+  const match = window.location.pathname.match(/\/order\/([^/]+)\/success/);
+  const orderId = match?.[1] ?? new URLSearchParams(window.location.search).get('order');
+
+  const money = (amount) =>
+    new Intl.NumberFormat(`${lang}-IL`, {
+      style: 'currency',
+      currency: 'ILS',
+      maximumFractionDigits: 0,
+    }).format(amount);
+
+  const show = (name) => {
+    Object.entries(views).forEach(([key, node]) => {
+      if (node) node.hidden = key !== name;
+    });
+  };
+
+  let attempts = 0;
+
+  async function poll() {
+    if (!orderId) {
+      show('missing');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
+        cache: 'no-store',
+      });
+      if (response.status === 404) {
+        show('missing');
+        return;
+      }
+
+      const { order } = await response.json();
+
+      if (order.status === 'paid') {
+        document.querySelector('[data-order-title]').textContent = order.title;
+        document.querySelector('[data-order-total]').textContent = money(order.price);
+        document.querySelector('[data-order-email]').textContent = order.emailHint;
+
+        const download = document.getElementById('order-download');
+        if (download && order.downloadToken) {
+          download.href = `/api/download/${order.downloadToken}`;
+          download.hidden = false;
+        }
+
+        show('paid');
+        window.track?.('purchase_confirmed', { item_id: order.productSlug, value: order.price });
+        return;
+      }
+
+      if (order.status === 'failed' || order.status === 'cancelled') {
+        show('failed');
+        window.track?.('payment_failed', { item_id: order.productSlug });
+        return;
+      }
+
+      show('pending');
+      attempts += 1;
+      if (attempts < 20) window.setTimeout(poll, 3000);
+    } catch {
+      show('missing');
+    }
+  }
+
+  const resend = document.getElementById('order-resend');
+  resend?.addEventListener('click', async () => {
+    if (!orderId) return;
+    resend.disabled = true;
+    try {
+      const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}/resend`, {
+        method: 'POST',
+      });
+      const result = await response.json();
+      const notice = document.getElementById('order-resent');
+      if (notice && result.ok) notice.hidden = false;
+    } finally {
+      resend.disabled = false;
+    }
+  });
+
+  poll();
+</script>
+
+<style>
+  .order {
+    padding-block: var(--s8);
+    max-width: 34rem;
+  }
+
+  .status-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: var(--s4);
+    border-radius: 50%;
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+
+  .status-icon--wait {
+    background: var(--brand-soft);
+    color: var(--brand-deep);
+  }
+
+  .order-meta {
+    margin: var(--s6) 0;
+    display: grid;
+    gap: var(--s4);
+  }
+
+  .order-meta dt {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .order-meta dd {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  #order-resend {
+    margin-top: var(--s3);
+  }
+</style>

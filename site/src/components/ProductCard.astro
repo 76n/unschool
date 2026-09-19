@@ -1,0 +1,149 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { SUBJECT_THEME, productTypeKey, subjectNameKey } from '~/data/taxonomy';
+import { formatPrice } from '~/lib/format';
+
+interface Props {
+  lang: Lang;
+  product: CollectionEntry<'products'>;
+}
+
+const { lang, product } = Astro.props;
+const t = useTranslations(lang);
+const { data } = product;
+const theme = SUBJECT_THEME[data.subject];
+---
+
+<a
+  class="product"
+  href={localePath(lang, `shop/${data.slug}`)}
+  style={`--accent:${theme.accent};--soft:${theme.soft}`}
+  data-subject={data.subject}
+  data-type={data.type}
+  data-language={data.materialLanguage}
+  data-stages={data.stages.join(' ')}
+  data-product-card
+>
+  <span class="product-cover">
+    <img src={data.cover} alt="" width="320" height="214" loading="lazy" decoding="async" />
+    <span class="product-type">{t(productTypeKey(data.type))}</span>
+    {data.status === 'demo' && <span class="product-demo">{t('shop.demoBadge')}</span>}
+  </span>
+
+  <span class="product-body">
+    <span class="product-meta">
+      {t(subjectNameKey(data.subject))} · {data.grades}
+    </span>
+    <span class="product-title">{data.title}</span>
+    <span class="product-summary">{data.summary}</span>
+    <span class="product-price">{formatPrice(lang, data.price)}</span>
+  </span>
+</a>
+
+<style>
+  .product {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      transform 0.25s var(--ease),
+      border-color 0.25s var(--ease),
+      box-shadow 0.25s var(--ease);
+  }
+
+  .product:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    color: var(--ink);
+  }
+
+  .product-cover {
+    position: relative;
+    display: block;
+    background: var(--soft);
+  }
+
+  .product-cover img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    transition: transform 0.4s var(--ease);
+  }
+
+  .product:hover .product-cover img {
+    transform: scale(1.03);
+  }
+
+  .product-type,
+  .product-demo {
+    position: absolute;
+    top: var(--s3);
+    padding: 0.25rem var(--s3);
+    border-radius: var(--r-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .product-type {
+    inset-inline-start: var(--s3);
+    background: var(--grape);
+    color: var(--paper);
+  }
+
+  /* Sits below the type badge so long translations never collide. */
+  .product-demo {
+    top: auto;
+    bottom: var(--s3);
+    inset-inline-start: var(--s3);
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  .product-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+    padding: var(--s4);
+    flex: 1;
+  }
+
+  .product-meta {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .product-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .product-summary {
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+  }
+
+  .product-price {
+    margin-top: auto;
+    padding-top: var(--s3);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+</style>
