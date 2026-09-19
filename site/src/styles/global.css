@@ -104,7 +104,10 @@ body {
   font-size: 1.0625rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* Long words (Russian compounds, emails, URLs) break instead of widening
+     the page. clip, not hidden, so position: sticky keeps working. */
+  overflow-wrap: break-word;
+  overflow-x: clip;
 }
 
 /* Paper grain. Warms up flat colour without any image request. */
@@ -130,14 +133,20 @@ h4 {
   letter-spacing: -0.02em;
   margin: 0 0 var(--s4);
   text-wrap: balance;
+  /* Long Russian and Hebrew compounds hyphenate rather than overflow;
+     break-word is the last resort when no hyphenation point exists. */
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
+/* Lower bounds are set so the longest single word in any of the three
+   languages still fits a 320px screen. */
 h1 {
-  font-size: clamp(2.35rem, 8.5vw, 4.25rem);
+  font-size: clamp(1.85rem, 8vw, 4.25rem);
 }
 
 h2 {
-  font-size: clamp(1.75rem, 5.5vw, 2.75rem);
+  font-size: clamp(1.5rem, 5.5vw, 2.75rem);
 }
 
 h3 {
@@ -320,6 +329,18 @@ video {
   gap: var(--s4);
 }
 
+/* Grid and flex children default to min-width:auto, which lets wide content
+   push a track past the viewport. Applies to every page layout grid. */
+.grid > *,
+.grid--split > *,
+.hero-inner > *,
+.finder-layout > *,
+.lead-layout > *,
+.program-layout > *,
+.product-layout > * {
+  min-width: 0;
+}
+
 @media (min-width: 40rem) {
   .grid--2,
   .grid--3 {
@@ -395,7 +416,9 @@ video {
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.2;
-  white-space: nowrap;
+  max-width: 100%;
+  text-align: center;
+  text-wrap: balance;
   text-decoration: none;
   cursor: pointer;
   transition:
@@ -460,8 +483,20 @@ video {
 .btn--block {
   display: flex;
   width: 100%;
-  white-space: normal;
-  text-align: center;
+}
+
+/* On dark surfaces the primary action switches to the accent, so page
+   authors always write .btn--primary and never pick a colour by hand. */
+.band--dark .btn--primary,
+.on-dark .btn--primary {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.band--dark .btn--primary:hover,
+.on-dark .btn--primary:hover {
+  background: #ffd268;
+  color: var(--ink);
 }
 
 .btn--sm {
@@ -744,12 +779,18 @@ textarea:focus {
   color: var(--ok);
 }
 
+/* Hidden the same way as .visually-hidden. Off-screen positioning would
+   widen the document on right-to-left pages. */
 .honeypot {
   position: absolute;
-  left: -9999px;
   width: 1px;
   height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ---------- Prose ---------- */

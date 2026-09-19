@@ -1,0 +1,179 @@
+---
+import type { Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { breadcrumbs } from '~/lib/schema';
+import Breadcrumbs from './Breadcrumbs.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  subtitle?: string;
+  eyebrow?: string;
+  crumbs?: { href?: string; label: string }[];
+  /** Tinted full-bleed band, or a quiet header for legal and utility pages. */
+  tone?: 'band' | 'plain';
+  accent?: string;
+  soft?: string;
+  /** Oversized typographic mark, shown from tablet up. */
+  glyph?: string;
+  badge?: string;
+  cta?: boolean;
+  ctaLabel?: string;
+  ctaTrack?: string;
+}
+
+const {
+  lang,
+  title,
+  subtitle,
+  eyebrow,
+  crumbs,
+  tone = 'band',
+  accent = 'var(--brand)',
+  soft = 'var(--brand-soft)',
+  glyph,
+  badge,
+  cta = false,
+  ctaLabel,
+  ctaTrack = 'cta_header',
+} = Astro.props;
+
+const t = useTranslations(lang);
+
+const trail =
+  crumbs && crumbs.length > 0 ? breadcrumbs(crumbs, lang, Astro.site, t('nav.home')) : undefined;
+---
+
+{trail && <script type="application/ld+json" set:html={JSON.stringify(trail)} is:inline />}
+
+<section class={`page-header page-header--${tone}`} style={`--accent:${accent};--soft:${soft}`}>
+  <div class="wrap page-header-inner">
+    {crumbs && crumbs.length > 0 && <Breadcrumbs lang={lang} items={crumbs} />}
+
+    <div class="page-header-copy">
+      {badge && <p class="page-badge">{badge}</p>}
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+      {subtitle && <p class="lede">{subtitle}</p>}
+
+      {
+        cta && (
+          <div class="page-header-actions">
+            <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track={ctaTrack}>
+              {ctaLabel ?? t('cta.bookFree')}
+              <Icon name="arrow" size={18} class="flip-rtl" />
+            </a>
+            <span class="page-header-note">
+              <Icon name="check" size={15} />
+              {t('cta.bookNote')}
+            </span>
+          </div>
+        )
+      }
+
+      <slot />
+    </div>
+
+    {
+      glyph && (
+        <span class="page-header-glyph" aria-hidden="true">
+          {glyph}
+        </span>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .page-header {
+    position: relative;
+    overflow: clip;
+    padding-block: clamp(1.25rem, 4vw, 2.5rem) clamp(2rem, 6vw, 3.5rem);
+  }
+
+  .page-header--band {
+    background: var(--soft);
+  }
+
+  .page-header--plain {
+    background: transparent;
+    padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .page-header-inner {
+    position: relative;
+  }
+
+  .page-header-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 38rem;
+  }
+
+  .page-header :global(.eyebrow) {
+    color: var(--accent);
+  }
+
+  .page-badge {
+    display: inline-block;
+    margin: 0 0 var(--s3);
+    padding: 0.3rem var(--s4);
+    border-radius: var(--r-pill);
+    background: var(--grape);
+    color: var(--paper);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .page-header h1 {
+    margin-bottom: var(--s3);
+  }
+
+  .page-header .lede {
+    margin-bottom: 0;
+  }
+
+  .page-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s3) var(--s4);
+    margin-top: var(--s5);
+  }
+
+  .page-header-note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .page-header-note :global(.icon) {
+    color: var(--hebrew);
+  }
+
+  /* Decoration only: hidden where it would crowd the copy. */
+  .page-header-glyph {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .page-header-glyph {
+      display: block;
+      position: absolute;
+      inset-inline-end: -0.06em;
+      bottom: -0.36em;
+      font-family: var(--font-display);
+      font-size: clamp(10rem, 22vw, 17rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.12;
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+</style>

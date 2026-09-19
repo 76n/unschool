@@ -6,8 +6,9 @@ import { useTranslations } from '~/i18n/ui';
 import { SUBJECT_THEME, productTypeKey, subjectNameKey } from '~/data/taxonomy';
 import { findLocalized, listByLang, listSlugs, sortByOrder, translatedLangs } from '~/lib/content';
 import { formatPrice } from '~/lib/format';
+import { digitalProduct, rasterCover } from '~/lib/schema';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import SectionHead from '~/components/SectionHead.astro';
 import InfoCard from '~/components/InfoCard.astro';
 import ProductCard from '~/components/ProductCard.astro';
@@ -42,23 +43,22 @@ const related = sortByOrder(
   )
 ).slice(0, 3);
 
-const jsonLd =
-  data.status === 'published'
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: data.title,
-        description: data.summary,
-        image: new URL(data.cover, Astro.site ?? 'https://unschool.cool').toString(),
-        offers: {
-          '@type': 'Offer',
-          price: data.price,
-          priceCurrency: data.currency,
-          availability: 'https://schema.org/InStock',
-          url: new URL(Astro.url.pathname, Astro.site ?? 'https://unschool.cool').toString(),
-        },
-      }
-    : undefined;
+const jsonLd = digitalProduct(
+  {
+    title: data.title,
+    summary: data.summary,
+    cover: rasterCover(data.cover),
+    price: data.price,
+    currency: data.currency,
+    subject: t(subjectNameKey(data.subject)),
+    grades: data.grades,
+    fileFormat: data.fileFormat,
+    materialLanguage: data.materialLanguage,
+    purchasable: data.status === 'published',
+  },
+  new URL(Astro.url.pathname, Astro.site ?? 'https://unschool.cool'),
+  Astro.site
+);
 
 const terms = [
   { icon: 'download' as const, label: t('product.access'), text: data.accessNote },
@@ -75,35 +75,41 @@ const terms = [
   translations={translations}
   fallbackFrom={isFallback ? sourceLang : null}
   stickyCta={false}
+  image={rasterCover(data.cover)}
+  imageAlt={data.title}
+  ogType="product"
+  pageType="ItemPage"
   jsonLd={jsonLd}
   viewEvent="view_product"
   viewId={slug}
+  bleed
 >
-  <Breadcrumbs
+  <PageHeader
     lang={lang}
-    items={[{ href: localePath(lang, 'shop'), label: t('shop.title') }, { label: data.title }]}
-  />
+    title={data.title}
+    subtitle={data.summary}
+    eyebrow={t(productTypeKey(data.type))}
+    crumbs={[{ href: localePath(lang, 'shop'), label: t('shop.title') }, { label: data.title }]}
+    accent={theme.accent}
+    soft={theme.soft}
+  >
+    <ul class="chip-row meta-chips">
+      <li><span class="chip chip--outline">{t(subjectNameKey(data.subject))}</span></li>
+      <li><span class="chip chip--outline">{data.grades}</span></li>
+      <li><span class="chip chip--outline">{LANG_NAME[data.materialLanguage]}</span></li>
+      {
+        isDemo && (
+          <li>
+            <span class="chip chip--accent">{t('shop.demoBadge')}</span>
+          </li>
+        )
+      }
+    </ul>
+  </PageHeader>
 
-  <div class="product-layout" style={`--accent:${theme.accent};--soft:${theme.soft}`}>
+  <div class="wrap page product-layout" style={`--accent:${theme.accent};--soft:${theme.soft}`}>
     <div class="product-head">
       <img class="cover" src={data.cover} alt="" width="960" height="640" />
-
-      <ul class="chip-row meta-chips">
-        <li><span class="chip">{t(productTypeKey(data.type))}</span></li>
-        <li><span class="chip chip--outline">{t(subjectNameKey(data.subject))}</span></li>
-        <li><span class="chip chip--outline">{data.grades}</span></li>
-        <li><span class="chip chip--outline">{LANG_NAME[data.materialLanguage]}</span></li>
-        {
-          isDemo && (
-            <li>
-              <span class="chip chip--accent">{t('shop.demoBadge')}</span>
-            </li>
-          )
-        }
-      </ul>
-
-      <h1>{data.title}</h1>
-      <p class="lede">{data.summary}</p>
     </div>
 
     <aside class="product-aside">
@@ -270,11 +276,7 @@ const terms = [
   }
 
   .meta-chips {
-    margin-bottom: var(--s4);
-  }
-
-  .product-head h1 {
-    margin-bottom: var(--s3);
+    margin-top: var(--s4);
   }
 
   /* The buy box sits right under the summary on mobile and becomes a sticky

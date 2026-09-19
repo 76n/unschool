@@ -1,7 +1,6 @@
 {
   "site.name": "Unschool",
   "site.tagline": "Математика, английский и иврит для школьников в Израиле",
-
   "nav.programs": "Программы",
   "nav.subjects": "По предмету",
   "nav.stages": "По возрасту",
@@ -17,7 +16,6 @@
   "nav.closeMenu": "Закрыть меню",
   "nav.language": "Язык сайта",
   "nav.home": "Главная",
-
   "cta.book": "Записаться на встречу",
   "cta.bookShort": "Бесплатная встреча",
   "cta.bookFree": "Записаться на бесплатную встречу",
@@ -27,7 +25,6 @@
   "cta.allTeachers": "Все преподаватели",
   "cta.toCatalog": "Открыть каталог материалов",
   "cta.backHome": "На главную",
-
   "common.from": "от",
   "common.perLesson": "за занятие",
   "common.currency": "₪",
@@ -47,12 +44,10 @@
   "common.price": "Стоимость",
   "common.teacher": "Преподаватель",
   "common.priceOnRequest": "Цену подтверждаем после диагностики",
-
   "subject.math.name": "Математика",
   "subject.english.name": "Английский",
   "subject.hebrew.name": "Иврит",
   "subject.plural": "Предметы",
-
   "stage.elementary.name": "Начальная школа",
   "stage.elementary.grades": "1–6 классы",
   "stage.elementary.range": "1–6",
@@ -66,7 +61,6 @@
   "stage.high.range": "10–12",
   "stage.high.short": "Старшая и багрут",
   "stage.plural": "Школьные этапы",
-
   "home.hero.badge": "Онлайн-школа для 1–12 классов в Израиле",
   "home.hero.line1": "Математика, английский и иврит.",
   "home.hero.line2": "Начинаем там, где застрял ребёнок",
@@ -111,7 +105,6 @@
   "home.materials.text": "Тетради и наборы заданий можно купить отдельно — заниматься у нас для этого не нужно.",
   "home.final.title": "Начните с бесплатной встречи",
   "home.final.text": "Вы получите рекомендацию и решите сами. Никто не будет вам перезванивать по пять раз.",
-
   "programs.title": "Программы",
   "programs.empty": "Программы для этого раздела пока не опубликованы.",
   "program.audience": "Для кого",
@@ -125,30 +118,25 @@
   "program.subjects": "Предметы",
   "program.stages": "Школьные этапы",
   "program.teachingLanguages": "Язык преподавания",
-
   "subjects.title": "Предметы",
   "subject.page.stages": "Школьные этапы",
   "subject.page.programs": "Программы по предмету",
   "subject.page.teachers": "Преподаватели предмета",
   "subject.page.goals": "Чему учим",
-
   "stages.title": "Школьные этапы",
   "stage.page.subjects": "Предметы на этом этапе",
   "stage.page.programs": "Программы для этого этапа",
-
   "howItWorks.title": "Как проходят занятия",
   "formats.title": "Форматы и цены",
   "formats.confirmed": "Цены подтверждены школой",
   "formats.table.format": "Формат",
   "formats.table.details": "Что входит",
   "formats.table.price": "Цена",
-
   "teachers.title": "Преподаватели",
   "teachers.subjects": "Предметы",
   "teachers.languages": "Языки преподавания",
   "teachers.empty": "Профили преподавателей появятся здесь после подтверждения данных.",
   "teachers.programs": "Программы преподавателя",
-
   "about.title": "О школе",
   "contact.title": "Контакты",
   "contact.email": "Почта",
@@ -156,7 +144,6 @@
   "contact.hours": "Когда отвечаем",
   "contact.preferForm": "Быстрее всего — через заявку на бесплатную встречу.",
   "join.title": "Преподавателям",
-
   "diagnostic.title": "Бесплатная диагностическая встреча",
   "diagnostic.intro": "Форма на две минуты. Мы свяжемся и подберём удобное время — вечером или в выходные тоже можно.",
   "diagnostic.field.subject": "Предмет",
@@ -187,7 +174,6 @@
   "diagnostic.success.title": "Заявка получена",
   "diagnostic.success.text": "Свяжемся выбранным способом в рабочие дни. Если вдруг не ответим — напишите нам, заявка не потеряется.",
   "diagnostic.success.next": "Пока ждёте, посмотрите, как проходят занятия.",
-
   "shop.title": "Материалы",
   "shop.intro": "Цифровые материалы, которые можно купить отдельно от занятий.",
   "shop.filter.subject": "Предмет",
@@ -200,7 +186,6 @@
   "shop.demoBadge": "Демо",
   "shop.demoNotice": "Это пример карточки. Товар пока не продаётся.",
   "shop.results": "Найдено материалов: {count}",
-
   "product.type.workbook": "Рабочая тетрадь",
   "product.type.taskset": "Набор заданий",
   "product.type.course": "Запись курса",
@@ -222,7 +207,6 @@
   "product.notForSale": "Пока не продаётся",
   "product.related": "Похожие материалы",
   "product.relatedDiagnostic": "Нужна помощь с выбором? Начните с бесплатной встречи — консультация не обязательна для покупки.",
-
   "checkout.title": "Оформление заказа",
   "checkout.order": "Ваш заказ",
   "checkout.total": "Итого",
@@ -235,7 +219,6 @@
   "checkout.error.email": "Укажите корректный адрес почты",
   "checkout.error.server": "Не удалось создать заказ. Попробуйте ещё раз.",
   "checkout.missingProduct": "Товар не выбран.",
-
   "order.success.title": "Оплата прошла",
   "order.success.text": "Спасибо! Квитанция и доступ отправлены на вашу почту.",
   "order.download": "Скачать материал",
@@ -249,7 +232,6 @@
   "order.failed.text": "Деньги не списаны. Можно попробовать ещё раз или написать в поддержку.",
   "order.notFound": "Заказ не найден.",
   "order.support": "Поддержка",
-
   "footer.about": "Школа для школьников в Израиле: математика, английский и иврит.",
   "footer.sections": "Разделы",
   "footer.legal": "Документы",
@@ -258,17 +240,24 @@
   "footer.accessibility": "Доступность",
   "footer.localProjects": "Локальные проекты",
   "footer.rights": "Все права защищены.",
-
   "error.404.title": "Страница не найдена",
   "error.404.text": "Возможно, адрес изменился. Начните с главной или выберите предмет.",
-
   "fallback.notice": "Эта страница ещё не переведена на выбранный язык. Показываем версию на другом языке.",
   "fallback.openOriginal": "Открыть оригинал",
-
   "a11y.skipToContent": "Перейти к содержанию",
   "a11y.breadcrumb": "Хлебные крошки",
   "a11y.mainNav": "Основная навигация",
   "a11y.footerNav": "Навигация в подвале",
   "a11y.langSwitcher": "Переключатель языка",
-  "a11y.required": "обязательное поле"
+  "a11y.required": "обязательное поле",
+  "home.seoTitle": "Математика, английский, иврит онлайн в Израиле — Unschool",
+  "home.seoDescription": "Занятия для школьников 1–12 классов в Израиле: математика, английский и иврит на иврите, русском или английском. Первая встреча — бесплатно.",
+  "shop.seoTitle": "Цифровые материалы для школьников — Unschool",
+  "shop.seoDescription": "Рабочие тетради, наборы заданий и записанные курсы по математике, английскому и ивриту. Файл приходит сразу после оплаты, без подписки.",
+  "teachers.seoTitle": "Преподаватели школы — Unschool",
+  "teachers.seoDescription": "Кто ведёт занятия по математике, английскому и ивриту: предметы, классы и языки преподавания. Все профили подтверждает школа.",
+  "teachers.intro": "Занятия ведут преподаватели, которые работают со школьной программой Израиля и говорят на языке вашего ребёнка.",
+  "diagnostic.seoTitle": "Бесплатная диагностическая встреча — Unschool",
+  "diagnostic.seoDescription": "30 минут онлайн: смотрим, что ребёнок уже умеет и где буксует, и честно говорим, нужны ли занятия. Без оплаты и без обязательств.",
+  "error.404.description": "Такой страницы нет. Вернитесь на главную или выберите предмет: математика, английский или иврит для школьников в Израиле."
 }

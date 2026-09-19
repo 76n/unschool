@@ -24,11 +24,9 @@ const description = 'Локальный проект Unschool: настольн�
   <body>
     <main id="main" class="wrap wrap--narrow">
       <section class="stub">
+        <Doodle variant="sparkle" />
         <p class="eyebrow">Локальный проект</p>
-        <h1>
-          {title}
-          <Doodle variant="sparkle" class="stub-spark" />
-        </h1>
+        <h1>{title}</h1>
         <p class="lede">
           Отдельная локальная страница вне основного маршрута занятий и материалов. Содержание
           добавит школа.
@@ -47,14 +45,7 @@ const description = 'Локальный проект Unschool: настольн�
     padding-block: clamp(4rem, 15vw, 9rem);
   }
 
-  .stub h1 {
-    position: relative;
-    display: inline-block;
-  }
-
-  .stub-spark {
-    position: absolute;
-    inset-inline-end: -1.75rem;
-    top: -0.5rem;
+  .stub :global(.doodle) {
+    margin-bottom: var(--s3);
   }
 </style>

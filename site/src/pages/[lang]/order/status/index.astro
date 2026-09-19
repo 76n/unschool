@@ -21,9 +21,10 @@ const t = useTranslations(lang);
   stickyCta={false}
 >
   <section class="order" id="order-view" data-lang={lang}>
+    <h1 class="visually-hidden">{t('order.success.title')}</h1>
     <div id="order-paid" hidden>
       <span class="status-icon status-icon--ok"><Icon name="check" size={28} /></span>
-      <h1>{t('order.success.title')}</h1>
+      <h2 class="state-title">{t('order.success.title')}</h2>
       <p class="lede">{t('order.success.text')}</p>
 
       <dl class="order-meta">
@@ -55,18 +56,18 @@ const t = useTranslations(lang);
     <!-- Shown first: the seconds right after paying are the anxious ones. -->
     <div id="order-pending">
       <span class="status-icon status-icon--wait"><Icon name="wallet" size={26} /></span>
-      <h1>{t('order.pending.title')}</h1>
+      <h2 class="state-title">{t('order.pending.title')}</h2>
       <p class="lede">{t('order.pending.text')}</p>
     </div>
 
     <div id="order-failed" hidden>
-      <h1>{t('order.failed.title')}</h1>
+      <h2 class="state-title">{t('order.failed.title')}</h2>
       <p class="lede">{t('order.failed.text')}</p>
       <a class="btn btn--secondary" href={localePath(lang, 'shop')}>{t('cta.toCatalog')}</a>
     </div>
 
     <div id="order-missing" hidden>
-      <h1>{t('order.notFound')}</h1>
+      <h2 class="state-title">{t('order.notFound')}</h2>
       <p class="lede">
         {t('order.support')}: <a href="mailto:hello@unschool.cool">hello@unschool.cool</a>
       </p>
@@ -171,6 +172,11 @@ const t = useTranslations(lang);
   .order {
     padding-block: var(--s8);
     max-width: 34rem;
+  }
+
+  .state-title {
+    font-size: var(--fs-h1);
+    margin-bottom: var(--s3);
   }
 
   .status-icon {

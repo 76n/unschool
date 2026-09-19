@@ -13,7 +13,7 @@ const { title, text, href, linkLabel } = Astro.props;
 ---
 
 <aside class="callout">
-  <Doodle variant="sparkle" class="callout-doodle" color="var(--grape)" />
+  <Doodle variant="sparkle" color="var(--grape)" />
   <p class="callout-title">{title}</p>
   <p class="callout-text">{text}</p>
   {
@@ -28,19 +28,15 @@ const { title, text, href, linkLabel } = Astro.props;
 
 <style>
   .callout {
-    position: relative;
     padding: var(--s5);
-    padding-inline-end: var(--s8);
     background: var(--accent);
     border-radius: var(--r-md);
     color: var(--ink);
   }
 
-  .callout-doodle {
-    position: absolute;
-    inset-inline-end: var(--s4);
-    top: var(--s4);
-    opacity: 0.55;
+  .callout :global(.doodle) {
+    margin-bottom: var(--s3);
+    opacity: 0.75;
   }
 
   .callout-title {

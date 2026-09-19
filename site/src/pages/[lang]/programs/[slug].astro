@@ -6,8 +6,9 @@ import { useTranslations } from '~/i18n/ui';
 import { SUBJECT_GLYPH, SUBJECT_THEME, stageNameKey, subjectNameKey } from '~/data/taxonomy';
 import { findLocalized, listSlugs, translatedLangs } from '~/lib/content';
 import { formatPrice } from '~/lib/format';
+import { course } from '~/lib/schema';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import SectionHead from '~/components/SectionHead.astro';
 import InfoCard from '~/components/InfoCard.astro';
 import TeacherCard from '~/components/TeacherCard.astro';
@@ -38,6 +39,22 @@ const price =
   data.priceFrom === null
     ? t('common.priceOnRequest')
     : `${t('common.from')} ${formatPrice(lang, data.priceFrom)}`;
+
+const jsonLd = course(
+  {
+    title: data.title,
+    description: data.seoDescription ?? data.subtitle,
+    subjects: data.subjects.map((item) => t(subjectNameKey(item))),
+    stages: data.stages,
+    teachingLanguages: data.teachingLanguages,
+    goals: data.goals,
+    priceFrom: data.priceFrom,
+    format: data.format,
+  },
+  new URL(Astro.url.pathname, Astro.site ?? 'https://unschool.cool'),
+  lang,
+  Astro.site
+);
 ---
 
 <BaseLayout
@@ -46,49 +63,45 @@ const price =
   description={data.seoDescription ?? data.subtitle}
   translations={translations}
   fallbackFrom={isFallback ? sourceLang : null}
+  pageType="ItemPage"
+  jsonLd={jsonLd}
   viewEvent="view_program"
   viewId={slug}
   bleed
 >
-  <section class="program-hero" style={`--accent:${theme.accent};--soft:${theme.soft}`}>
-    <div class="wrap">
-      <Breadcrumbs
-        lang={lang}
-        items={[
-          {
-            href: localePath(lang, `subjects/${primarySubject}`),
-            label: t(subjectNameKey(primarySubject)),
-          },
-          { label: data.title },
-        ]}
-      />
-
-      <div class="hero-grid">
-        <div>
-          <ul class="chip-row hero-chips">
-            {
-              data.subjects.map((item) => (
-                <li>
-                  <span class="chip">{t(subjectNameKey(item))}</span>
-                </li>
-              ))
-            }
-            {
-              data.stages.map((item) => (
-                <li>
-                  <span class="chip chip--outline">{t(stageNameKey(item))}</span>
-                </li>
-              ))
-            }
-          </ul>
-          <h1>{data.title}</h1>
-          <p class="lede">{data.subtitle}</p>
-        </div>
-
-        <span class="hero-glyph" aria-hidden="true">{SUBJECT_GLYPH[primarySubject]}</span>
-      </div>
-    </div>
-  </section>
+  <PageHeader
+    lang={lang}
+    title={data.title}
+    subtitle={data.subtitle}
+    eyebrow={t('programs.title')}
+    crumbs={[
+      {
+        href: localePath(lang, `subjects/${primarySubject}`),
+        label: t(subjectNameKey(primarySubject)),
+      },
+      { label: data.title },
+    ]}
+    accent={theme.accent}
+    soft={theme.soft}
+    glyph={SUBJECT_GLYPH[primarySubject]}
+  >
+    <ul class="chip-row hero-chips">
+      {
+        data.subjects.map((item) => (
+          <li>
+            <span class="chip">{t(subjectNameKey(item))}</span>
+          </li>
+        ))
+      }
+      {
+        data.stages.map((item) => (
+          <li>
+            <span class="chip chip--outline">{t(stageNameKey(item))}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </PageHeader>
 
   <div data-cta-sentinel></div>
 
@@ -174,7 +187,7 @@ const price =
     </div>
 
     <aside class="program-aside">
-      <div class="booking">
+      <div class="booking on-dark">
         <p class="booking-price">{price}</p>
         {data.priceNote && <p class="booking-note">{data.priceNote}</p>}
         <a
@@ -192,50 +205,8 @@ const price =
 </BaseLayout>
 
 <style>
-  .program-hero {
-    position: relative;
-    overflow: hidden;
-    background: var(--soft);
-    padding-block: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 6vw, 3.5rem);
-  }
-
-  .hero-grid {
-    position: relative;
-  }
-
   .hero-chips {
-    margin-bottom: var(--s4);
-  }
-
-  .program-hero h1 {
-    margin-bottom: var(--s3);
-    max-width: 20ch;
-  }
-
-  .program-hero .lede {
-    position: relative;
-    z-index: 1;
-  }
-
-  .hero-glyph {
-    display: none;
-  }
-
-  @media (min-width: 48rem) {
-    .hero-glyph {
-      display: block;
-      position: absolute;
-      inset-inline-end: -0.06em;
-      bottom: -0.4em;
-      font-family: var(--font-display);
-      font-size: clamp(9rem, 20vw, 15rem);
-      font-weight: 700;
-      line-height: 1;
-      color: var(--accent);
-      opacity: 0.1;
-      pointer-events: none;
-      user-select: none;
-    }
+    margin-top: var(--s4);
   }
 
   .note {
@@ -309,16 +280,6 @@ const price =
     margin: 0 0 var(--s4);
     font-size: 0.8125rem;
     color: #c9c2e4;
-  }
-
-  .booking .btn {
-    background: var(--accent);
-    color: var(--ink);
-  }
-
-  .booking .btn:hover {
-    background: #ffd268;
-    color: var(--ink);
   }
 
   .booking-hint {

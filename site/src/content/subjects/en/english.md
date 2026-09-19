@@ -8,7 +8,7 @@ goals:
   - Understand grammar through real use
   - Handle the texts and tasks of the school curriculum
   - Prepare for exams and bagrut
-seoTitle: English for school students in Israel — online lessons
+seoTitle: "Online English lessons for students in Israel"
 seoDescription: "English for grades 1–12: speaking practice, grammar and the school curriculum. Start with a free assessment meeting."
 ---
 

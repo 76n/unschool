@@ -2,6 +2,8 @@
 import { Font } from 'astro:assets';
 import { DEFAULT_LANG, LANGS, OG_LOCALE, type Lang } from '~/i18n/config';
 import { switchLangPath } from '~/i18n/routes';
+import { useTranslations } from '~/i18n/ui';
+import { organization, webPage, website } from '~/lib/schema';
 import Analytics from './Analytics.astro';
 
 interface Props {
@@ -12,6 +14,10 @@ interface Props {
   translations?: Lang[];
   noindex?: boolean;
   image?: string;
+  imageAlt?: string;
+  ogType?: string;
+  /** Schema.org type of the page node inside the sitewide graph. */
+  pageType?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -21,23 +27,47 @@ const {
   description,
   translations = [...LANGS],
   noindex = false,
-  image = '/images/og-default.svg',
+  image,
+  imageAlt,
+  ogType = 'website',
+  pageType = 'WebPage',
   jsonLd,
 } = Astro.props;
 
+const t = useTranslations(lang);
+const site = Astro.site ?? new URL('https://unschool.cool');
 const path = Astro.url.pathname;
-const canonical = new URL(path, Astro.site ?? 'https://unschool.cool');
-const ogImage = new URL(image, Astro.site ?? 'https://unschool.cool');
+const canonical = new URL(path, site);
+const ogImage = new URL(image ?? `/images/og-${lang}.png`, site);
 
 const alternates = noindex
   ? []
   : translations.map((code) => ({
       lang: code,
-      href: new URL(switchLangPath(path, code), Astro.site ?? 'https://unschool.cool').toString(),
+      href: new URL(switchLangPath(path, code), site).toString(),
     }));
 
-const xDefault = alternates.find((alt) => alt.lang === DEFAULT_LANG) ?? alternates[0];
-const structured = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+// The site root negotiates language, so it is the right target for users whose
+// locale matches none of the translations. Inner pages fall back to Russian.
+const isHome = /^\/[a-z]{2}\/$/.test(path);
+const defaultAlternate = alternates.find((alt) => alt.lang === DEFAULT_LANG) ?? alternates[0];
+const xDefault = isHome ? new URL('/', site).toString() : defaultAlternate?.href;
+
+const otherLocales = translations.filter((code) => code !== lang);
+
+const graph = noindex
+  ? []
+  : [
+      organization(site, t('site.tagline')),
+      website(lang, site, t('site.name'), t('site.tagline')),
+      webPage(canonical, lang, site, { title, description, type: pageType }),
+    ];
+
+const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const structured = [
+  ...(graph.length ? [{ '@context': 'https://schema.org', '@graph': graph }] : []),
+  ...extra,
+];
 ---
 
 <script is:inline>
@@ -54,24 +84,63 @@ const structured = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical.toString()} />
 
-{noindex && <meta name="robots" content="noindex, nofollow" />}
+{
+  noindex ? (
+    <meta name="robots" content="noindex, nofollow" />
+  ) : (
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+  )
+}
 
 {alternates.map((alt) => <link rel="alternate" hreflang={alt.lang} href={alt.href} />)}
-{xDefault && <link rel="alternate" hreflang="x-default" href={xDefault.href} />}
+{xDefault && <link rel="alternate" hreflang="x-default" href={xDefault} />}
 
-<meta property="og:type" content="website" />
+<meta property="og:type" content={ogType} />
 <meta property="og:site_name" content="Unschool" />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical.toString()} />
 <meta property="og:image" content={ogImage.toString()} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:alt" content={imageAlt ?? t('site.tagline')} />
 <meta property="og:locale" content={OG_LOCALE[lang]} />
+{otherLocales.map((code) => <meta property="og:locale:alternate" content={OG_LOCALE[code]} />)}
+
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage.toString()} />
+<meta name="twitter:image:alt" content={imageAlt ?? t('site.tagline')} />
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
 <link rel="sitemap" href="/sitemap.xml" />
 
-<Font cssVariable="--font-brand" preload />
+{
+  /* The heading is the largest paint on every page, so the display face for the
+    current script is the only font worth a preload slot. Body text loads from
+    the inlined @font-face rules and swaps on matched fallback metrics. */
+}
+<Font cssVariable="--font-brand" />
+{
+  lang === 'he' ? (
+    <>
+      <Font cssVariable="--font-display-hebrew" preload />
+      <Font cssVariable="--font-display-latin" />
+    </>
+  ) : (
+    <>
+      <Font cssVariable="--font-display-latin" preload />
+      <Font cssVariable="--font-display-hebrew" />
+    </>
+  )
+}
 
 {
   structured.map((block) => (

@@ -4,6 +4,7 @@ import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import { listByLang, listFaq, sortByOrder } from '~/lib/content';
 import { formatPrice } from '~/lib/format';
+import { faqPage } from '~/lib/schema';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import FindLessons from '~/components/FindLessons.astro';
 import Marquee from '~/components/Marquee.astro';
@@ -53,21 +54,14 @@ const marquee = [
   'Hebrew',
 ];
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'EducationalOrganization',
-  name: 'Unschool',
-  url: new URL(localePath(lang), Astro.site ?? 'https://unschool.cool').toString(),
-  description: t('site.tagline'),
-  areaServed: 'IL',
-  availableLanguage: ['he', 'ru', 'en'],
-};
+const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer: data.answer })));
 ---
 
 <BaseLayout
   lang={lang}
-  title={`Unschool — ${t('site.tagline')}`}
-  description={t('home.hero.subtitle')}
+  title={t('home.seoTitle')}
+  description={t('home.seoDescription')}
+  pageType="CollectionPage"
   jsonLd={jsonLd}
   bleed
 >
@@ -84,7 +78,7 @@ const jsonLd = {
           {t('home.hero.line1')}
           <span class="hero-accent">
             {t('home.hero.line2')}
-            <Doodle variant="underline" class="hero-underline" />
+            <Doodle variant="underline" class="hero-underline" preserveAspectRatio="none" />
           </span>
         </h1>
 
@@ -215,7 +209,7 @@ const jsonLd = {
     <div class="wrap">
       <div class="honesty" data-reveal>
         <div class="honesty-head">
-          <Doodle variant="star" class="honesty-star" color="var(--grape)" />
+          <Doodle variant="star" color="var(--grape)" />
           <h2>{t('home.honesty.title')}</h2>
           <p class="honesty-text">{t('home.honesty.text')}</p>
         </div>
@@ -336,24 +330,30 @@ const jsonLd = {
     flex: none;
   }
 
+  /* The headline is display type: never hyphenate it. */
   .hero-title {
     max-width: 16ch;
     margin-bottom: var(--s5);
+    hyphens: manual;
   }
 
+  /* Padding reserves room for the stroke inside the headline's own box, so
+     it can never reach the paragraph below. */
   .hero-accent {
     position: relative;
     display: inline-block;
+    padding-bottom: 0.3em;
     color: var(--brand-deep);
   }
 
-  /* Clears descenders so the stroke reads as an underline, not a strike. */
+  /* Stretched to a fixed thin band so the stroke always lands under the last
+     line's descenders instead of scaling with the headline's width. */
   .hero-underline {
     position: absolute;
     inset-inline: 0;
-    bottom: -0.44em;
+    bottom: 0.04em;
     width: 100%;
-    height: auto;
+    height: 0.14em;
   }
 
   .hero-copy .lede {
@@ -543,15 +543,11 @@ const jsonLd = {
     border-radius: var(--r-lg);
   }
 
-  .honesty-head {
-    position: relative;
-  }
-
-  .honesty-star {
-    position: absolute;
-    inset-inline-end: 0;
-    top: -0.5rem;
-    opacity: 0.6;
+  /* The doodle sits in the flow above the heading: it can never land on
+     top of a translated title. */
+  .honesty-head :global(.doodle) {
+    margin-bottom: var(--s3);
+    opacity: 0.7;
   }
 
   .honesty h2 {

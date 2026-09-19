@@ -6,7 +6,7 @@ import { useTranslations } from '~/i18n/ui';
 import { findLocalized, listSlugs, translatedLangs } from '~/lib/content';
 import { formatDate } from '~/lib/format';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import Icon from '~/components/Icon.astro';
 
 export async function getStaticPaths() {
@@ -27,6 +27,14 @@ const translations = await translatedLangs('pages', slug);
 const { data } = entry;
 
 const isLegal = ['privacy', 'terms', 'accessibility'].includes(slug);
+
+const PAGE_TYPES: Record<string, string> = {
+  about: 'AboutPage',
+  contact: 'ContactPage',
+  'how-it-works': 'WebPage',
+  'formats-prices': 'CollectionPage',
+};
+const pageType = PAGE_TYPES[slug] ?? 'WebPage';
 ---
 
 <BaseLayout
@@ -35,117 +43,115 @@ const isLegal = ['privacy', 'terms', 'accessibility'].includes(slug);
   description={data.seoDescription ?? data.subtitle ?? data.title}
   translations={translations}
   fallbackFrom={isFallback ? sourceLang : null}
-  narrow
+  pageType={pageType}
+  bleed
 >
-  <Breadcrumbs
+  <PageHeader
     lang={lang}
-    items={[{ href: localePath(lang), label: t('nav.home') }, { label: data.title }]}
-  />
-
-  <header class="page-head">
-    <h1>{data.title}</h1>
-    {data.subtitle && <p class="lede">{data.subtitle}</p>}
-    {data.updated && <p class="tiny muted">{formatDate(lang, data.updated)}</p>}
-  </header>
+    title={data.title}
+    subtitle={data.subtitle}
+    tone={isLegal ? 'plain' : 'band'}
+    soft="var(--paper-2)"
+    crumbs={[{ href: localePath(lang), label: t('nav.home') }, { label: data.title }]}
+  >
+    {data.updated && <p class="tiny muted updated">{formatDate(lang, data.updated)}</p>}
+  </PageHeader>
 
   <div data-cta-sentinel></div>
 
-  {
-    data.contact && (
-      <ul class="contact-list">
-        {data.contact.email && (
-          <li>
-            <span class="contact-icon">
-              <Icon name="mail" size={18} />
-            </span>
-            <span>
-              <span class="contact-label">{t('contact.email')}</span>
-              <a href={`mailto:${data.contact.email}`}>{data.contact.email}</a>
-            </span>
-          </li>
-        )}
-        {data.contact.phone && (
-          <li>
-            <span class="contact-icon">
-              <Icon name="phone" size={18} />
-            </span>
-            <span>
-              <span class="contact-label">{t('contact.phone')}</span>
-              <a href={`tel:${data.contact.phone.replace(/\s/g, '')}`}>{data.contact.phone}</a>
-            </span>
-          </li>
-        )}
-        {data.contact.hours && (
-          <li>
-            <span class="contact-icon">
-              <Icon name="info" size={18} />
-            </span>
-            <span>
-              <span class="contact-label">{t('contact.hours')}</span>
-              {data.contact.hours}
-            </span>
-          </li>
-        )}
-      </ul>
-    )
-  }
-
-  {
-    data.formats.length > 0 && (
-      <section class="section section--tight" aria-labelledby="formats-title">
-        <h2 id="formats-title" class="visually-hidden">
-          {t('formats.title')}
-        </h2>
-        <ul class="format-list">
-          {data.formats.map((format, index) => (
-            <li data-reveal>
-              <span class="format-index">{String(index + 1).padStart(2, '0')}</span>
-              <div>
-                <h3>{format.name}</h3>
-                <p>{format.details}</p>
-              </div>
-              <span class="format-price">{format.price}</span>
+  <div class="wrap wrap--narrow page">
+    {
+      data.contact && (
+        <ul class="contact-list">
+          {data.contact.email && (
+            <li>
+              <span class="contact-icon">
+                <Icon name="mail" size={18} />
+              </span>
+              <span>
+                <span class="contact-label">{t('contact.email')}</span>
+                <a href={`mailto:${data.contact.email}`}>{data.contact.email}</a>
+              </span>
             </li>
-          ))}
+          )}
+          {data.contact.phone && (
+            <li>
+              <span class="contact-icon">
+                <Icon name="phone" size={18} />
+              </span>
+              <span>
+                <span class="contact-label">{t('contact.phone')}</span>
+                <a href={`tel:${data.contact.phone.replace(/\s/g, '')}`}>{data.contact.phone}</a>
+              </span>
+            </li>
+          )}
+          {data.contact.hours && (
+            <li>
+              <span class="contact-icon">
+                <Icon name="info" size={18} />
+              </span>
+              <span>
+                <span class="contact-label">{t('contact.hours')}</span>
+                {data.contact.hours}
+              </span>
+            </li>
+          )}
         </ul>
-        <p class="tiny muted confirmed">
-          <Icon name="check" size={14} />
-          {t('formats.confirmed')}
-        </p>
-      </section>
-    )
-  }
+      )
+    }
 
-  <section class="section section--tight prose">
-    <Content />
-  </section>
+    {
+      data.formats.length > 0 && (
+        <section class="section section--tight" aria-labelledby="formats-title">
+          <h2 id="formats-title" class="visually-hidden">
+            {t('formats.title')}
+          </h2>
+          <ul class="format-list">
+            {data.formats.map((format, index) => (
+              <li data-reveal>
+                <span class="format-index">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3>{format.name}</h3>
+                  <p>{format.details}</p>
+                </div>
+                <span class="format-price">{format.price}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="tiny muted confirmed">
+            <Icon name="check" size={14} />
+            {t('formats.confirmed')}
+          </p>
+        </section>
+      )
+    }
 
-  {
-    !isLegal && (
-      <section class="section section--tight">
-        <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_page">
-          {t('cta.bookFree')}
-          <Icon name="arrow" size={18} class="flip-rtl" />
-        </a>
-        <p class="cta-note">{t('cta.bookNote')}</p>
-      </section>
-    )
-  }
+    <section class="section section--tight prose">
+      <Content />
+    </section>
+
+    {
+      !isLegal && (
+        <section class="section section--tight">
+          <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_page">
+            {t('cta.bookFree')}
+            <Icon name="arrow" size={18} class="flip-rtl" />
+          </a>
+          <p class="cta-note">{t('cta.bookNote')}</p>
+        </section>
+      )
+    }
+  </div>
 </BaseLayout>
 
 <style>
-  .page-head {
-    max-width: 34rem;
-    margin-bottom: var(--s6);
-  }
-
-  .page-head h1 {
-    margin-bottom: var(--s3);
+  .updated {
+    margin: var(--s3) 0 0;
   }
 
   .contact-list {
     list-style: none;
-    margin: 0 0 var(--s6);
+    margin: var(--s6) 0;
     padding: 0;
     display: grid;
     gap: var(--s3);

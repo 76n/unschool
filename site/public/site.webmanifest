@@ -1,0 +1,26 @@
+{
+  "name": "Unschool",
+  "short_name": "Unschool",
+  "description": "Online Maths, English and Hebrew lessons for school students in Israel.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#fbf7ef",
+  "theme_color": "#655c97",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

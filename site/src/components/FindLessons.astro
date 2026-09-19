@@ -90,10 +90,10 @@ const tiles = {
                 <span class="tile-mark" aria-hidden="true">
                   {tile.mark}
                 </span>
+                <span class="tile-name">{tile.name}</span>
                 <span class="tile-go" aria-hidden="true">
                   <Icon name="arrow" size={16} class="flip-rtl" />
                 </span>
-                <span class="tile-name">{tile.name}</span>
               </a>
             </li>
           ))}
@@ -192,13 +192,12 @@ const tiles = {
     margin: 0;
   }
 
-  /* Mark and arrow share the top row, the label anchors the bottom, so
-     the tile never has an empty middle. */
+  /* Single column: nothing sits beside anything else, so a long mark or a
+     long label can never collide with the arrow. */
   .tile {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto 1fr;
-    gap: var(--s3) var(--s2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
     min-height: 8.75rem;
     height: 100%;
     padding: var(--s3);
@@ -218,25 +217,20 @@ const tiles = {
   }
 
   .tile-mark {
-    grid-column: 1;
-    grid-row: 1;
-    align-self: start;
     font-family: var(--font-display);
-    font-size: clamp(1.5rem, 6vw, 2.25rem);
+    font-size: clamp(1.35rem, 5.4vw, 2.25rem);
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.03em;
     color: var(--accent);
-    white-space: nowrap;
   }
 
   .tile-go {
-    grid-column: 2;
-    grid-row: 1;
     display: grid;
     place-items: center;
     width: 1.75rem;
     height: 1.75rem;
+    flex: none;
     border-radius: 50%;
     background: var(--accent);
     color: #fff;
@@ -251,10 +245,9 @@ const tiles = {
     transform: translateX(-3px);
   }
 
+  /* Pushes the label and arrow to the bottom of the tile. */
   .tile-name {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    align-self: end;
+    margin-top: auto;
     font-size: clamp(0.8125rem, 3.1vw, 1.0625rem);
     font-weight: 600;
     line-height: 1.25;

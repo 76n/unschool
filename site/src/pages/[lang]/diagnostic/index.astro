@@ -3,8 +3,9 @@ import { langParams, type Lang } from '~/i18n/config';
 import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import { SUBJECTS, subjectNameKey } from '~/data/taxonomy';
+import { freeDiagnosticService } from '~/lib/schema';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import Icon from '~/components/Icon.astro';
 import Doodle from '~/components/Doodle.astro';
 
@@ -42,27 +43,35 @@ const steps = [
   t('home.diagnostic.step2.text'),
   t('home.diagnostic.step3.text'),
 ];
+
+const jsonLd = freeDiagnosticService(
+  new URL(Astro.url.pathname, Astro.site ?? 'https://unschool.cool'),
+  lang,
+  Astro.site,
+  t('diagnostic.title'),
+  t('diagnostic.intro')
+);
 ---
 
 <BaseLayout
   lang={lang}
-  title={t('diagnostic.title')}
-  description={t('diagnostic.intro')}
+  title={t('diagnostic.seoTitle')}
+  description={t('diagnostic.seoDescription')}
+  jsonLd={jsonLd}
   stickyCta={false}
+  bleed
 >
-  <Breadcrumbs
+  <PageHeader
     lang={lang}
-    items={[{ href: localePath(lang), label: t('nav.home') }, { label: t('diagnostic.title') }]}
+    title={t('diagnostic.title')}
+    subtitle={t('diagnostic.intro')}
+    eyebrow={t('nav.programs')}
+    crumbs={[{ href: localePath(lang), label: t('nav.home') }, { label: t('diagnostic.title') }]}
+    soft="var(--paper-2)"
   />
 
-  <div class="lead-layout">
+  <div class="wrap page lead-layout">
     <div class="lead-main">
-      <header class="lead-head">
-        <p class="eyebrow">{t('cta.bookFree')}</p>
-        <h1>{t('diagnostic.title')}</h1>
-        <p class="lede">{t('diagnostic.intro')}</p>
-      </header>
-
       <form
         class="lead-form"
         id="lead-form"
@@ -205,8 +214,8 @@ const steps = [
     </div>
 
     <aside class="lead-aside">
-      <div class="reassure">
-        <Doodle variant="sparkle" class="reassure-doodle" color="var(--accent)" />
+      <div class="reassure on-dark">
+        <Doodle variant="sparkle" color="var(--accent)" />
         <h2>{t('home.diagnostic.title')}</h2>
         <ol class="reassure-steps">
           {steps.map((step) => <li>{step}</li>)}
@@ -364,15 +373,6 @@ const steps = [
     gap: var(--s7);
   }
 
-  .lead-head {
-    margin-bottom: var(--s6);
-    max-width: 34rem;
-  }
-
-  .lead-head h1 {
-    margin-bottom: var(--s3);
-  }
-
   fieldset.field {
     border: 0;
     padding: 0;
@@ -401,10 +401,8 @@ const steps = [
     font-size: 1.35rem;
   }
 
-  .reassure-doodle {
-    position: absolute;
-    inset-inline-end: var(--s4);
-    top: var(--s4);
+  .reassure :global(.doodle) {
+    margin-bottom: var(--s3);
   }
 
   .reassure-steps {

@@ -4,8 +4,7 @@ import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import { listByLang, sortByOrder } from '~/lib/content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
-import SectionHead from '~/components/SectionHead.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import TeacherCard from '~/components/TeacherCard.astro';
 
 export function getStaticPaths() {
@@ -17,33 +16,37 @@ const t = useTranslations(lang);
 const teachers = sortByOrder(await listByLang('teachers', lang));
 ---
 
-<BaseLayout lang={lang} title={t('teachers.title')} description={t('home.teachers.text')}>
-  <Breadcrumbs
+<BaseLayout
+  lang={lang}
+  title={t('teachers.seoTitle')}
+  description={t('teachers.seoDescription')}
+  pageType="CollectionPage"
+  bleed
+>
+  <PageHeader
     lang={lang}
-    items={[{ href: localePath(lang), label: t('nav.home') }, { label: t('teachers.title') }]}
-  />
-
-  <SectionHead
-    eyebrow={t('nav.teachers')}
     title={t('teachers.title')}
-    text={t('home.teachers.text')}
-    level="h2"
+    subtitle={t('teachers.intro')}
+    eyebrow={t('nav.teachers')}
+    crumbs={[{ href: localePath(lang), label: t('nav.home') }, { label: t('teachers.title') }]}
+    soft="var(--paper-2)"
   />
-  <h1 class="visually-hidden">{t('teachers.title')}</h1>
 
   <div data-cta-sentinel></div>
 
-  {
-    teachers.length > 0 ? (
-      <div class="grid grid--2">
-        {teachers.map((teacher) => (
-          <div data-reveal>
-            <TeacherCard lang={lang} teacher={teacher} />
-          </div>
-        ))}
-      </div>
-    ) : (
-      <p class="muted">{t('teachers.empty')}</p>
-    )
-  }
+  <div class="wrap page">
+    {
+      teachers.length > 0 ? (
+        <div class="grid grid--2">
+          {teachers.map((teacher) => (
+            <div data-reveal>
+              <TeacherCard lang={lang} teacher={teacher} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="muted">{t('teachers.empty')}</p>
+      )
+    }
+  </div>
 </BaseLayout>

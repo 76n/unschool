@@ -200,7 +200,8 @@ const mainLinks = [
   .header-inner {
     display: flex;
     align-items: center;
-    gap: var(--s5);
+    gap: var(--s4);
+    min-width: 0;
     min-height: var(--header-h);
   }
 
@@ -229,12 +230,13 @@ const mainLinks = [
   .desk-nav {
     display: none;
     align-items: center;
-    gap: var(--s5);
+    gap: var(--s4);
+    min-width: 0;
   }
 
   .desk-nav > a,
   .mega > summary {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--ink);
     text-decoration: none;
@@ -513,17 +515,16 @@ const mainLinks = [
     color: var(--brand-deep);
   }
 
-  @media (min-width: 64rem) {
+  /* The inline nav appears only where all five Russian labels plus the
+     language switch and the button genuinely fit. Below that: the menu. */
+  @media (min-width: 75rem) {
     .desk-nav {
       display: flex;
+      margin-inline-end: auto;
     }
 
     .wordmark {
-      margin-inline-end: var(--s6);
-    }
-
-    .desk-nav {
-      margin-inline-end: auto;
+      margin-inline-end: var(--s5);
     }
 
     .header-cta {

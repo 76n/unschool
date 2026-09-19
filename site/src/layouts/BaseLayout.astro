@@ -20,6 +20,10 @@ interface Props {
   narrow?: boolean;
   stickyCta?: boolean;
   fallbackFrom?: Lang | null;
+  image?: string;
+  imageAlt?: string;
+  ogType?: string;
+  pageType?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   viewEvent?: string;
   viewId?: string;
@@ -35,6 +39,10 @@ const {
   narrow = false,
   stickyCta = true,
   fallbackFrom = null,
+  image,
+  imageAlt,
+  ogType,
+  pageType,
   jsonLd,
   viewEvent,
   viewId,
@@ -55,6 +63,10 @@ const mainClass = bleed ? '' : `wrap page${narrow ? ' wrap--narrow' : ''}`;
       description={description}
       translations={translations}
       noindex={noindex || Boolean(fallbackFrom)}
+      image={image}
+      imageAlt={imageAlt}
+      ogType={ogType}
+      pageType={pageType}
       jsonLd={jsonLd}
     />
   </head>

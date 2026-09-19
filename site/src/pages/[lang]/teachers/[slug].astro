@@ -6,7 +6,7 @@ import { useTranslations } from '~/i18n/ui';
 import { SUBJECT_GLYPH, SUBJECT_THEME, subjectNameKey } from '~/data/taxonomy';
 import { findLocalized, listByLang, listSlugs, sortByOrder, translatedLangs } from '~/lib/content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import SectionHead from '~/components/SectionHead.astro';
 import ProgramCard from '~/components/ProgramCard.astro';
 import Icon from '~/components/Icon.astro';
@@ -41,119 +41,70 @@ const programs = sortByOrder(
   description={data.seoDescription ?? data.role}
   translations={translations}
   fallbackFrom={isFallback ? sourceLang : null}
-  narrow
+  bleed
 >
-  <Breadcrumbs
+  <PageHeader
     lang={lang}
-    items={[
+    title={data.name}
+    subtitle={data.role}
+    eyebrow={t('teachers.title')}
+    crumbs={[
       { href: localePath(lang, 'teachers'), label: t('teachers.title') },
       { label: data.name },
     ]}
-  />
-
-  <header class="profile" style={`--accent:${theme.accent};--soft:${theme.soft}`}>
-    <span class="portrait">
+    accent={theme.accent}
+    soft={theme.soft}
+    glyph={SUBJECT_GLYPH[subject]}
+  >
+    <ul class="chip-row profile-chips">
       {
-        data.photo ? (
-          <img src={data.photo} alt="" width="140" height="140" />
-        ) : (
-          <span class="portrait-glyph" aria-hidden="true">
-            {SUBJECT_GLYPH[subject]}
-          </span>
-        )
+        data.subjects.map((item) => (
+          <li>
+            <span class="chip">{t(subjectNameKey(item))}</span>
+          </li>
+        ))
       }
-    </span>
-    <div>
-      <h1>{data.name}</h1>
-      <p class="muted role">{data.role}</p>
-      <ul class="chip-row">
-        {
-          data.subjects.map((item) => (
-            <li>
-              <span class="chip">{t(subjectNameKey(item))}</span>
-            </li>
-          ))
-        }
-        {
-          data.teachingLanguages.map((item) => (
-            <li>
-              <span class="chip chip--outline">{item}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </header>
+      {
+        data.teachingLanguages.map((item) => (
+          <li>
+            <span class="chip chip--outline">{item}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </PageHeader>
 
   <div data-cta-sentinel></div>
 
-  <section class="section section--tight prose">
-    <Content />
-  </section>
+  <div class="wrap wrap--narrow page">
+    <section class="section section--tight prose">
+      <Content />
+    </section>
 
-  {
-    programs.length > 0 && (
-      <section class="section" aria-labelledby="programs-title">
-        <SectionHead title={t('teachers.programs')} id="programs-title" />
-        <div class="grid grid--2">
-          {programs.map((program) => (
-            <ProgramCard lang={lang} program={program} />
-          ))}
-        </div>
-      </section>
-    )
-  }
+    {
+      programs.length > 0 && (
+        <section class="section" aria-labelledby="programs-title">
+          <SectionHead title={t('teachers.programs')} id="programs-title" />
+          <div class="grid grid--2">
+            {programs.map((program) => (
+              <ProgramCard lang={lang} program={program} />
+            ))}
+          </div>
+        </section>
+      )
+    }
 
-  <section class="section section--tight">
-    <a class="btn btn--primary" href={localePath(lang, 'diagnostic')}>
-      {t('cta.bookFree')}
-      <Icon name="arrow" size={18} class="flip-rtl" />
-    </a>
-  </section>
+    <section class="section section--tight">
+      <a class="btn btn--primary" href={localePath(lang, 'diagnostic')}>
+        {t('cta.bookFree')}
+        <Icon name="arrow" size={18} class="flip-rtl" />
+      </a>
+    </section>
+  </div>
 </BaseLayout>
 
 <style>
-  .profile {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--s5);
-    padding: var(--s5);
-    background: var(--soft);
-    border-radius: var(--r-lg);
-  }
-
-  .profile h1 {
-    margin-bottom: var(--s1);
-    font-size: clamp(1.8rem, 6vw, 2.5rem);
-  }
-
-  .role {
-    margin: 0 0 var(--s3);
-  }
-
-  .portrait {
-    display: grid;
-    place-items: center;
-    width: 6rem;
-    height: 6rem;
-    flex: none;
-    border-radius: 50%;
-    background: var(--surface);
-    overflow: hidden;
-  }
-
-  .portrait img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .portrait-glyph {
-    font-family: var(--font-display);
-    font-size: 2.5rem;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--accent);
+  .profile-chips {
+    margin-top: var(--s4);
   }
 </style>

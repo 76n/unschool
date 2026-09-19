@@ -8,7 +8,7 @@ goals:
   - Read and retell school texts
   - Write without fear of mistakes
   - Build vocabulary for school subjects
-seoTitle: Hebrew for school students in Israel — online lessons
+seoTitle: "Online Hebrew lessons for students in Israel"
 seoDescription: "Hebrew lessons for grades 1–12: following lessons, reading, writing and school vocabulary. Start with a free assessment meeting."
 ---
 

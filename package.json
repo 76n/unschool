@@ -18,9 +18,11 @@
     "build": "npm --prefix functions run build && npm --prefix site run build",
     "deploy": "PUBLIC_SITE_URL=https://unschool-v2.web.app npm run build && firebase deploy --only hosting:site,functions:api,functions:rootRedirect",
     "deploy:hosting": "PUBLIC_SITE_URL=https://unschool-v2.web.app npm --prefix site run build && firebase deploy --only hosting:site",
+    "seo:audit": "node scripts/seo-audit.mjs",
+    "images": "node scripts/generate-images.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm --prefix site run check && npm --prefix functions run check"
+    "check": "npm --prefix site run check && npm --prefix functions run check && npm run seo:audit"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

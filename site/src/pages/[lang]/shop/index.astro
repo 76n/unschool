@@ -11,8 +11,9 @@ import {
   subjectNameKey,
 } from '~/data/taxonomy';
 import { listByLang, sortByOrder } from '~/lib/content';
+import { absolute } from '~/lib/schema';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import ProductCard from '~/components/ProductCard.astro';
 import Callout from '~/components/Callout.astro';
 
@@ -23,81 +24,104 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 const products = sortByOrder(await listByLang('products', lang));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: t('shop.title'),
+  numberOfItems: products.length,
+  itemListElement: products.map((product, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: product.data.title,
+    url: absolute(localePath(lang, `shop/${product.data.slug}`), Astro.site),
+  })),
+};
 ---
 
-<BaseLayout lang={lang} title={t('shop.title')} description={t('shop.intro')} stickyCta={false}>
-  <Breadcrumbs
+<BaseLayout
+  lang={lang}
+  title={t('shop.seoTitle')}
+  description={t('shop.seoDescription')}
+  pageType="CollectionPage"
+  jsonLd={jsonLd}
+  stickyCta={false}
+  bleed
+>
+  <PageHeader
     lang={lang}
-    items={[{ href: localePath(lang), label: t('nav.home') }, { label: t('shop.title') }]}
+    title={t('shop.title')}
+    subtitle={t('shop.intro')}
+    eyebrow={t('nav.materials')}
+    crumbs={[{ href: localePath(lang), label: t('nav.home') }, { label: t('shop.title') }]}
+    accent="var(--brand)"
+    soft="var(--paper-2)"
+    glyph="₪"
   />
 
-  <header class="shop-head">
-    <p class="eyebrow">{t('nav.materials')}</p>
-    <h1>{t('shop.title')}</h1>
-    <p class="lede">{t('shop.intro')}</p>
-  </header>
+  <div class="wrap page">
+    <form class="filters" id="shop-filters" aria-label={t('shop.title')}>
+      <label class="filter">
+        <span class="filter-label">{t('shop.filter.subject')}</span>
+        <select name="subject">
+          <option value="">{t('shop.filter.all')}</option>
+          {SUBJECTS.map((subject) => <option value={subject}>{t(subjectNameKey(subject))}</option>)}
+        </select>
+      </label>
 
-  <form class="filters" id="shop-filters" aria-label={t('shop.title')}>
-    <label class="filter">
-      <span class="filter-label">{t('shop.filter.subject')}</span>
-      <select name="subject">
-        <option value="">{t('shop.filter.all')}</option>
-        {SUBJECTS.map((subject) => <option value={subject}>{t(subjectNameKey(subject))}</option>)}
-      </select>
-    </label>
+      <label class="filter">
+        <span class="filter-label">{t('shop.filter.stage')}</span>
+        <select name="stage">
+          <option value="">{t('shop.filter.all')}</option>
+          {STAGES.map((stage) => <option value={stage}>{t(stageNameKey(stage))}</option>)}
+        </select>
+      </label>
 
-    <label class="filter">
-      <span class="filter-label">{t('shop.filter.stage')}</span>
-      <select name="stage">
-        <option value="">{t('shop.filter.all')}</option>
-        {STAGES.map((stage) => <option value={stage}>{t(stageNameKey(stage))}</option>)}
-      </select>
-    </label>
+      <label class="filter">
+        <span class="filter-label">{t('shop.filter.type')}</span>
+        <select name="type">
+          <option value="">{t('shop.filter.all')}</option>
+          {PRODUCT_TYPES.map((type) => <option value={type}>{t(productTypeKey(type))}</option>)}
+        </select>
+      </label>
 
-    <label class="filter">
-      <span class="filter-label">{t('shop.filter.type')}</span>
-      <select name="type">
-        <option value="">{t('shop.filter.all')}</option>
-        {PRODUCT_TYPES.map((type) => <option value={type}>{t(productTypeKey(type))}</option>)}
-      </select>
-    </label>
+      <label class="filter">
+        <span class="filter-label">{t('shop.filter.language')}</span>
+        <select name="language">
+          <option value="">{t('shop.filter.all')}</option>
+          {LANGS.map((code) => <option value={code}>{LANG_NAME[code]}</option>)}
+        </select>
+      </label>
 
-    <label class="filter">
-      <span class="filter-label">{t('shop.filter.language')}</span>
-      <select name="language">
-        <option value="">{t('shop.filter.all')}</option>
-        {LANGS.map((code) => <option value={code}>{LANG_NAME[code]}</option>)}
-      </select>
-    </label>
+      <button class="btn btn--outline btn--sm reset" type="reset" data-reset>
+        {t('shop.filter.reset')}
+      </button>
+    </form>
 
-    <button class="btn btn--outline btn--sm reset" type="reset" data-reset>
-      {t('shop.filter.reset')}
-    </button>
-  </form>
+    <p class="results tiny muted" id="shop-results" aria-live="polite">
+      {t('shop.results', { count: products.length })}
+    </p>
 
-  <p class="results tiny muted" id="shop-results" aria-live="polite">
-    {t('shop.results', { count: products.length })}
-  </p>
+    <div class="grid grid--3" id="shop-grid">
+      {
+        products.map((product) => (
+          <div data-reveal>
+            <ProductCard lang={lang} product={product} />
+          </div>
+        ))
+      }
+    </div>
 
-  <div class="grid grid--3" id="shop-grid">
-    {
-      products.map((product) => (
-        <div data-reveal>
-          <ProductCard lang={lang} product={product} />
-        </div>
-      ))
-    }
-  </div>
+    <p class="muted empty" id="shop-empty" hidden>{t('shop.empty')}</p>
 
-  <p class="muted empty" id="shop-empty" hidden>{t('shop.empty')}</p>
-
-  <div class="section">
-    <Callout
-      title={t('home.unsure.title')}
-      text={t('product.relatedDiagnostic')}
-      href={localePath(lang, 'diagnostic')}
-      linkLabel={t('cta.bookFree')}
-    />
+    <div class="section">
+      <Callout
+        title={t('home.unsure.title')}
+        text={t('product.relatedDiagnostic')}
+        href={localePath(lang, 'diagnostic')}
+        linkLabel={t('cta.bookFree')}
+      />
+    </div>
   </div>
 </BaseLayout>
 
@@ -141,15 +165,6 @@ const products = sortByOrder(await listByLang('products', lang));
 </script>
 
 <style>
-  .shop-head {
-    max-width: 34rem;
-    margin-bottom: var(--s6);
-  }
-
-  .shop-head h1 {
-    margin-bottom: var(--s3);
-  }
-
   .filters {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

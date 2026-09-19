@@ -1,7 +1,6 @@
 {
   "site.name": "Unschool",
   "site.tagline": "מתמטיקה, אנגלית ועברית לתלמידי בית ספר בישראל",
-
   "nav.programs": "תוכניות",
   "nav.subjects": "לפי מקצוע",
   "nav.stages": "לפי גיל",
@@ -17,7 +16,6 @@
   "nav.closeMenu": "סגירת תפריט",
   "nav.language": "שפת האתר",
   "nav.home": "דף הבית",
-
   "cta.book": "לקביעת פגישה",
   "cta.bookShort": "פגישה חינם",
   "cta.bookFree": "לקביעת פגישת אבחון חינם",
@@ -27,7 +25,6 @@
   "cta.allTeachers": "כל המורים",
   "cta.toCatalog": "לקטלוג החומרים",
   "cta.backHome": "לדף הבית",
-
   "common.from": "החל מ־",
   "common.perLesson": "לשיעור",
   "common.currency": "₪",
@@ -47,12 +44,10 @@
   "common.price": "מחיר",
   "common.teacher": "מורה",
   "common.priceOnRequest": "המחיר נסגר אחרי האבחון",
-
   "subject.math.name": "מתמטיקה",
   "subject.english.name": "אנגלית",
   "subject.hebrew.name": "עברית",
   "subject.plural": "מקצועות",
-
   "stage.elementary.name": "בית ספר יסודי",
   "stage.elementary.grades": "כיתות א׳–ו׳",
   "stage.elementary.range": "א׳–ו׳",
@@ -66,7 +61,6 @@
   "stage.high.range": "י׳–י״ב",
   "stage.high.short": "תיכון ובגרות",
   "stage.plural": "שלבי הלימוד",
-
   "home.hero.badge": "בית ספר אונליין לכיתות א׳–י״ב בישראל",
   "home.hero.line1": "מתמטיקה, אנגלית ועברית.",
   "home.hero.line2": "מתחילים מהמקום שבו הילד נתקע",
@@ -111,7 +105,6 @@
   "home.materials.text": "חוברות ומאגרי תרגילים אפשר לקנות בנפרד — בלי להירשם לשיעורים.",
   "home.final.title": "התחילו בפגישה חינם",
   "home.final.text": "תקבלו המלצה ותחליטו בעצמכם. לא נרדוף אחריכם בטלפון.",
-
   "programs.title": "תוכניות",
   "programs.empty": "עדיין לא פורסמו תוכניות בחלק הזה.",
   "program.audience": "למי זה מתאים",
@@ -125,30 +118,25 @@
   "program.subjects": "מקצועות",
   "program.stages": "שלבי לימוד",
   "program.teachingLanguages": "שפת ההוראה",
-
   "subjects.title": "מקצועות",
   "subject.page.stages": "שלבי הלימוד",
   "subject.page.programs": "תוכניות במקצוע",
   "subject.page.teachers": "המורים למקצוע",
   "subject.page.goals": "מה לומדים",
-
   "stages.title": "שלבי הלימוד",
   "stage.page.subjects": "מקצועות בשלב הזה",
   "stage.page.programs": "תוכניות לשלב הזה",
-
   "howItWorks.title": "איך מתנהלים השיעורים",
   "formats.title": "מתכונות ומחירים",
   "formats.confirmed": "המחירים אושרו על ידי בית הספר",
   "formats.table.format": "מתכונת",
   "formats.table.details": "מה כלול",
   "formats.table.price": "מחיר",
-
   "teachers.title": "מורים",
   "teachers.subjects": "מקצועות",
   "teachers.languages": "שפות הוראה",
   "teachers.empty": "פרופילי המורים יופיעו כאן לאחר אישור הפרטים.",
   "teachers.programs": "התוכניות של המורה",
-
   "about.title": "על בית הספר",
   "contact.title": "יצירת קשר",
   "contact.email": "אימייל",
@@ -156,7 +144,6 @@
   "contact.hours": "מתי אנחנו עונים",
   "contact.preferForm": "הדרך המהירה ביותר היא טופס הפגישה החינמית.",
   "join.title": "למורים",
-
   "diagnostic.title": "פגישת אבחון חינם",
   "diagnostic.intro": "הטופס לוקח שתי דקות. ניצור קשר ונתאם זמן שנוח לכם — גם בערב או בסוף השבוע.",
   "diagnostic.field.subject": "מקצוע",
@@ -187,7 +174,6 @@
   "diagnostic.success.title": "הפנייה התקבלה",
   "diagnostic.success.text": "ניצור קשר בדרך שבחרתם בימי עבודה. אם לא קיבלתם מענה — כתבו לנו, הפנייה לא תיעלם.",
   "diagnostic.success.next": "בינתיים אפשר לקרוא איך מתנהלים השיעורים.",
-
   "shop.title": "חומרים",
   "shop.intro": "חומרים דיגיטליים שאפשר לרכוש בנפרד מהשיעורים.",
   "shop.filter.subject": "מקצוע",
@@ -200,7 +186,6 @@
   "shop.demoBadge": "דוגמה",
   "shop.demoNotice": "זו דוגמה לכרטיס מוצר. המוצר אינו למכירה כרגע.",
   "shop.results": "נמצאו חומרים: {count}",
-
   "product.type.workbook": "חוברת עבודה",
   "product.type.taskset": "מאגר תרגילים",
   "product.type.course": "קורס מוקלט",
@@ -222,7 +207,6 @@
   "product.notForSale": "עדיין לא למכירה",
   "product.related": "חומרים נוספים",
   "product.relatedDiagnostic": "צריכים עזרה בבחירה? התחילו בפגישה חינם — הייעוץ אינו תנאי לרכישה.",
-
   "checkout.title": "סיום הזמנה",
   "checkout.order": "ההזמנה שלכם",
   "checkout.total": "סה״כ",
@@ -235,7 +219,6 @@
   "checkout.error.email": "הזינו כתובת אימייל תקינה",
   "checkout.error.server": "לא הצלחנו ליצור הזמנה. נסו שוב.",
   "checkout.missingProduct": "לא נבחר מוצר.",
-
   "order.success.title": "התשלום בוצע",
   "order.success.text": "תודה! הקבלה והגישה נשלחו לאימייל שלכם.",
   "order.download": "הורדת החומר",
@@ -249,7 +232,6 @@
   "order.failed.text": "לא בוצע חיוב. אפשר לנסות שוב או לפנות לתמיכה.",
   "order.notFound": "ההזמנה לא נמצאה.",
   "order.support": "תמיכה",
-
   "footer.about": "בית ספר לתלמידים בישראל: מתמטיקה, אנגלית ועברית.",
   "footer.sections": "מדורים",
   "footer.legal": "מסמכים",
@@ -258,17 +240,24 @@
   "footer.accessibility": "נגישות",
   "footer.localProjects": "פרויקטים מקומיים",
   "footer.rights": "כל הזכויות שמורות.",
-
   "error.404.title": "הדף לא נמצא",
   "error.404.text": "ייתכן שהכתובת השתנתה. התחילו מדף הבית או בחרו מקצוע.",
-
   "fallback.notice": "הדף הזה עדיין לא תורגם לשפה שבחרתם. מוצגת גרסה בשפה אחרת.",
   "fallback.openOriginal": "פתיחת המקור",
-
   "a11y.skipToContent": "דילוג לתוכן",
   "a11y.breadcrumb": "נתיב ניווט",
   "a11y.mainNav": "ניווט ראשי",
   "a11y.footerNav": "ניווט בתחתית",
   "a11y.langSwitcher": "בחירת שפה",
-  "a11y.required": "שדה חובה"
+  "a11y.required": "שדה חובה",
+  "home.seoTitle": "מתמטיקה, אנגלית ועברית אונליין בישראל — Unschool",
+  "home.seoDescription": "שיעורים לתלמידי כיתות א׳–י״ב בישראל: מתמטיקה, אנגלית ועברית, בעברית, רוסית או אנגלית. פגישת האבחון הראשונה היא ללא תשלום.",
+  "shop.seoTitle": "חומרי לימוד דיגיטליים לתלמידים — Unschool",
+  "shop.seoDescription": "חוברות עבודה, מאגרי תרגילים וקורסים מוקלטים במתמטיקה, אנגלית ועברית. הקובץ נשלח מיד לאחר התשלום, בלי מנוי ובלי התחייבות.",
+  "teachers.seoTitle": "המורים של בית הספר — Unschool",
+  "teachers.seoDescription": "מי מלמד מתמטיקה, אנגלית ועברית: המקצועות, שכבות הגיל ושפות ההוראה. כל פרופיל מאומת על ידי בית הספר לפני הפרסום.",
+  "teachers.intro": "את השיעורים מעבירים מורים שמכירים את תוכנית הלימודים בישראל ומדברים בשפה של הילד שלכם.",
+  "diagnostic.seoTitle": "פגישת אבחון חינם לתלמידים — Unschool",
+  "diagnostic.seoDescription": "שלושים דקות אונליין: בודקים מה הילד כבר יודע ואיפה הוא נתקע, ואומרים בכנות אם צריך שיעורים. בלי תשלום ובלי התחייבות.",
+  "error.404.description": "הדף הזה לא קיים. חזרו לדף הבית או בחרו מקצוע: מתמטיקה, אנגלית או עברית לתלמידי בית ספר בישראל."
 }

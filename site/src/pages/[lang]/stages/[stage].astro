@@ -5,17 +5,19 @@ import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import {
   STAGES,
+  STAGE_THEME,
   SUBJECTS,
   SUBJECT_GLYPH,
   SUBJECT_THEME,
   stageGradesKey,
   stageNameKey,
+  stageRangeKey,
   subjectNameKey,
   type Stage,
 } from '~/data/taxonomy';
 import { findLocalized, listByLang, sortByOrder, translatedLangs } from '~/lib/content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import PageHeader from '~/components/PageHeader.astro';
 import SectionHead from '~/components/SectionHead.astro';
 import ProgramCard from '~/components/ProgramCard.astro';
 import Callout from '~/components/Callout.astro';
@@ -35,6 +37,7 @@ if (!localized) throw new Error(`Missing stage content: ${stage}`);
 const { entry, isFallback, sourceLang } = localized;
 const { Content } = await render(entry);
 const translations = await translatedLangs('stages', stage);
+const theme = STAGE_THEME[stage];
 
 const programs = sortByOrder(
   (await listByLang('programs', lang)).filter((program) => program.data.stages.includes(stage))
@@ -47,29 +50,23 @@ const programs = sortByOrder(
   description={entry.data.seoDescription ?? entry.data.subtitle}
   translations={translations}
   fallbackFrom={isFallback ? sourceLang : null}
+  pageType="CollectionPage"
   viewEvent="view_stage"
   viewId={stage}
   bleed
 >
-  <section class="stage-hero">
-    <div class="wrap">
-      <Breadcrumbs
-        lang={lang}
-        items={[{ href: localePath(lang), label: t('nav.home') }, { label: entry.data.title }]}
-      />
-      <p class="grades">{t(stageGradesKey(stage))}</p>
-      <h1>{entry.data.title}</h1>
-      <p class="lede">{entry.data.subtitle}</p>
-
-      <div class="hero-actions">
-        <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_stage">
-          {t('cta.bookFree')}
-          <Icon name="arrow" size={18} class="flip-rtl" />
-        </a>
-        <span class="hero-note">{t('cta.bookNote')}</span>
-      </div>
-    </div>
-  </section>
+  <PageHeader
+    lang={lang}
+    title={entry.data.title}
+    subtitle={entry.data.subtitle}
+    badge={t(stageGradesKey(stage))}
+    crumbs={[{ href: localePath(lang), label: t('nav.home') }, { label: entry.data.title }]}
+    accent={theme.accent}
+    soft={theme.soft}
+    glyph={t(stageRangeKey(stage))}
+    cta
+    ctaTrack="cta_stage"
+  />
 
   <div data-cta-sentinel></div>
 
@@ -138,41 +135,6 @@ const programs = sortByOrder(
 </BaseLayout>
 
 <style>
-  .stage-hero {
-    background:
-      radial-gradient(60% 60% at 90% 0%, var(--brand-soft) 0%, rgba(235, 231, 248, 0) 70%),
-      var(--paper);
-    padding-block: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 6vw, 3.5rem);
-  }
-
-  .grades {
-    display: inline-block;
-    margin: 0 0 var(--s3);
-    padding: 0.3rem var(--s4);
-    border-radius: var(--r-pill);
-    background: var(--grape);
-    color: var(--paper);
-    font-size: 0.8125rem;
-    font-weight: 600;
-  }
-
-  .stage-hero h1 {
-    margin-bottom: var(--s3);
-  }
-
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--s4);
-    margin-top: var(--s5);
-  }
-
-  .hero-note {
-    font-size: 0.8125rem;
-    color: var(--ink-soft);
-  }
-
   .subject-links {
     list-style: none;
     margin: 0;

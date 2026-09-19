@@ -8,7 +8,7 @@ goals:
   - Close gaps left from earlier years
   - Prepare for exams and bagrut
   - Understand the reasoning instead of memorising templates
-seoTitle: Maths for school students in Israel — online lessons
+seoTitle: "Online maths lessons for students in Israel"
 seoDescription: "Maths lessons for grades 1–12: school curriculum, bagrut preparation and closing gaps. Start with a free assessment meeting."
 ---
 
