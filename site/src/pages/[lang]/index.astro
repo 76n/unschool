@@ -29,7 +29,7 @@ const products = sortByOrder(await listByLang('products', lang)).slice(0, 2);
 const faq = (await listFaq(lang)).slice(0, 5);
 
 const facts = [
-  // The range keeps Latin digit order even on the Hebrew page.
+  // Isolated so the Hebrew page cannot reorder the range into "12–1".
   { value: '1–12', label: t('home.facts.grades'), ltr: true },
   { value: '3', label: t('home.facts.languages'), ltr: false },
   { value: formatPrice(lang, 90), label: t('home.facts.price'), ltr: false },
@@ -104,8 +104,8 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
         {
           facts.map((fact) => (
             <li data-reveal>
-              <span class="fact-value" dir={fact.ltr ? 'ltr' : undefined}>
-                {fact.value}
+              <span class="fact-value">
+                {fact.ltr ? <bdi dir="ltr">{fact.value}</bdi> : fact.value}
               </span>
               <span class="fact-label">{fact.label}</span>
             </li>
