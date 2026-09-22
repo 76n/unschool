@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# A newer push makes an in-flight run for the same branch pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Formatting
+        run: npm run format:check
+
+      # Must precede the SEO audit, which reads the generated site/dist.
+      - name: Build functions and site
+        run: npm run build
+
+      - name: Types (site)
+        run: npm --prefix site run check
+
+      - name: Types (functions)
+        run: npm --prefix functions run check
+
+      - name: SEO audit
+        run: npm run seo:audit

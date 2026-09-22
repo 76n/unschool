@@ -1,6 +1,7 @@
 node_modules/
 dist/
-lib/
+# Compiled functions output only: a bare "lib/" also swallowed site/src/lib.
+functions/lib/
 .astro/
 .env
 .env.local
