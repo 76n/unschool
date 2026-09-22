@@ -7,7 +7,6 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 const DIST = new URL('../site/dist/', import.meta.url).pathname;
-const ORIGIN = process.env.AUDIT_ORIGIN ?? 'https://unschool.cool';
 
 const TITLE_MAX = 62;
 const DESC_MIN = 70;
@@ -45,6 +44,10 @@ const urlOf = (file) => {
 
 const sitemap = readFileSync(join(DIST, 'sitemap.xml'), 'utf8');
 const sitemapUrls = new Set(all(sitemap, /<loc>([^<]+)<\/loc>/g));
+
+// The origin comes from the build itself, so auditing a preview build does not
+// report every canonical as wrong. AUDIT_ORIGIN overrides it when needed.
+const ORIGIN = process.env.AUDIT_ORIGIN ?? new URL([...sitemapUrls][0]).origin;
 
 for (const file of pages) {
   const html = readFileSync(file, 'utf8');
