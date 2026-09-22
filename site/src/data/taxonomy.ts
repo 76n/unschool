@@ -44,7 +44,7 @@ export const SUBJECT_THEME: Record<Subject, { accent: string; soft: string }> = 
 
 /** Typographic mark used instead of stock illustration. */
 export const SUBJECT_GLYPH: Record<Subject, string> = {
-  math: '×',
+  math: '√',
   english: 'Aa',
   hebrew: 'א',
 };

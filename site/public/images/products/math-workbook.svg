@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400" role="img">
   <rect width="600" height="400" fill="#ebe7f8" />
   <text
-    x="470"
-    y="330"
+    x="430"
+    y="345"
     text-anchor="middle"
     font-family="Georgia, serif"
-    font-size="360"
+    font-size="300"
     font-weight="700"
     fill="#655c97"
     opacity="0.14"
-  >×</text>
+  >√</text>
   <g transform="translate(96 62)">
     <rect x="10" y="10" width="250" height="290" rx="10" fill="#d9d2f0" />
     <rect width="250" height="290" rx="10" fill="#ffffff" />
