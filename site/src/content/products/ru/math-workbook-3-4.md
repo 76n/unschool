@@ -2,7 +2,7 @@
 slug: math-workbook-3-4
 lang: ru
 title: Рабочая тетрадь по математике, 3–4 классы
-summary: Печатная тетрадь в PDF для отработки счёта и текстовых задач дома.
+summary: Рабочая тетрадь в PDF для отработки счёта и текстовых задач дома.
 type: workbook
 subject: math
 stages: [elementary]

@@ -32,7 +32,7 @@ const facts = [
   // Isolated so the Hebrew page cannot reorder the range into "12–1".
   { value: '1–12', label: t('home.facts.grades'), ltr: true },
   { value: '3', label: t('home.facts.languages'), ltr: false },
-  { value: formatPrice(lang, 90), label: t('home.facts.price'), ltr: false },
+  { value: '15', label: t('home.facts.experience'), ltr: false },
   { value: formatPrice(lang, 0), label: t('home.facts.free'), ltr: false },
 ];
 
@@ -75,7 +75,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
         </p>
 
         <h1 class="hero-title">
-          {t('home.hero.line1')}
+          <span class="hero-subjects">{t('home.hero.line1')}</span>
           <span class="hero-accent">
             {t('home.hero.line2')}
             <Doodle variant="underline" class="hero-underline" preserveAspectRatio="none" />
@@ -90,7 +90,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
             <Icon name="arrow" size={18} class="flip-rtl" />
           </a>
           <a class="btn btn--outline" href={localePath(lang, 'how-it-works')}>
-            {t('nav.howItWorks')}
+            {t('cta.howLearning')}
           </a>
         </div>
 
@@ -133,7 +133,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
         />
         <PricePill
           label={t('home.price.badge')}
-          note={t('common.priceOnRequest')}
+          note={t('home.price.note')}
           href={localePath(lang, 'formats-prices')}
         />
       </aside>
@@ -144,7 +144,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
   <section class="section band band--dark">
     <div class="wrap">
       <SectionHead
-        eyebrow={t('nav.howItWorks')}
+        eyebrow={t('home.diagnostic.eyebrow')}
         title={t('home.diagnostic.title')}
         id="diagnostic-title"
       />
@@ -161,8 +161,8 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
         }
       </ol>
 
-      <a class="arrow-link steps-link" href={localePath(lang, 'how-it-works')}>
-        {t('nav.howItWorks')}
+      <a class="arrow-link steps-link" href={localePath(lang, 'diagnostic')} data-track="cta_steps">
+        {t('cta.bookFree')}
         <Icon name="arrow" size={16} class="flip-rtl" />
       </a>
     </div>
@@ -175,12 +175,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
         eyebrow={t('nav.formatsPrices')}
         title={t('home.formats.title')}
         id="formats-title"
-      >
-        <a class="btn btn--outline btn--sm formats-cta" href={localePath(lang, 'formats-prices')}>
-          {t('nav.formatsPrices')}
-          <Icon name="arrow" size={16} class="flip-rtl" />
-        </a>
-      </SectionHead>
+      />
 
       <div class="formats">
         <article class="format" data-reveal>
@@ -195,30 +190,10 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
         </article>
       </div>
 
-      <h3 class="values-title">{t('home.value.title')}</h3>
-      <ul class="values">
-        <li><Icon name="check" size={18} /><span>{t('home.value.item1')}</span></li>
-        <li><Icon name="check" size={18} /><span>{t('home.value.item2')}</span></li>
-        <li><Icon name="check" size={18} /><span>{t('home.value.item3')}</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Honesty, the actual differentiator -->
-  <section class="section section--tight">
-    <div class="wrap">
-      <div class="honesty" data-reveal>
-        <div class="honesty-head">
-          <Doodle variant="star" color="var(--grape)" />
-          <h2>{t('home.honesty.title')}</h2>
-          <p class="honesty-text">{t('home.honesty.text')}</p>
-        </div>
-        <ul class="honesty-list">
-          <li>{t('home.honesty.item1')}</li>
-          <li>{t('home.honesty.item2')}</li>
-          <li>{t('home.honesty.item3')}</li>
-        </ul>
-      </div>
+      <a class="arrow-link section-link" href={localePath(lang, 'formats-prices')}>
+        {t('cta.allFormats')}
+        <Icon name="arrow" size={16} class="flip-rtl" />
+      </a>
     </div>
   </section>
 
@@ -228,7 +203,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
       <section class="section">
         <div class="wrap">
           <SectionHead
-            eyebrow={t('nav.teachers')}
+            eyebrow={t('home.teachers.eyebrow')}
             title={t('home.teachers.title')}
             text={t('home.teachers.text')}
             id="teachers-title"
@@ -332,9 +307,15 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
 
   /* The headline is display type: never hyphenate it. */
   .hero-title {
-    max-width: 16ch;
+    max-width: 20ch;
     margin-bottom: var(--s5);
     hyphens: manual;
+  }
+
+  /* The subject list and the promise are separate statements, so the promise
+     always starts its own line rather than trailing the last subject. */
+  .hero-subjects {
+    display: block;
   }
 
   /* Padding reserves room for the stroke inside the headline's own box, so
@@ -503,87 +484,6 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
     font-size: 0.9375rem;
   }
 
-  .formats-cta {
-    margin-top: var(--s4);
-  }
-
-  .values-title {
-    margin: var(--s7) 0 var(--s4);
-    font-size: 1.25rem;
-  }
-
-  .values {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: var(--s3);
-  }
-
-  .values li {
-    display: flex;
-    gap: var(--s3);
-    align-items: flex-start;
-    margin: 0;
-    font-size: 0.9375rem;
-  }
-
-  .values :global(.icon) {
-    color: var(--hebrew);
-    margin-top: 3px;
-  }
-
-  /* ---------- Honesty ---------- */
-  .honesty {
-    display: grid;
-    gap: var(--s5);
-    padding: clamp(1.5rem, 5vw, 3rem);
-    background: var(--accent-soft);
-    border: 1.5px dashed var(--accent);
-    border-radius: var(--r-lg);
-  }
-
-  /* The doodle sits in the flow above the heading: it can never land on
-     top of a translated title. */
-  .honesty-head :global(.doodle) {
-    margin-bottom: var(--s3);
-    opacity: 0.7;
-  }
-
-  .honesty h2 {
-    margin-bottom: var(--s2);
-    font-size: clamp(1.5rem, 5vw, 2.1rem);
-  }
-
-  .honesty-text {
-    margin: 0;
-    color: var(--ink-soft);
-    max-width: 34ch;
-  }
-
-  .honesty-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: var(--s3);
-  }
-
-  .honesty-list li {
-    position: relative;
-    margin: 0;
-    padding-inline-start: var(--s5);
-    font-size: 0.9375rem;
-  }
-
-  .honesty-list li::before {
-    content: '—';
-    position: absolute;
-    inset-inline-start: 0;
-    color: var(--brand);
-    font-weight: 700;
-  }
-
   .section-link {
     margin-top: var(--s5);
   }
@@ -595,16 +495,6 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
 
     .formats {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .values {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--s5);
-    }
-
-    .honesty {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-      gap: var(--s8);
     }
   }
 
@@ -631,7 +521,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
     }
 
     .hero-title {
-      font-size: clamp(3rem, 5vw, 4.25rem);
+      font-size: clamp(2.75rem, 4.4vw, 3.75rem);
     }
 
     .facts {

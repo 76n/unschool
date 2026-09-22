@@ -2,7 +2,7 @@
 slug: math-workbook-3-4
 lang: he
 title: חוברת עבודה במתמטיקה, כיתות ג׳–ד׳
-summary: חוברת PDF להדפסה לתרגול חשבון ובעיות מילוליות בבית.
+summary: חוברת עבודה בפורמט PDF לתרגול חשבון ובעיות מילוליות בבית.
 type: workbook
 subject: math
 stages: [elementary]

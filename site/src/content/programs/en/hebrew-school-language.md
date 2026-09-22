@@ -12,7 +12,7 @@ goals:
   - Read school texts and retell them
   - Write short assignments without fear of mistakes
 format: Group or one to one — decided after the assessment
-priceFrom: 90
+priceFrom: 100
 priceNote: Price per group lesson. One-to-one lessons cost more.
 teacher: hebrew-teacher
 order: 50

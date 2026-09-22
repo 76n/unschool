@@ -12,7 +12,7 @@ goals:
   - Learn to read and recognise familiar words
   - Keep up with the school English curriculum
 format: Group or one to one — decided after the assessment
-priceFrom: 90
+priceFrom: 100
 priceNote: Price per group lesson. One-to-one lessons cost more.
 teacher: english-teacher
 order: 30

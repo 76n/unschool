@@ -2,7 +2,7 @@
 slug: math-workbook-3-4
 lang: en
 title: Maths workbook, grades 3–4
-summary: A printable PDF workbook for practising arithmetic and word problems at home.
+summary: A PDF workbook for practising arithmetic and word problems at home.
 type: workbook
 subject: math
 stages: [elementary]

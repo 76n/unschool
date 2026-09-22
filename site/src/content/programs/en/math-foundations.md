@@ -12,7 +12,7 @@ goals:
   - Understand word problems instead of guessing the operation
   - Catch up on topics missed at school
 format: Group or one to one — decided after the assessment
-priceFrom: 90
+priceFrom: 100
 priceNote: Price per group lesson. One-to-one lessons cost more.
 teacher: math-teacher
 order: 10

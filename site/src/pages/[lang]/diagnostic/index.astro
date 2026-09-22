@@ -216,16 +216,11 @@ const jsonLd = freeDiagnosticService(
     <aside class="lead-aside">
       <div class="reassure on-dark">
         <Doodle variant="sparkle" color="var(--accent)" />
-        <h2>{t('home.diagnostic.title')}</h2>
+        <h2>{t('home.diagnostic.eyebrow')}</h2>
         <ol class="reassure-steps">
           {steps.map((step) => <li>{step}</li>)}
         </ol>
         <p class="reassure-note">{t('cta.bookNote')}</p>
-      </div>
-
-      <div class="honest">
-        <p class="honest-title">{t('home.honesty.title')}</p>
-        <p>{t('home.honesty.item1')}</p>
       </div>
     </aside>
   </div>
@@ -440,26 +435,6 @@ const jsonLd = freeDiagnosticService(
     border-top: 1px solid rgba(251, 246, 238, 0.2);
     font-size: 0.8125rem;
     color: #c9c2e4;
-  }
-
-  .honest {
-    margin-top: var(--s4);
-    padding: var(--s5);
-    border: 1.5px dashed var(--accent);
-    border-radius: var(--r-md);
-    background: var(--accent-soft);
-  }
-
-  .honest-title {
-    margin: 0 0 var(--s2);
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    font-weight: 700;
-  }
-
-  .honest p:last-child {
-    margin: 0;
-    font-size: 0.9375rem;
   }
 
   @media (min-width: 64rem) {

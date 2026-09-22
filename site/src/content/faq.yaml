@@ -1,43 +1,41 @@
 - id: ru-diagnostic
   lang: ru
   order: 10
-  question: Что происходит на бесплатной встрече?
+  question: Что происходит на бесплатной диагностике?
   answer: >-
-    Преподаватель знакомится с ребёнком, задаёт несколько задач по предмету и разговаривает с вами о
-    цели. Встреча идёт онлайн и занимает около 30 минут. После неё мы присылаем рекомендацию: какой
-    формат и какая программа подходят.
+    На онлайн-встрече преподаватель познакомится с ребёнком, комплексно оценит его знания, определит
+    сильные стороны и основные пробелы. После диагностики мы обсудим с вами результаты и предложим
+    подходящую программу и формат занятий.
 
 - id: ru-choose
   lang: ru
   order: 20
-  question: Нужно ли выбирать группу заранее?
+  question: Нужно ли заранее выбирать формат занятий?
   answer: >-
-    Нет. До диагностики выбирать группу не нужно — мы предложим варианты сами, когда увидим уровень
-    и расписание семьи.
+    Нет. После диагностики мы предложим подходящий формат с учётом уровня ребёнка, его целей и
+    вашего расписания.
 
 - id: ru-language
   lang: ru
   order: 30
   question: На каком языке идут занятия?
-  answer: >-
-    Язык преподавания указан у каждой программы: иврит, русский или английский. Язык сайта и язык
-    занятий не связаны, поэтому можно читать сайт по-русски и заниматься на иврите.
+  answer: Занятия в школе проходят на иврите, русском и английском языках.
 
 - id: ru-price
   lang: ru
   order: 40
   question: Сколько стоят занятия?
   answer: >-
-    Цена зависит от формата: групповые занятия начинаются от 90 ₪ за занятие, индивидуальные стоят
-    дороже. Точную цену конкретной программы мы подтверждаем после диагностики.
+    Стоимость стартует от 100 ₪ за занятие. Подходящий формат и точную стоимость мы подскажем после
+    диагностики.
 
 - id: ru-online
   lang: ru
   order: 50
   question: Занятия только онлайн?
   answer: >-
-    Да, сейчас все занятия проходят онлайн. Для урока нужен компьютер или планшет, наушники и
-    спокойное место.
+    Да, сейчас все занятия проходят онлайн. Для урока нужен компьютер или планшет, стабильный
+    интернет и тихое место.
 
 - id: ru-materials
   lang: ru
@@ -50,41 +48,38 @@
 - id: he-diagnostic
   lang: he
   order: 10
-  question: מה קורה בפגישה החינמית?
+  question: מה קורה באבחון החינם?
   answer: >-
-    המורה מכיר את הילד, נותן כמה שאלות במקצוע ומדבר אתכם על המטרה. הפגישה מתקיימת אונליין ונמשכת
-    כחצי שעה. אחריה נשלח המלצה: איזו מתכונת ואיזו תוכנית מתאימות.
+    בפגישה אונליין המורה מכיר את הילד, מעריך לעומק את הידע שלו ומזהה את החוזקות ואת הפערים
+    העיקריים. אחרי האבחון נעבור אתכם על התוצאות ונציע תוכנית ומתכונת לימוד שמתאימות לו.
 
 - id: he-choose
   lang: he
   order: 20
-  question: צריך לבחור קבוצה מראש?
+  question: צריך לבחור מראש את מתכונת הלימוד?
   answer: >-
-    לא. לפני האבחון אין צורך לבחור קבוצה — נציע אפשרויות בעצמנו אחרי שנראה את הרמה ואת לוח הזמנים
-    של המשפחה.
+    לא. אחרי האבחון נציע את המתכונת המתאימה לפי הרמה של הילד, המטרות שלו ולוח הזמנים שלכם.
 
 - id: he-language
   lang: he
   order: 30
   question: באיזו שפה מתקיימים השיעורים?
-  answer: >-
-    שפת ההוראה מצוינת בכל תוכנית: עברית, רוסית או אנגלית. שפת האתר ושפת השיעור אינן קשורות, אפשר
-    לקרוא את האתר בעברית וללמוד באנגלית.
+  answer: השיעורים בבית הספר מתקיימים בעברית, ברוסית ובאנגלית.
 
 - id: he-price
   lang: he
   order: 40
   question: כמה עולים השיעורים?
   answer: >-
-    המחיר תלוי במתכונת: שיעורים בקבוצה מתחילים מ־90 ₪ לשיעור, ושיעור פרטי יקר יותר. את המחיר המדויק
-    של תוכנית מסוימת אנחנו מאשרים אחרי האבחון.
+    המחיר מתחיל ב־100 ₪ לשיעור. את המתכונת המתאימה ואת המחיר המדויק נגיד לכם אחרי האבחון.
 
 - id: he-online
   lang: he
   order: 50
   question: השיעורים מתקיימים רק אונליין?
   answer: >-
-    כן, כרגע כל השיעורים מתקיימים אונליין. לשיעור דרושים מחשב או טאבלט, אוזניות ומקום שקט.
+    כן, כרגע כל השיעורים מתקיימים אונליין. לשיעור דרושים מחשב או טאבלט, חיבור אינטרנט יציב ומקום
+    שקט.
 
 - id: he-materials
   lang: he
@@ -97,43 +92,41 @@
 - id: en-diagnostic
   lang: en
   order: 10
-  question: What happens at the free meeting?
+  question: What happens at the free assessment?
   answer: >-
-    A teacher meets your child, works through a few subject tasks and talks with you about the goal.
-    The meeting is online and takes about 30 minutes. Afterwards we send a recommendation: which
-    format and which program fit.
+    In an online meeting the teacher gets to know your child, reviews their knowledge in full and
+    identifies their strengths and main gaps. Afterwards we go through the results with you and
+    suggest a programme and lesson format that suit them.
 
 - id: en-choose
   lang: en
   order: 20
-  question: Do we have to pick a group in advance?
+  question: Do we have to pick a lesson format in advance?
   answer: >-
-    No. You do not choose a group before the assessment — we suggest the options ourselves once we
-    have seen the level and your family's schedule.
+    No. After the assessment we suggest the right format based on your child's level, their goals
+    and your schedule.
 
 - id: en-language
   lang: en
   order: 30
   question: Which language are lessons taught in?
-  answer: >-
-    The teaching language is listed on every program: Hebrew, Russian or English. The site language
-    and the lesson language are separate, so you can read in English and study in Hebrew.
+  answer: Lessons at the school run in Hebrew, Russian and English.
 
 - id: en-price
   lang: en
   order: 40
   question: How much do lessons cost?
   answer: >-
-    It depends on the format: group lessons start from 90 ₪ per lesson and one-to-one lessons cost
-    more. We confirm the exact price of a specific program after the assessment.
+    Prices start from 100 ₪ per lesson. We tell you the right format and the exact price after the
+    assessment.
 
 - id: en-online
   lang: en
   order: 50
   question: Are lessons online only?
   answer: >-
-    Yes, all lessons currently run online. Your child needs a computer or tablet, headphones and a
-    quiet place.
+    Yes, all lessons currently run online. Your child needs a computer or tablet, a stable internet
+    connection and a quiet place.
 
 - id: en-materials
   lang: en

@@ -12,7 +12,7 @@ goals:
   - Learn the format of exam questions
   - Learn to check your own work and pace yourself
 format: Group or one to one — decided after the assessment
-priceFrom: 90
+priceFrom: 100
 priceNote: Price per group lesson. Bagrut preparation is priced individually.
 teacher: math-teacher
 order: 20

@@ -12,7 +12,7 @@ goals:
   - Handle the texts and tasks of the school curriculum
   - Prepare for English exams and bagrut
 format: Group or one to one — decided after the assessment
-priceFrom: 90
+priceFrom: 100
 priceNote: Price per group lesson. Bagrut preparation is priced individually.
 teacher: english-teacher
 order: 40

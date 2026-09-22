@@ -6,7 +6,7 @@ subtitle: What a lesson includes and what it costs
 formats:
   - name: Group
     details: A small group at the same level, regular lessons following the school curriculum, feedback for parents.
-    price: from 90 ₪ per lesson
+    price: from 100 ₪ per lesson
   - name: One to one
     details: Alone with a teacher, with the pace and content set by your child's needs.
     price: Price confirmed after the assessment
