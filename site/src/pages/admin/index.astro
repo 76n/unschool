@@ -50,7 +50,8 @@ const firebaseConfig = {
               <thead>
                 <tr>
                   <th>Дата</th>
-                  <th>Предмет</th>
+                  <th>Предметы</th>
+                  <th>Ребёнок</th>
                   <th>Класс</th>
                   <th>Родитель</th>
                   <th>Контакт</th>
@@ -180,7 +181,8 @@ const firebaseConfig = {
             const row = document.createElement('tr');
             [
               formatDate(lead.createdAt),
-              text(lead.subject),
+              text((lead.subjects || []).join(', ')),
+              text(lead.childName),
               text(lead.grade),
               text(lead.parentName),
               `${text(lead.contact)} (${text(lead.contactMethod)})`,

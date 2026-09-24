@@ -30,16 +30,67 @@ const t = useTranslations(lang);
     <h1>{t('diagnostic.success.title')}</h1>
     <p class="lede">{t('diagnostic.success.text')}</p>
 
+    <div class="summary" id="lead-summary" hidden>
+      <h2>{t('diagnostic.success.summary')}</h2>
+      <dl>
+        <div>
+          <dt>{t('diagnostic.success.subjects')}</dt>
+          <dd data-summary="subjects"></dd>
+        </div>
+        <div>
+          <dt>{t('diagnostic.success.grade')}</dt>
+          <dd data-summary="grade"></dd>
+        </div>
+        <div>
+          <dt>{t('diagnostic.success.contact')}</dt>
+          <dd data-summary="contact"></dd>
+        </div>
+      </dl>
+    </div>
+
     <div class="actions">
       <a class="btn btn--primary" href={localePath(lang, 'how-it-works')}>
-        {t('nav.howItWorks')}
+        {t('cta.howLearning')}
         <Icon name="arrow" size={18} class="flip-rtl" />
       </a>
       <a class="btn btn--outline" href={localePath(lang, 'shop')}>{t('cta.toCatalog')}</a>
     </div>
-
-    <p class="tiny muted">{t('diagnostic.success.next')}</p>
   </section>
+
+  <script>
+    // The form hands the summary over in session storage, so it survives the
+    // redirect without putting contact details in the URL.
+    const box = document.getElementById('lead-summary');
+    if (box) {
+      let lead = null;
+      try {
+        lead = JSON.parse(sessionStorage.getItem('unschool:lead') ?? 'null');
+        sessionStorage.removeItem('unschool:lead');
+      } catch {
+        lead = null;
+      }
+
+      if (lead) {
+        const values = {
+          subjects: Array.isArray(lead.subjects) ? lead.subjects.join(', ') : '',
+          grade: lead.grade ?? '',
+          contact: lead.contact ?? '',
+        };
+        const filled = Object.entries(values).filter(([, value]) => value);
+
+        filled.forEach(([key, value]) => {
+          const cell = box.querySelector(`[data-summary="${key}"]`);
+          if (cell) cell.textContent = value;
+        });
+
+        box.querySelectorAll('dl > div').forEach((row) => {
+          if (!row.querySelector('dd')?.textContent) row.remove();
+        });
+
+        box.hidden = filled.length === 0;
+      }
+    }
+  </script>
 </BaseLayout>
 
 <style>
@@ -71,5 +122,35 @@ const t = useTranslations(lang);
     flex-wrap: wrap;
     gap: var(--s3);
     margin-block: var(--s6) var(--s5);
+  }
+
+  .summary {
+    margin-top: var(--s6);
+    padding: var(--s5);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+  }
+
+  .summary h2 {
+    margin-bottom: var(--s4);
+    font-size: 1.0625rem;
+  }
+
+  .summary dl {
+    display: grid;
+    gap: var(--s3);
+    margin: 0;
+  }
+
+  .summary dt {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+
+  .summary dd {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
 </style>

@@ -5,7 +5,7 @@ import { FieldValue, collections } from './firebase';
 import { LEAD_CONFIRMATION } from './emails';
 import { queueMail } from './mail';
 import { clientIp, withinRateLimit } from './rateLimit';
-import { asString, isEmail, isLang, isPhone } from './validation';
+import { asString, asStringList, isEmail, isLang, isPhone } from './validation';
 
 const CONTACT_METHODS = ['phone', 'whatsapp', 'email'];
 
@@ -27,9 +27,10 @@ leadsRouter.post('/', async (req, res) => {
   }
 
   const lang = isLang(body.lang) ? body.lang : 'ru';
-  const subject = asString(body.subject, 40);
+  const subjects = asStringList(body.subjects, 6, 60);
+  const childName = asString(body.childName, 120);
   const grade = asString(body.grade, 80);
-  const goal = asString(body.goal, 120);
+  const goals = asStringList(body.goals, 8, 120);
   const teachingLanguage = asString(body.teachingLanguage, 40);
   const parentName = asString(body.parentName, 120);
   const contact = asString(body.contact, 160);
@@ -37,8 +38,11 @@ leadsRouter.post('/', async (req, res) => {
   const notes = asString(body.notes, 1500);
 
   const errors: Record<string, string> = {};
-  if (!subject) errors.subject = 'required';
+  if (subjects.length === 0) errors.subjects = 'required';
+  if (!childName) errors.childName = 'required';
   if (!grade) errors.grade = 'required';
+  if (goals.length === 0) errors.goals = 'required';
+  if (!teachingLanguage) errors.teachingLanguage = 'required';
   if (!parentName) errors.parentName = 'required';
   if (!contact) errors.contact = 'required';
   else if (!isEmail(contact) && !isPhone(contact)) errors.contact = 'invalid';
@@ -50,9 +54,10 @@ leadsRouter.post('/', async (req, res) => {
 
   const lead = {
     lang,
-    subject,
+    subjects,
+    childName,
     grade,
-    goal,
+    goals,
     teachingLanguage,
     parentName,
     contact,
@@ -67,10 +72,11 @@ leadsRouter.post('/', async (req, res) => {
     const doc = await collections.leads.add(lead);
 
     const summary = [
-      `Предмет: ${subject}`,
-      `Класс/возраст: ${grade}`,
-      `Цель: ${goal || '—'}`,
-      `Язык преподавания: ${teachingLanguage || '—'}`,
+      `Предметы: ${subjects.join(', ')}`,
+      `Имя ребёнка: ${childName}`,
+      `Класс: ${grade}`,
+      `С чем нужна помощь: ${goals.join(', ')}`,
+      `Язык преподавания: ${teachingLanguage}`,
       `Родитель: ${parentName}`,
       `Контакт: ${contact} (${lead.contactMethod})`,
       `Язык сайта: ${lang}`,
@@ -81,7 +87,7 @@ leadsRouter.post('/', async (req, res) => {
 
     const schoolMailId = await queueMail({
       to: config.schoolEmail,
-      subject: `Новая заявка на диагностику — ${subject}, ${grade}`,
+      subject: `Новая заявка на диагностику — ${subjects.join(', ')}, ${grade} класс`,
       text: summary,
       kind: 'lead',
       relatedId: doc.id,

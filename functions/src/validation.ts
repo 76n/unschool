@@ -9,6 +9,15 @@ export function asString(value: unknown, max = 500): string {
   return value.trim().slice(0, max);
 }
 
+/** Normalises a multi-select field, which arrives as an array of labels. */
+export function asStringList(value: unknown, maxItems = 10, maxLength = 120): string[] {
+  const items = Array.isArray(value) ? value : [value];
+  return items
+    .map((item) => asString(item, maxLength))
+    .filter(Boolean)
+    .slice(0, maxItems);
+}
+
 export function isEmail(value: string): boolean {
   return EMAIL_RE.test(value);
 }

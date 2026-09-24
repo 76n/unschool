@@ -16,7 +16,13 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 
-const grades = Array.from({ length: 12 }, (_, index) => String(index + 1));
+/** Israeli schools name grades by letter, so both appear in the option. */
+const HEBREW_GRADES = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ז׳', 'ח׳', 'ט׳', 'י׳', 'י״א', 'י״ב'];
+
+const grades = HEBREW_GRADES.map((he, index) => ({
+  value: String(index + 1),
+  label: t('diagnostic.grade.option', { n: index + 1, he }),
+}));
 
 const goals = [
   t('diagnostic.goal.gaps'),
@@ -24,6 +30,7 @@ const goals = [
   t('diagnostic.goal.exam'),
   t('diagnostic.goal.language'),
   t('diagnostic.goal.ahead'),
+  t('diagnostic.field.goal.other'),
 ];
 
 const teachingLanguages = [
@@ -65,7 +72,6 @@ const jsonLd = freeDiagnosticService(
     lang={lang}
     title={t('diagnostic.title')}
     subtitle={t('diagnostic.intro')}
-    eyebrow={t('nav.programs')}
     crumbs={[{ href: localePath(lang), label: t('nav.home') }, { label: t('diagnostic.title') }]}
     soft="var(--paper-2)"
   />
@@ -81,65 +87,67 @@ const jsonLd = freeDiagnosticService(
       >
         <p class="form-status form-status--error" id="form-error" hidden role="alert"></p>
 
-        <fieldset class="field" data-field="subject">
-          <legend class="field-label">{t('diagnostic.field.subject')}</legend>
+        <fieldset class="field" data-field="subjects">
+          <legend class="field-label">
+            {t('diagnostic.field.subject')}
+            <span class="field-hint">{t('diagnostic.field.multiple')}</span>
+          </legend>
           <div class="choice-grid">
             {
               SUBJECTS.map((subject) => (
                 <label class="choice">
-                  <input type="radio" name="subject" value={subject} />
+                  <input type="checkbox" name="subjects" value={t(subjectNameKey(subject))} />
                   <span>{t(subjectNameKey(subject))}</span>
                 </label>
               ))
             }
             <label class="choice">
-              <input type="radio" name="subject" value="unknown" />
-              <span>{t('common.dontKnow')}</span>
+              <input
+                type="checkbox"
+                name="subjects"
+                value={t('diagnostic.field.subject.undecided')}
+              />
+              <span>{t('diagnostic.field.subject.undecided')}</span>
             </label>
           </div>
-          <span class="field-error" data-error="subject" hidden></span>
+          <span class="field-error" data-error="subjects" hidden></span>
         </fieldset>
+
+        <label class="field" data-field="childName">
+          <span class="field-label">{t('diagnostic.field.childName')}</span>
+          <input type="text" name="childName" autocomplete="off" />
+          <span class="field-error" data-error="childName" hidden></span>
+        </label>
 
         <label class="field" data-field="grade">
           <span class="field-label">{t('diagnostic.field.grade')}</span>
           <select name="grade">
             <option value="">{t('common.select')}</option>
-            {
-              grades.map((grade) => (
-                <option value={grade}>{`${grade} — ${t('common.grades')}`}</option>
-              ))
-            }
-            <option value="unknown">{t('common.dontKnow')}</option>
+            {grades.map((grade) => <option value={grade.value}>{grade.label}</option>)}
           </select>
           <span class="field-error" data-error="grade" hidden></span>
         </label>
 
-        <fieldset class="field">
+        <fieldset class="field" data-field="goals">
           <legend class="field-label">
             {t('diagnostic.field.goal')}
-            <span class="field-hint">{t('common.optional')}</span>
+            <span class="field-hint">{t('diagnostic.field.multiple')}</span>
           </legend>
           <div class="choice-grid">
             {
               goals.map((goal) => (
                 <label class="choice">
-                  <input type="radio" name="goal" value={goal} />
+                  <input type="checkbox" name="goals" value={goal} />
                   <span>{goal}</span>
                 </label>
               ))
             }
-            <label class="choice">
-              <input type="radio" name="goal" value="unknown" />
-              <span>{t('common.dontKnow')}</span>
-            </label>
           </div>
+          <span class="field-error" data-error="goals" hidden></span>
         </fieldset>
 
-        <fieldset class="field">
-          <legend class="field-label">
-            {t('diagnostic.field.teachingLanguage')}
-            <span class="field-hint">{t('common.optional')}</span>
-          </legend>
+        <fieldset class="field" data-field="teachingLanguage">
+          <legend class="field-label">{t('diagnostic.field.teachingLanguage')}</legend>
           <div class="choice-grid">
             {
               teachingLanguages.map((item) => (
@@ -149,11 +157,8 @@ const jsonLd = freeDiagnosticService(
                 </label>
               ))
             }
-            <label class="choice">
-              <input type="radio" name="teachingLanguage" value="unknown" />
-              <span>{t('common.dontKnow')}</span>
-            </label>
           </div>
+          <span class="field-error" data-error="teachingLanguage" hidden></span>
         </fieldset>
 
         <label class="field" data-field="parentName">
@@ -229,8 +234,11 @@ const jsonLd = freeDiagnosticService(
 <script
   define:vars={{
     messages: {
-      subject: t('diagnostic.error.subject'),
+      subjects: t('diagnostic.error.subject'),
+      childName: t('diagnostic.error.childName'),
       grade: t('diagnostic.error.grade'),
+      goals: t('diagnostic.error.goal'),
+      teachingLanguage: t('diagnostic.error.teachingLanguage'),
       parentName: t('diagnostic.error.name'),
       contactRequired: t('diagnostic.error.contact'),
       contactInvalid: t('diagnostic.error.contactInvalid'),
@@ -291,12 +299,20 @@ const jsonLd = freeDiagnosticService(
       event.preventDefault();
       clearErrors();
 
-      const data = Object.fromEntries(new FormData(form).entries());
-      const payload = { ...data, lang: form.dataset.lang };
+      const data = new FormData(form);
+      const payload = {
+        ...Object.fromEntries(data.entries()),
+        subjects: data.getAll('subjects'),
+        goals: data.getAll('goals'),
+        lang: form.dataset.lang,
+      };
       const problems = [];
 
-      if (!payload.subject) problems.push(['subject', messages.subject]);
+      if (payload.subjects.length === 0) problems.push(['subjects', messages.subjects]);
+      if (!String(payload.childName || '').trim()) problems.push(['childName', messages.childName]);
       if (!payload.grade) problems.push(['grade', messages.grade]);
+      if (payload.goals.length === 0) problems.push(['goals', messages.goals]);
+      if (!payload.teachingLanguage) problems.push(['teachingLanguage', messages.teachingLanguage]);
       if (!String(payload.parentName || '').trim())
         problems.push(['parentName', messages.parentName]);
 
@@ -346,6 +362,23 @@ const jsonLd = freeDiagnosticService(
         }
 
         window.track?.('lead_submitted');
+
+        // Handed over in session storage rather than the URL: the success page
+        // is static, and the contact detail should not reach logs or analytics.
+        try {
+          const grade = form.querySelector('select[name="grade"]');
+          sessionStorage.setItem(
+            'unschool:lead',
+            JSON.stringify({
+              subjects: payload.subjects,
+              grade: grade?.selectedOptions?.[0]?.textContent?.trim() ?? '',
+              contact,
+            })
+          );
+        } catch {
+          // Private browsing can refuse storage; the summary is not essential.
+        }
+
         window.location.assign(form.dataset.success);
       } catch {
         if (errorBox) {
