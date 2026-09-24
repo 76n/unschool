@@ -10,13 +10,15 @@ interface Props {
 
 const { items, tone = 'dark' } = Astro.props;
 const loop = [...items, ...items];
+
+const isHebrew = (text: string) => /[\u0590-\u05FF]/.test(text);
 ---
 
 <div class={`marquee marquee--${tone}`} role="presentation" aria-hidden="true">
   <div class="marquee-track">
     {
       loop.map((item) => (
-        <span class="marquee-item">
+        <span class={`marquee-item ${isHebrew(item) ? 'is-hebrew' : 'is-latin'}`}>
           {item}
           <span class="marquee-dot" />
         </span>
@@ -60,11 +62,21 @@ const loop = [...items, ...items];
     align-items: center;
     gap: 1.75rem;
     padding-inline-end: 1.75rem;
-    font-family: var(--font-display);
     font-size: clamp(1.25rem, 4.5vw, 2rem);
     font-weight: 700;
     letter-spacing: -0.01em;
     white-space: nowrap;
+  }
+
+  /* Each display face covers one script. Following the page language here
+     would send the other script to a metric-matched system fallback, which
+     renders it around half again too large, so every item names its own face. */
+  .marquee-item.is-latin {
+    font-family: var(--font-display-latin, Georgia), Georgia, serif;
+  }
+
+  .marquee-item.is-hebrew {
+    font-family: var(--font-display-hebrew, Georgia), Georgia, serif;
   }
 
   .marquee-dot {
