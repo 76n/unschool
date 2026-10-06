@@ -1,5 +1,6 @@
 ---
 slug: hebrew-bagrut
+path: bagrut
 lang: he
 title: עברית בתיכון ובבגרות
 subtitle: טקסטים, עבודות בכתב ומבנה הבחינה
@@ -15,7 +16,7 @@ format: קבוצה או שיעור פרטי — נקבע אחרי האבחון
 priceFrom: null
 priceNote: המחיר נקבע אחרי האבחון.
 teacher: hebrew-teacher
-order: 60
+order: 90
 seoTitle: עברית לכיתות י׳–י״ב והכנה לבגרות
 seoDescription: "עברית בתיכון: עבודה עם טקסטים, תשובות בכתב ומבנה הבגרות. מתחילים בפגישת אבחון חינם."
 ---

@@ -85,14 +85,16 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
               </span>
             </li>
           )}
-          {data.contact.hours && (
+          {data.contact.whatsapp && (
             <li>
               <span class="contact-icon">
-                <Icon name="info" size={18} />
+                <Icon name="chat" size={18} />
               </span>
               <span>
-                <span class="contact-label">{t('contact.hours')}</span>
-                {data.contact.hours}
+                <span class="contact-label">{t('contact.whatsapp')}</span>
+                <a href={`https://wa.me/${data.contact.whatsapp.replace(/\D/g, '')}`}>
+                  <bdi dir="ltr">{data.contact.whatsapp}</bdi>
+                </a>
               </span>
             </li>
           )}
@@ -118,10 +120,6 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
               </li>
             ))}
           </ul>
-          <p class="tiny muted confirmed">
-            <Icon name="check" size={14} />
-            {t('formats.confirmed')}
-          </p>
         </section>
       )
     }
@@ -189,7 +187,7 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
 
   .format-list {
     list-style: none;
-    margin: 0 0 var(--s4);
+    margin: 0;
     padding: 0;
     border-top: 1px solid var(--line-strong);
   }
@@ -228,16 +226,6 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--grape);
-  }
-
-  .confirmed {
-    display: flex;
-    align-items: center;
-    gap: var(--s2);
-  }
-
-  .confirmed :global(.icon) {
-    color: var(--ok);
   }
 
   @media (min-width: 40rem) {

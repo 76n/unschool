@@ -17,7 +17,7 @@ formats:
     details: An online meeting of about 30 minutes, meeting your child and recommending a format.
     price: Free
 seoTitle: Lesson formats and prices — Unschool
-seoDescription: Group and one-to-one lessons, bagrut preparation and a free assessment meeting. Prices are confirmed by the school.
+seoDescription: Group and one-to-one lessons, bagrut preparation and a free assessment meeting. We match the format once we have met your child.
 ---
 
 ## In every format your child gets
@@ -29,6 +29,3 @@ seoDescription: Group and one-to-one lessons, bagrut preparation and a free asse
 - Homework that is marked, with mistakes explained
 - Regular feedback for parents
 - Support from the school on both study and practical questions
-
-Payment for lessons is agreed after the assessment. Lessons cannot be paid for on the site yet —
-only digital materials can be bought here.

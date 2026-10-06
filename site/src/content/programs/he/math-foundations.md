@@ -1,5 +1,6 @@
 ---
 slug: math-foundations
+path: foundations
 lang: he
 title: מתמטיקה לבית הספר היסודי
 subtitle: תוכנית הלימודים, תרגול וסגירת פערים

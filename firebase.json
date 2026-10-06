@@ -21,7 +21,38 @@
       { "source": "/signup{,/**}", "destination": "/ru/diagnostic/", "type": 301 },
       { "source": "/login{,/**}", "destination": "/ru/", "type": 301 },
       { "source": "/cabinet{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/lk{,/**}", "destination": "/ru/", "type": 301 }
+      { "source": "/lk{,/**}", "destination": "/ru/", "type": 301 },
+      {
+        "source": "/:lang/programs/math-foundations{,/**}",
+        "destination": "/:lang/subjects/math/foundations/",
+        "type": 301
+      },
+      {
+        "source": "/:lang/programs/mathterful{,/**}",
+        "destination": "/:lang/subjects/math/mathterful/",
+        "type": 301
+      },
+      {
+        "source": "/:lang/programs/english-first-words{,/**}",
+        "destination": "/:lang/subjects/english/school/",
+        "type": 301
+      },
+      {
+        "source": "/:lang/programs/speakable{,/**}",
+        "destination": "/:lang/subjects/english/spoken/",
+        "type": 301
+      },
+      {
+        "source": "/:lang/programs/hebrew-school-language{,/**}",
+        "destination": "/:lang/subjects/hebrew/school/",
+        "type": 301
+      },
+      {
+        "source": "/:lang/programs/hebrew-bagrut{,/**}",
+        "destination": "/:lang/subjects/hebrew/bagrut/",
+        "type": 301
+      },
+      { "source": "/:lang/programs{,/**}", "destination": "/:lang/", "type": 301 }
     ],
     "headers": [
       {

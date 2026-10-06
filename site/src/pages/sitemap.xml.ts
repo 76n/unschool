@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import { DEFAULT_LANG, LANGS, type Lang } from '~/i18n/config';
 import { localePath } from '~/i18n/routes';
 import { STAGES, SUBJECTS } from '~/data/taxonomy';
+import { programPath } from '~/lib/content';
 
 type Entry = { path: string; langs: Lang[] };
 
@@ -17,8 +18,15 @@ async function collectEntries(): Promise<Entry[]> {
   SUBJECTS.forEach((subject) => all.push({ path: `subjects/${subject}`, langs: everywhere }));
   STAGES.forEach((stage) => all.push({ path: `stages/${stage}`, langs: everywhere }));
 
+  const programs = (await getCollection('programs')).filter((entry) => entry.data.published);
+  const byProgram = new Map<string, Lang[]>();
+  programs.forEach((entry) => {
+    const path = programPath(entry.data);
+    byProgram.set(path, [...(byProgram.get(path) ?? []), entry.data.lang]);
+  });
+  byProgram.forEach((langs, path) => all.push({ path, langs }));
+
   const collections = [
-    { name: 'programs' as const, prefix: 'programs' },
     { name: 'products' as const, prefix: 'shop' },
     { name: 'teachers' as const, prefix: 'teachers' },
     { name: 'pages' as const, prefix: '' },

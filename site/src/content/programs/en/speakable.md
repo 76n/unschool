@@ -1,5 +1,6 @@
 ---
 slug: speakable
+path: spoken
 lang: en
 title: SPEAKABLE — spoken English
 subtitle: Speak more freely and handle school assignments
@@ -10,14 +11,14 @@ audience: Grades 7–12
 goals:
   - Say more than one sentence without losing the thread
   - Handle the texts and tasks of the school curriculum
-  - Prepare for English exams and bagrut
+  - Follow people, texts and videos without translating
 format: Group or one to one — decided after the assessment
 priceFrom: 100
-priceNote: Price per group lesson. Bagrut preparation is priced individually.
+priceNote: Price per group lesson. One-to-one lessons cost more.
 teacher: english-teacher
-order: 40
+order: 50
 seoTitle: SPEAKABLE — spoken English for grades 7–12
-seoDescription: "SPEAKABLE: spoken English for middle and high school, school curriculum work and bagrut preparation. Starts with a free assessment."
+seoDescription: "SPEAKABLE: spoken English for middle and high school, speaking throughout the lesson and work on school assignments. Starts with a free assessment."
 ---
 
 ## What lessons cover

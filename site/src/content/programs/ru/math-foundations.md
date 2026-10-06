@@ -1,5 +1,6 @@
 ---
 slug: math-foundations
+path: foundations
 lang: ru
 title: Математика для начальной школы
 subtitle: Школьная программа, практика и работа с пробелами

@@ -2,12 +2,12 @@
 slug: math
 lang: en
 title: Maths
-subtitle: School curriculum, practice and closing gaps
+subtitle: Lessons for grades 1 to 12. We help your child get a better grip on the school curriculum, lift their grades and prepare for tests, bagrut and other exams
 goals:
-  - Solve curriculum problems with confidence
-  - Close gaps left from earlier years
-  - Prepare for exams and bagrut
-  - Understand the reasoning instead of memorising templates
+  - Feel more confident in class and handle exercises independently
+  - Close gaps in knowledge and catch up with the school curriculum
+  - Prepare for bagrut at 3, 4 or 5 units
+  - Understand difficult topics instead of memorising rules by heart
 seoTitle: "Online maths lessons for students in Israel"
 seoDescription: "Maths lessons for grades 1–12: school curriculum, bagrut preparation and closing gaps. Start with a free assessment meeting."
 ---

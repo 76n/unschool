@@ -1,5 +1,6 @@
 ---
 slug: hebrew-bagrut
+path: bagrut
 lang: en
 title: Hebrew in high school and bagrut
 subtitle: Texts, written answers and the exam format
@@ -15,7 +16,7 @@ format: Group or one to one — decided after the assessment
 priceFrom: null
 priceNote: The price is confirmed after the assessment.
 teacher: hebrew-teacher
-order: 60
+order: 90
 seoTitle: Hebrew for grades 10–12 and bagrut preparation
 seoDescription: "Hebrew in high school: working with texts, written answers and the bagrut format. Starts with a free assessment meeting."
 ---

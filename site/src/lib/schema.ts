@@ -21,6 +21,7 @@ export const siteId = (site: Site) => `${originOf(site)}/#website`;
 export const pageId = (url: URL) => `${url.origin}${url.pathname}#webpage`;
 
 export const CONTACT_EMAIL = 'hello@unschool.cool';
+export const CONTACT_PHONE = '+972515097499';
 
 /** Covers render as SVG on the page; crawlers and social cards need the raster twin. */
 export const rasterCover = (cover: string) => cover.replace(/\.svg$/, '.png');
@@ -43,6 +44,7 @@ export function organization(site: Site, description: string): Node {
     image: { '@id': `${originOf(site)}/#logo` },
     description,
     email: CONTACT_EMAIL,
+    telephone: CONTACT_PHONE,
     areaServed: { '@type': 'Country', name: 'Israel' },
     availableLanguage: [...LANGS],
     knowsLanguage: [...LANGS],
@@ -50,6 +52,7 @@ export function organization(site: Site, description: string): Node {
       '@type': 'ContactPoint',
       contactType: 'customer support',
       email: CONTACT_EMAIL,
+      telephone: CONTACT_PHONE,
       availableLanguage: [...LANGS],
       areaServed: 'IL',
     },

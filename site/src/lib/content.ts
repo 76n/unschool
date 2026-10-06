@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry, type CollectionKey } from 'astro:content';
 import { DEFAULT_LANG, LANGS, type Lang } from '~/i18n/config';
+import type { Subject } from '~/data/taxonomy';
 
 type LocalizedKey = 'subjects' | 'stages' | 'programs' | 'teachers' | 'products' | 'pages';
 
@@ -60,6 +61,22 @@ export async function translatedLangs<C extends LocalizedKey>(
   return entries
     .filter((entry) => (entry.data as { slug: string }).slug === slug)
     .map((entry) => (entry.data as { lang: Lang }).lang);
+}
+
+export function programPath(data: CollectionEntry<'programs'>['data']): string {
+  return `subjects/${data.subjects[0]}/${data.path}`;
+}
+
+export type ProgramRoute = { slug: string; subject: Subject; program: string };
+
+/** One route per program, taken from whichever language defines it first. */
+export async function listProgramRoutes(): Promise<ProgramRoute[]> {
+  const bySlug = new Map<string, ProgramRoute>();
+  for (const entry of await published('programs')) {
+    const { slug, subjects, path } = entry.data;
+    if (!bySlug.has(slug)) bySlug.set(slug, { slug, subject: subjects[0], program: path });
+  }
+  return [...bySlug.values()];
 }
 
 export async function listFaq(lang: Lang) {

@@ -13,8 +13,9 @@ We are hiring teachers for online lessons with school students in Israel.
 
 - Teachers of maths, English or Hebrew
 - Experience with the Israeli school curriculum
-- Willingness to teach online and give feedback to parents
+- Willingness to teach online
 - Teaching language: Hebrew, Russian or English
+- A registered business (for example osek patur)
 
 ## How to apply
 

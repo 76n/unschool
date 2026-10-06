@@ -1,5 +1,6 @@
 ---
 slug: math-foundations
+path: foundations
 lang: en
 title: Maths for primary school
 subtitle: School curriculum, practice and closing gaps

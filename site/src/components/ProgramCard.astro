@@ -4,6 +4,7 @@ import type { Lang } from '~/i18n/config';
 import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import { SUBJECT_GLYPH, SUBJECT_THEME, stageNameKey, subjectNameKey } from '~/data/taxonomy';
+import { programPath } from '~/lib/content';
 import { formatPrice } from '~/lib/format';
 import Icon from './Icon.astro';
 
@@ -26,7 +27,7 @@ const price =
 
 <a
   class="program"
-  href={localePath(lang, `programs/${data.slug}`)}
+  href={localePath(lang, programPath(data))}
   style={`--accent:${theme.accent};--soft:${theme.soft}`}
 >
   <span class="program-glyph" aria-hidden="true">{SUBJECT_GLYPH[data.subjects[0]]}</span>

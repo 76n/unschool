@@ -1,5 +1,6 @@
 ---
 slug: english-first-words
+path: school
 lang: en
 title: English for primary school
 subtitle: First words, reading and calm speaking
@@ -15,7 +16,7 @@ format: Group or one to one — decided after the assessment
 priceFrom: 100
 priceNote: Price per group lesson. One-to-one lessons cost more.
 teacher: english-teacher
-order: 30
+order: 40
 seoTitle: English for primary school — grades 1–6
 seoDescription: "An English program for grades 1–6: first words, reading and speaking practice. Online lessons, starting with a free assessment."
 ---

@@ -49,6 +49,8 @@ const programs = defineCollection({
   loader: mdLoader('programs'),
   schema: z.object({
     slug: z.string(),
+    /** URL segment under the primary subject: /{lang}/subjects/{subject}/{path}. */
+    path: z.string(),
     lang,
     title: z.string(),
     subtitle: z.string(),
@@ -143,7 +145,7 @@ const pages = defineCollection({
       .object({
         email: z.string().optional(),
         phone: z.string().optional(),
-        hours: z.string().optional(),
+        whatsapp: z.string().optional(),
       })
       .optional(),
     ...seo,

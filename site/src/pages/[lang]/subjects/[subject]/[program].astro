@@ -4,7 +4,7 @@ import { LANGS, type Lang } from '~/i18n/config';
 import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import { SUBJECT_GLYPH, SUBJECT_THEME, stageNameKey, subjectNameKey } from '~/data/taxonomy';
-import { findLocalized, listSlugs, translatedLangs } from '~/lib/content';
+import { findLocalized, listProgramRoutes, translatedLangs } from '~/lib/content';
 import { formatPrice } from '~/lib/format';
 import { course } from '~/lib/schema';
 import BaseLayout from '~/layouts/BaseLayout.astro';
@@ -15,12 +15,17 @@ import TeacherCard from '~/components/TeacherCard.astro';
 import Icon from '~/components/Icon.astro';
 
 export async function getStaticPaths() {
-  const slugs = await listSlugs('programs');
-  return LANGS.flatMap((lang) => slugs.map((slug) => ({ params: { lang, slug } })));
+  const routes = await listProgramRoutes();
+  return LANGS.flatMap((lang) =>
+    routes.map(({ slug, subject, program }) => ({
+      params: { lang, subject, program },
+      props: { slug },
+    }))
+  );
 }
 
 const lang = Astro.params.lang as Lang;
-const slug = Astro.params.slug as string;
+const { slug } = Astro.props;
 const t = useTranslations(lang);
 
 const localized = await findLocalized('programs', lang, slug);
