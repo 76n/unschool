@@ -40,3 +40,9 @@ jobs:
 
       - name: SEO audit
         run: npm run seo:audit
+
+      - name: Browsers for the layout audit
+        run: npx playwright install --with-deps chromium webkit firefox
+
+      - name: Layout audit
+        run: npm run layout:audit

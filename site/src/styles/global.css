@@ -483,6 +483,7 @@ video {
 .btn--block {
   display: flex;
   width: 100%;
+  padding-inline: var(--s4);
 }
 
 /* On dark surfaces the primary action switches to the accent, so page

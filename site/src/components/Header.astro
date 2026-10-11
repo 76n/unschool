@@ -273,13 +273,17 @@ const mainLinks = [
     transition: transform 0.2s var(--ease);
   }
 
+  /* Sized by its content rather than by fixed tracks, so a longer label in any
+     language widens the panel instead of spilling out of it. */
   .mega-panel {
     position: absolute;
     inset-inline-start: -1rem;
     top: calc(100% + 0.9rem);
     display: grid;
-    grid-template-columns: repeat(2, minmax(11rem, 1fr));
+    grid-template-columns: repeat(2, auto);
     gap: var(--s6);
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--s4));
     padding: var(--s5);
     background: var(--surface);
     border: 1px solid var(--line);
@@ -304,20 +308,32 @@ const mainLinks = [
     padding: 0;
   }
 
-  .mega-panel li + li {
-    margin-top: var(--s2);
+  /* Each row shares the list's two columns, so the leading glyph or grade range
+     gets the width of the widest one and the names line up after a fixed gap. */
+  .mega-panel ul {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: var(--s2);
+  }
+
+  .mega-panel li {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    margin: 0;
   }
 
   .mega-panel a {
-    display: flex;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    column-gap: var(--s3);
     align-items: center;
-    gap: var(--s3);
     padding: var(--s2);
     border-radius: var(--r-xs);
     color: var(--ink);
     text-decoration: none;
     font-weight: 500;
-    white-space: nowrap;
   }
 
   .mega-panel a:hover {
@@ -338,9 +354,9 @@ const mainLinks = [
   }
 
   .mega-grades {
-    min-width: 4.5rem;
     color: var(--ink-soft);
     font-size: 0.8125rem;
+    white-space: nowrap;
   }
 
   /* Right-hand controls */
@@ -380,6 +396,7 @@ const mainLinks = [
     position: absolute;
     inset-inline-end: 0;
     top: calc(100% + 0.35rem);
+    width: max-content;
     min-width: 9.5rem;
     margin: 0;
     padding: var(--s1);
