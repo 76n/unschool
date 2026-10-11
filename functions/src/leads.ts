@@ -2,18 +2,13 @@ import { Router } from 'express';
 import { logger } from 'firebase-functions/v2';
 import { FieldValue, collections } from './firebase';
 import { LEAD_CONFIRMATION } from './emails';
-import { escapeHtml, queueMail } from './mail';
+import { leadMessage } from './leadMessage';
+import { queueMail } from './mail';
 import { clientIp, withinRateLimit } from './rateLimit';
 import { sendTelegram } from './telegram';
 import { asString, asStringList, isEmail, isLang, isPhone } from './validation';
 
 const CONTACT_METHODS = ['phone', 'whatsapp', 'email'];
-
-const CONTACT_METHOD_LABEL: Record<string, string> = {
-  phone: 'звонок',
-  whatsapp: 'WhatsApp',
-  email: 'почта',
-};
 
 export const leadsRouter: Router = Router();
 
@@ -77,29 +72,8 @@ leadsRouter.post('/', async (req, res) => {
   try {
     const doc = await collections.leads.add(lead);
 
-    const fields: [string, string][] = [
-      ['Предметы', subjects.join(', ')],
-      ['Имя ребёнка', childName],
-      ['Класс', grade],
-      ['С чем нужна помощь', goals.join(', ')],
-      ['Язык преподавания', teachingLanguage],
-      ['Родитель', parentName],
-      ['Контакт', `${contact} (${CONTACT_METHOD_LABEL[lead.contactMethod]})`],
-      ['Язык сайта', lang],
-      ['Комментарий', notes],
-    ];
-
-    const message = [
-      '<b>Новая заявка на диагностику</b>',
-      '',
-      ...fields
-        .filter(([, value]) => value)
-        .map(([label, value]) => `<b>${label}:</b> ${escapeHtml(value)}`),
-      '',
-      `ID заявки: <code>${doc.id}</code>`,
-    ].join('\n');
-
-    const telegramSent = await sendTelegram(message);
+    const { html, buttons } = leadMessage(lead, doc.id);
+    const telegramSent = await sendTelegram(html, buttons);
 
     let parentMailId: string | null = null;
     if (isEmail(contact)) {

@@ -3,6 +3,7 @@ import { logger } from 'firebase-functions/v2';
 import { config, siteBaseUrl } from './config';
 import { deliverOrder, type OrderRecord } from './delivery';
 import { FieldValue, auth, collections } from './firebase';
+import { goalLabel, languageLabel, subjectLabel } from './leadMessage';
 
 export const adminRouter: Router = Router();
 
@@ -53,11 +54,11 @@ adminRouter.get('/leads', async (_req, res) => {
         id: doc.id,
         createdAt: toIso(data.createdAt),
         lang: data.lang,
-        subjects: data.subjects ?? [],
+        subjects: (data.subjects ?? []).map(subjectLabel),
         childName: data.childName ?? '',
         grade: data.grade,
-        goals: data.goals ?? [],
-        teachingLanguage: data.teachingLanguage,
+        goals: (data.goals ?? []).map(goalLabel),
+        teachingLanguage: languageLabel(data.teachingLanguage ?? ''),
         parentName: data.parentName,
         contact: data.contact,
         contactMethod: data.contactMethod,

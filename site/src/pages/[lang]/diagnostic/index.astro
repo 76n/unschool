@@ -25,12 +25,12 @@ const grades = HEBREW_GRADES.map((he, index) => ({
 }));
 
 const goals = [
-  t('diagnostic.goal.gaps'),
-  t('diagnostic.goal.keepUp'),
-  t('diagnostic.goal.exam'),
-  t('diagnostic.goal.language'),
-  t('diagnostic.goal.ahead'),
-  t('diagnostic.field.goal.other'),
+  { value: 'gaps', label: t('diagnostic.goal.gaps') },
+  { value: 'keepUp', label: t('diagnostic.goal.keepUp') },
+  { value: 'exam', label: t('diagnostic.goal.exam') },
+  { value: 'language', label: t('diagnostic.goal.language') },
+  { value: 'ahead', label: t('diagnostic.goal.ahead') },
+  { value: 'other', label: t('diagnostic.field.goal.other') },
 ];
 
 const teachingLanguages = [
@@ -96,17 +96,13 @@ const jsonLd = freeDiagnosticService(
             {
               SUBJECTS.map((subject) => (
                 <label class="choice">
-                  <input type="checkbox" name="subjects" value={t(subjectNameKey(subject))} />
+                  <input type="checkbox" name="subjects" value={subject} />
                   <span>{t(subjectNameKey(subject))}</span>
                 </label>
               ))
             }
             <label class="choice">
-              <input
-                type="checkbox"
-                name="subjects"
-                value={t('diagnostic.field.subject.undecided')}
-              />
+              <input type="checkbox" name="subjects" value="undecided" />
               <span>{t('diagnostic.field.subject.undecided')}</span>
             </label>
           </div>
@@ -137,8 +133,8 @@ const jsonLd = freeDiagnosticService(
             {
               goals.map((goal) => (
                 <label class="choice">
-                  <input type="checkbox" name="goals" value={goal} />
-                  <span>{goal}</span>
+                  <input type="checkbox" name="goals" value={goal.value} />
+                  <span>{goal.label}</span>
                 </label>
               ))
             }
@@ -152,7 +148,7 @@ const jsonLd = freeDiagnosticService(
             {
               teachingLanguages.map((item) => (
                 <label class="choice">
-                  <input type="radio" name="teachingLanguage" value={item.label} />
+                  <input type="radio" name="teachingLanguage" value={item.value} />
                   <span lang={item.value}>{item.label}</span>
                 </label>
               ))
@@ -367,10 +363,13 @@ const jsonLd = freeDiagnosticService(
         // is static, and the contact detail should not reach logs or analytics.
         try {
           const grade = form.querySelector('select[name="grade"]');
+          const subjects = [...form.querySelectorAll('input[name="subjects"]:checked')].map(
+            (input) => input.closest('label')?.textContent?.trim() ?? ''
+          );
           sessionStorage.setItem(
             'unschool:lead',
             JSON.stringify({
-              subjects: payload.subjects,
+              subjects,
               grade: grade?.selectedOptions?.[0]?.textContent?.trim() ?? '',
               contact,
             })
