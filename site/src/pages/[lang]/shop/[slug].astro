@@ -246,22 +246,26 @@ const terms = [
   {
     related.length > 0 && (
       <section class="section" aria-labelledby="related-title">
-        <SectionHead title={t('product.related')} id="related-title" />
-        <div class="grid grid--3">
-          {related.map((item) => (
-            <ProductCard lang={lang} product={item} />
-          ))}
+        <div class="wrap">
+          <SectionHead title={t('product.related')} id="related-title" />
+          <div class="grid grid--3">
+            {related.map((item) => (
+              <ProductCard lang={lang} product={item} />
+            ))}
+          </div>
         </div>
       </section>
     )
   }
 
   <section class="section section--tight">
-    <p class="muted">{t('product.relatedDiagnostic')}</p>
-    <a class="arrow-link" href={localePath(lang, 'diagnostic')}>
-      {t('cta.bookFree')}
-      <Icon name="arrow" size={16} class="flip-rtl" />
-    </a>
+    <div class="wrap">
+      <p class="muted">{t('product.relatedDiagnostic')}</p>
+      <a class="arrow-link" href={localePath(lang, 'diagnostic')}>
+        {t('cta.bookFree')}
+        <Icon name="arrow" size={16} class="flip-rtl" />
+      </a>
+    </div>
   </section>
 </BaseLayout>
 

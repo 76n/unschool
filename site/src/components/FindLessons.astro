@@ -104,6 +104,10 @@ const tiles = {
 </section>
 
 <style>
+  .finder {
+    container: finder / inline-size;
+  }
+
   .finder-head {
     display: flex;
     flex-direction: column;
@@ -126,20 +130,24 @@ const tiles = {
     border-radius: var(--r-pill);
   }
 
+  /* On phones both halves stay equal and may wrap, so large text never pushes
+     a label past the screen edge. */
   .switch label {
     position: relative;
     z-index: 1;
     flex: 1;
+    min-width: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 2.6rem;
-    padding-inline: var(--s4);
+    padding: var(--s1) var(--s2);
     border-radius: var(--r-pill);
     font-size: 0.9375rem;
     font-weight: 600;
     line-height: 1.2;
-    white-space: nowrap;
+    text-align: center;
+    text-wrap: balance;
     color: var(--ink-soft);
     cursor: pointer;
     transition: color 0.25s var(--ease);
@@ -183,7 +191,7 @@ const tiles = {
      word like "Математика", which then breaks mid-word. */
   .tiles {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s2);
     list-style: none;
     margin: 0;
@@ -258,6 +266,27 @@ const tiles = {
     letter-spacing: -0.01em;
   }
 
+  /* Too narrow for mark, name and arrow in one row (small phones with large
+     text): the name takes a row of its own instead of breaking mid-word. */
+  @container finder (width < 18rem) {
+    .panel {
+      padding: var(--s3);
+    }
+
+    .tile {
+      flex-wrap: wrap;
+    }
+
+    .tile-name {
+      order: 1;
+      flex-basis: 100%;
+    }
+
+    .tile-go {
+      margin-inline-start: auto;
+    }
+  }
+
   /* Wide enough for three cards, each stacking mark, label and arrow so a
      long label can never collide with the arrow. */
   @media (min-width: 36rem) {
@@ -295,6 +324,7 @@ const tiles = {
   @media (min-width: 48rem) {
     .finder-head {
       flex-direction: row;
+      flex-wrap: wrap;
       align-items: flex-end;
       justify-content: space-between;
       gap: var(--s5);
@@ -308,6 +338,7 @@ const tiles = {
     .switch label {
       flex: none;
       padding-inline: var(--s5);
+      white-space: nowrap;
     }
 
     .switch-thumb {

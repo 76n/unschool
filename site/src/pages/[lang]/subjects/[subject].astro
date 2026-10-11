@@ -166,6 +166,7 @@ const teachers = sortByOrder(
     margin: 0;
     padding: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s3);
   }
 
@@ -185,13 +186,18 @@ const teachers = sortByOrder(
     margin-top: 3px;
   }
 
+  .goals li > span {
+    min-width: 0;
+  }
+
   /* One shared column track keeps every stage name on the same line start. */
   .stage-links {
+    container-type: inline-size;
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     border-top: 1px solid var(--line-strong);
   }
 
@@ -233,6 +239,34 @@ const teachers = sortByOrder(
 
   .stage-links :global(.icon) {
     color: var(--ink-soft);
+  }
+
+  @container (width < 18rem) {
+    .stage-links a {
+      gap: var(--s3);
+      padding-inline: 0;
+    }
+  }
+
+  /* Too narrow for range, name and arrow in one row: the range goes above. */
+  @container (width < 16rem) {
+    .stage-links a {
+      row-gap: var(--s1);
+    }
+
+    .stage-range,
+    .stage-name {
+      grid-column: 1 / 3;
+    }
+
+    .stage-name {
+      grid-row: 2;
+    }
+
+    .stage-links :global(.icon) {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+    }
   }
 
   @media (min-width: 48rem) {

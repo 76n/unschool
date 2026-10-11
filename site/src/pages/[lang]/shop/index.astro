@@ -165,9 +165,12 @@ const jsonLd = {
 </script>
 
 <style>
+  /* A closed select cannot wrap, so a column is never narrower than the longest
+     option plus the select's padding and arrow. */
   .filters {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    align-items: end;
     gap: var(--s3);
     padding: var(--s4);
     margin-bottom: var(--s4);
@@ -187,6 +190,7 @@ const jsonLd = {
 
   .filters select {
     min-height: 2.75rem;
+    font-size: 1rem;
   }
 
   .reset {
@@ -203,11 +207,6 @@ const jsonLd = {
   }
 
   @media (min-width: 48rem) {
-    .filters {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      align-items: end;
-    }
-
     .reset {
       grid-column: auto;
       justify-self: stretch;

@@ -584,6 +584,9 @@ video {
   font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1.4;
+  /* WebKit can measure a shrink-to-fit chip a fraction narrower than its text,
+     and break-word would then push the last letter onto a new line. */
+  overflow-wrap: normal;
 }
 
 .chip--outline {

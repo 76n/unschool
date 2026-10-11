@@ -225,6 +225,7 @@ const jsonLd = course(
     margin: 0;
     padding: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s3);
   }
 
@@ -240,6 +241,10 @@ const jsonLd = course(
     margin-top: 3px;
   }
 
+  .goals li > span {
+    min-width: 0;
+  }
+
   .meta {
     margin: 0;
     display: grid;
@@ -248,6 +253,7 @@ const jsonLd = course(
 
   .meta div {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2px;
     padding-top: var(--s3);
     border-top: 1px solid var(--line);
@@ -267,16 +273,18 @@ const jsonLd = course(
   }
 
   .booking {
+    container-type: inline-size;
     padding: var(--s5);
     background: var(--grape);
     color: var(--paper);
     border-radius: var(--r-md);
   }
 
+  /* Shrinks with the card on phones with large text, so long words still fit. */
   .booking-price {
     margin: 0 0 var(--s2);
     font-family: var(--font-display);
-    font-size: 1.6rem;
+    font-size: min(1.6rem, 12cqi);
     font-weight: 700;
     letter-spacing: -0.02em;
   }

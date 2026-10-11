@@ -305,10 +305,13 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
     flex: none;
   }
 
-  /* The headline is display type: never hyphenate it. */
+  /* The headline is display type: never hyphenate it. Its smallest size is also
+     capped by the screen width, so with large text the longest word still fits
+     a 320px screen instead of breaking mid-word. */
   .hero-title {
     max-width: 20ch;
     margin-bottom: var(--s5);
+    font-size: clamp(min(1.85rem, 9.25vw), 8vw, 4.25rem);
     hyphens: manual;
   }
 
@@ -360,10 +363,11 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
     color: var(--hebrew);
   }
 
-  /* Honest numbers, no invented metrics */
+  /* Honest numbers, no invented metrics. Columns are at least 8.5rem, so large
+     text collapses the grid to fewer columns; the percentage caps how many. */
   .facts {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(8.5rem, 40%)), 1fr));
     gap: var(--s4);
     list-style: none;
     margin: clamp(2.5rem, 7vw, 3.5rem) 0 0;
@@ -402,6 +406,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
 
   .finder-aside {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s3);
     align-content: start;
   }
@@ -453,6 +458,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
   /* ---------- Formats ---------- */
   .formats {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s4);
   }
 
@@ -490,7 +496,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
 
   @media (min-width: 48rem) {
     .facts {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, max(8.5rem, 20%)), 1fr));
     }
 
     .formats {
@@ -525,7 +531,7 @@ const jsonLd = faqPage(faq.map(({ data }) => ({ question: data.question, answer:
     }
 
     .facts {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, max(8.5rem, 40%)), 1fr));
       margin-top: 0;
       gap: var(--s5);
     }

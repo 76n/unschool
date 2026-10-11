@@ -33,7 +33,9 @@ const { icon, label, text, items = [], accent = 'var(--brand)' } = Astro.props;
 
 <style>
   .info-card {
+    container-type: inline-size;
     display: flex;
+    flex-wrap: wrap;
     gap: var(--s4);
     height: 100%;
     padding: var(--s5);
@@ -61,6 +63,7 @@ const { icon, label, text, items = [], accent = 'var(--brand)' } = Astro.props;
   }
 
   .info-body {
+    flex: 1;
     min-width: 0;
   }
 
@@ -84,5 +87,12 @@ const { icon, label, text, items = [], accent = 'var(--brand)' } = Astro.props;
     padding-inline-start: 1.05rem;
     color: var(--ink-soft);
     font-size: 0.9375rem;
+  }
+
+  /* Narrow cards (phones with large text) move the text under the icon. */
+  @container (width < 14rem) {
+    .info-body {
+      flex-basis: 100%;
+    }
   }
 </style>

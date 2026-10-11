@@ -184,6 +184,7 @@ const mainLinks = [
 
 <style>
   .site-header {
+    container-type: inline-size;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -532,9 +533,35 @@ const mainLinks = [
     color: var(--brand-deep);
   }
 
+  /* Small phones with large text: tighter spacing and a smaller wordmark keep
+     the language switch and the menu button on screen. */
+  @container (width < 20rem) {
+    .header-inner {
+      gap: var(--s2);
+    }
+
+    .wordmark {
+      font-size: 1.1rem;
+    }
+
+    .header-actions {
+      gap: var(--s1);
+    }
+
+    .lang-switch summary {
+      padding-inline: var(--s1);
+    }
+
+    .menu-btn {
+      width: 2.5rem;
+    }
+  }
+
   /* The inline nav appears only where all five Russian labels plus the
-     language switch and the button genuinely fit. Below that: the menu. */
-  @media (min-width: 75rem) {
+     language switch and the button genuinely fit. Below that: the menu.
+     A container query measures 75rem in the page's own text size, unlike a
+     media query, so enlarged text brings the menu back before links spill. */
+  @container (min-width: 75rem) {
     .desk-nav {
       display: flex;
       margin-inline-end: auto;

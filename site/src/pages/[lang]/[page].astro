@@ -27,6 +27,7 @@ const translations = await translatedLangs('pages', slug);
 const { data } = entry;
 
 const isLegal = ['privacy', 'terms', 'accessibility'].includes(slug);
+const [emailUser, emailDomain] = data.contact?.email?.split('@') ?? [];
 
 const PAGE_TYPES: Record<string, string> = {
   about: 'AboutPage',
@@ -70,7 +71,9 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
               </span>
               <span>
                 <span class="contact-label">{t('contact.email')}</span>
-                <a href={`mailto:${data.contact.email}`}>{data.contact.email}</a>
+                <a href={`mailto:${data.contact.email}`}>
+                  {[emailUser, '@', <wbr />, emailDomain]}
+                </a>
               </span>
             </li>
           )}
@@ -152,10 +155,12 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
   }
 
   .contact-list {
+    container-type: inline-size;
     list-style: none;
     margin: var(--s6) 0;
     padding: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s3);
   }
 
@@ -168,6 +173,21 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--r-md);
+  }
+
+  .contact-list li > :last-child {
+    min-width: 0;
+  }
+
+  .contact-list a[href^='mailto:'] {
+    overflow-wrap: anywhere;
+  }
+
+  @container (width < 18rem) {
+    .contact-list li {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 
   .contact-icon {
@@ -198,7 +218,7 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
 
   .format-list li {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: var(--s3) var(--s4);
     margin: 0;
     padding: var(--s5) 0;
@@ -234,7 +254,7 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
 
   @media (min-width: 40rem) {
     .format-list li {
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
     }
 
