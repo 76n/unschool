@@ -1,13 +1,19 @@
 import { Router } from 'express';
 import { logger } from 'firebase-functions/v2';
-import { config } from './config';
 import { FieldValue, collections } from './firebase';
 import { LEAD_CONFIRMATION } from './emails';
-import { queueMail } from './mail';
+import { escapeHtml, queueMail } from './mail';
 import { clientIp, withinRateLimit } from './rateLimit';
+import { sendTelegram } from './telegram';
 import { asString, asStringList, isEmail, isLang, isPhone } from './validation';
 
 const CONTACT_METHODS = ['phone', 'whatsapp', 'email'];
+
+const CONTACT_METHOD_LABEL: Record<string, string> = {
+  phone: 'звонок',
+  whatsapp: 'WhatsApp',
+  email: 'почта',
+};
 
 export const leadsRouter: Router = Router();
 
@@ -71,27 +77,29 @@ leadsRouter.post('/', async (req, res) => {
   try {
     const doc = await collections.leads.add(lead);
 
-    const summary = [
-      `Предметы: ${subjects.join(', ')}`,
-      `Имя ребёнка: ${childName}`,
-      `Класс: ${grade}`,
-      `С чем нужна помощь: ${goals.join(', ')}`,
-      `Язык преподавания: ${teachingLanguage}`,
-      `Родитель: ${parentName}`,
-      `Контакт: ${contact} (${lead.contactMethod})`,
-      `Язык сайта: ${lang}`,
-      `Комментарий: ${notes || '—'}`,
+    const fields: [string, string][] = [
+      ['Предметы', subjects.join(', ')],
+      ['Имя ребёнка', childName],
+      ['Класс', grade],
+      ['С чем нужна помощь', goals.join(', ')],
+      ['Язык преподавания', teachingLanguage],
+      ['Родитель', parentName],
+      ['Контакт', `${contact} (${CONTACT_METHOD_LABEL[lead.contactMethod]})`],
+      ['Язык сайта', lang],
+      ['Комментарий', notes],
+    ];
+
+    const message = [
+      '<b>Новая заявка на диагностику</b>',
       '',
-      `ID заявки: ${doc.id}`,
+      ...fields
+        .filter(([, value]) => value)
+        .map(([label, value]) => `<b>${label}:</b> ${escapeHtml(value)}`),
+      '',
+      `ID заявки: <code>${doc.id}</code>`,
     ].join('\n');
 
-    const schoolMailId = await queueMail({
-      to: config.schoolEmail,
-      subject: `Новая заявка на диагностику — ${subjects.join(', ')}, ${grade} класс`,
-      text: summary,
-      kind: 'lead',
-      relatedId: doc.id,
-    });
+    const telegramSent = await sendTelegram(message);
 
     let parentMailId: string | null = null;
     if (isEmail(contact)) {
@@ -105,7 +113,7 @@ leadsRouter.post('/', async (req, res) => {
       });
     }
 
-    await doc.update({ schoolMailId, parentMailId });
+    await doc.update({ telegramSent, parentMailId });
 
     res.json({ ok: true, id: doc.id });
   } catch (error) {

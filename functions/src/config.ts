@@ -15,8 +15,6 @@ function flag(name: string, fallback = false): boolean {
 }
 
 export const config = {
-  /** Where diagnostic requests are delivered. */
-  schoolEmail: env('SCHOOL_EMAIL', 'hello@unschool.cool'),
   mailFrom: env('MAIL_FROM', 'Unschool <hello@unschool.cool>'),
   supportEmail: env('SUPPORT_EMAIL', 'hello@unschool.cool'),
 

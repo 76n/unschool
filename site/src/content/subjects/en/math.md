@@ -12,10 +12,8 @@ seoTitle: "Online maths lessons for students in Israel"
 seoDescription: "Maths lessons for grades 1–12: school curriculum, bagrut preparation and closing gaps. Start with a free assessment meeting."
 ---
 
-In maths, one step that was never understood drags the next one down with it. That is why we do not
-start with the textbook but with an assessment: we look at exactly where your child loses
-confidence, and only then choose a program.
+The school maths curriculum is built so that one topic missed in grade 5 can get in the way of new topics for several years. That is why we do not start with this year's topics but with an assessment: we look at what your child can already do, where the gaps are and what exactly is getting in the way of the material.
 
-In lessons your child solves a lot independently while the teacher shows how to reason. We talk
-through the solution out loud, look at mistakes without grading them, and go back to earlier topics
-when they block progress.
+After the assessment the school's lead teacher gives recommendations for further study and puts together a lesson plan for the student.
+
+In lessons your child solves a lot independently, while the teacher helps them follow the logic of the solution, asks questions and guides them. The teacher keeps track of the student's progress and adjusts the plan as the work goes on.

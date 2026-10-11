@@ -6,6 +6,7 @@ import { adminRouter } from './admin';
 import { downloadRouter } from './delivery';
 import { leadsRouter } from './leads';
 import { ordersRouter, paymentsRouter } from './orders';
+import { telegramBotToken, telegramChatId } from './telegram';
 
 setGlobalOptions({ region: REGION, maxInstances: 10 });
 
@@ -28,7 +29,7 @@ app.use((_req, res) => {
   res.status(404).json({ ok: false, error: 'not_found' });
 });
 
-export const api = onRequest(app);
+export const api = onRequest({ secrets: [telegramBotToken, telegramChatId] }, app);
 
 const SUPPORTED = ['he', 'ru', 'en'] as const;
 const DEFAULT_LANG = 'ru';

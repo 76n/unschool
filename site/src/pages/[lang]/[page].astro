@@ -124,9 +124,13 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
       )
     }
 
-    <section class="section section--tight prose">
-      <Content />
-    </section>
+    {
+      entry.body?.trim() && (
+        <section class="section section--tight prose">
+          <Content />
+        </section>
+      )
+    }
 
     {
       !isLegal && (

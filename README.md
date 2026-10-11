@@ -134,8 +134,21 @@ The project still serves the old app, so a deploy must never be run unscoped:
 4. Deploy the Firestore and Storage rules from this repo only once the old app is retired.
 5. Delete the `unschool-v2` site: `firebase hosting:sites:delete unschool-v2`.
 
-Email delivery expects the Firebase "Trigger Email" extension watching the `mail` collection; until
-it is installed, messages queue in Firestore without being sent.
+Diagnostic requests are stored in Firestore and posted to the team's Telegram chat. The bot token
+and the chat ID are Secret Manager secrets bound to the `api` function, so they must exist before
+the function deploys:
+
+```bash
+firebase functions:secrets:set TELEGRAM_BOT_TOKEN --project unschool-cool
+firebase functions:secrets:set TELEGRAM_CHAT_ID --project unschool-cool
+```
+
+To find the chat ID, message the bot (or add it to the team group), then open
+`https://api.telegram.org/bot<token>/getUpdates` and copy `chat.id`. Group IDs are negative.
+
+Customer email (order receipts, download links, the parent's copy of a request) expects the
+Firebase "Trigger Email" extension watching the `mail` collection; until it is installed, those
+messages queue in Firestore without being sent.
 
 ## Before going live
 
