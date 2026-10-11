@@ -231,7 +231,7 @@ const mainLinks = [
   .desk-nav {
     display: none;
     align-items: center;
-    gap: var(--s4);
+    gap: var(--s3);
     min-width: 0;
   }
 
@@ -560,15 +560,21 @@ const mainLinks = [
   /* The inline nav appears only where all five Russian labels plus the
      language switch and the button genuinely fit. Below that: the menu.
      A container query measures 75rem in the page's own text size, unlike a
-     media query, so enlarged text brings the menu back before links spill. */
+     media query, so enlarged text brings the menu back before links spill.
+     Linux renders the same text up to 5% wider than macOS, so the row keeps
+     spare room for it. */
   @container (min-width: 75rem) {
+    .header-inner {
+      gap: var(--s3);
+    }
+
     .desk-nav {
       display: flex;
       margin-inline-end: auto;
     }
 
     .wordmark {
-      margin-inline-end: var(--s5);
+      margin-inline-end: var(--s4);
     }
 
     .header-cta {
