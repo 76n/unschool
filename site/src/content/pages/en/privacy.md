@@ -2,14 +2,11 @@
 slug: privacy
 lang: en
 title: Privacy policy
-subtitle: Draft — the text is approved by the school owner
-updated: "2026-09-18"
+subtitle: What data we collect, why, and how we keep it
+updated: "2026-10-11"
 seoTitle: Privacy policy — Unschool
 seoDescription: What data the Unschool site collects, why it is needed and how it is handled.
 ---
-
-> This is a working draft. The final wording is approved by the school owner before the public
-> launch.
 
 ## What we collect
 

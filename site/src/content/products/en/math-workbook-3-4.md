@@ -25,7 +25,7 @@ storagePath: products/demo/math-workbook-3-4.pdf
 accessNote: The download link is emailed as soon as payment is confirmed and stays available from the order page.
 compatibilityNote: Opens in any PDF reader on a computer, tablet or phone. Prints on A4.
 usageNote: A purchase covers use within one family. Reselling or publishing the file is not allowed.
-refundNote: The refund policy for digital products is set by the school. Until it is approved the product is not on sale.
+refundNote: If the material does not suit you or something is wrong with the file, write to hello@unschool.cool. We review every refund request.
 supportContact: hello@unschool.cool
 order: 10
 seoTitle: Maths workbook for grades 3–4

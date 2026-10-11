@@ -24,7 +24,7 @@ storagePath: products/demo/english-speaking-cards.pdf
 accessNote: הקישור להורדה נשלח לאימייל מיד לאחר אישור התשלום ונשאר זמין מדף ההזמנה.
 compatibilityNote: נפתח בכל תוכנה לקריאת PDF. אפשר להדפיס או להציג מהמסך.
 usageNote: הרכישה מקנה שימוש במשפחה אחת. אין למכור מחדש או לפרסם את הקובץ.
-refundNote: מדיניות ההחזרים למוצרים דיגיטליים נקבעת על ידי בית הספר. עד לאישור המוצר אינו נמכר.
+refundNote: אם החומר לא התאים או שיש בעיה בקובץ, כתבו ל-hello@unschool.cool. אנחנו בודקים כל בקשת החזר.
 supportContact: hello@unschool.cool
 order: 20
 seoTitle: מאגר משימות לאנגלית מדוברת, כיתות ז׳–ט׳

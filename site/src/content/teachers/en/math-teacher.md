@@ -10,8 +10,6 @@ seoTitle: Maths teacher — Unschool
 seoDescription: "The Unschool maths teacher profile: subjects, teaching languages and programs."
 ---
 
-This profile is filled in by the school: the name, photo, experience and confirmed details of the
-teacher will appear here. Until they are confirmed we do not publish information about specific
-people.
+This profile is being prepared: the teacher's name, photo and experience will appear here soon.
 
 The teacher works on maths in primary, middle and high school, including bagrut preparation.

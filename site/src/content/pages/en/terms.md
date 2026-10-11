@@ -2,14 +2,11 @@
 slug: terms
 lang: en
 title: Terms of use
-subtitle: Draft — the text is approved by the school owner
-updated: "2026-09-18"
+subtitle: How requests, purchases and access to materials work
+updated: "2026-10-11"
 seoTitle: Terms of use — Unschool
 seoDescription: Terms of use for the Unschool site, buying digital materials and the rules for accessing them.
 ---
-
-> This is a working draft. The final wording, including the refund policy and tax documents, is
-> approved by the school owner before sales open.
 
 ## School services
 
@@ -31,8 +28,8 @@ confirmation from the provider.
 
 ## Refunds
 
-The refund policy for digital products is stated on the product page. Until the policy is
-approved, sales do not open.
+If a material does not suit you or something is wrong with the file, write to hello@unschool.cool.
+We review every refund request and reply by email.
 
 ## Contact
 
