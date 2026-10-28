@@ -1,0 +1,8 @@
+{
+  "name": "node-domexception",
+  "version": "1.0.0",
+  "description": "The native DOMException, for fetch-blob",
+  "private": true,
+  "type": "module",
+  "exports": "./index.js"
+}
