@@ -40,13 +40,9 @@
     "@opentelemetry/core": "^2.12.0"
   },
   "allowScripts": {
-    "sharp@0.34.5": true,
-    "sharp@0.33.5": true,
-    "re2@1.27.0": true,
-    "protobufjs@7.6.6": true,
-    "esbuild@0.27.7": true,
-    "esbuild@0.25.12": true,
     "@firebase/util@1.12.1": true,
+    "protobufjs@7.6.6": true,
+    "re2@1.27.0": true,
     "fsevents": false
   }
 }

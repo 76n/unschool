@@ -530,17 +530,17 @@ video {
   color: var(--brand-deep);
 }
 
-.arrow-link :global(.icon),
+.arrow-link .icon,
 .arrow-link svg {
   transition: transform 0.2s var(--ease);
 }
 
-.arrow-link:hover :global(.icon),
+.arrow-link:hover .icon,
 .arrow-link:hover svg {
   transform: translateX(4px);
 }
 
-:root[dir='rtl'] .arrow-link:hover :global(.icon),
+:root[dir='rtl'] .arrow-link:hover .icon,
 :root[dir='rtl'] .arrow-link:hover svg {
   transform: translateX(-4px);
 }
