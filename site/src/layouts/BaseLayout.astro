@@ -104,6 +104,21 @@ const mainClass = bleed ? '' : `wrap page${narrow ? ' wrap--narrow' : ''}`;
     </style>
 
     <script>
+      // The diagnostic form sends these with the lead, wherever the visitor landed.
+      const params = new URLSearchParams(window.location.search);
+      const utm = Object.fromEntries(
+        ['source', 'medium', 'campaign', 'term', 'content']
+          .map((key) => [key, params.get(`utm_${key}`)?.slice(0, 120) ?? ''])
+          .filter(([, value]) => value)
+      );
+      if (Object.keys(utm).length > 0) {
+        try {
+          sessionStorage.setItem('unschool:utm', JSON.stringify(utm));
+        } catch {
+          // Storage can be blocked; the lead then arrives without UTM tags.
+        }
+      }
+
       // Reveal content as it scrolls in. Anything already on screen at load is
       // shown immediately, so the first paint is never a blank page.
       const revealables = document.querySelectorAll<HTMLElement>('[data-reveal]');

@@ -3,6 +3,7 @@ import { onRequest } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2';
 import { REGION } from './config';
 import { adminRouter } from './admin';
+import { crmIntakeKey } from './crm';
 import { downloadRouter } from './delivery';
 import { leadsRouter } from './leads';
 import { ordersRouter, paymentsRouter } from './orders';
@@ -29,7 +30,7 @@ app.use((_req, res) => {
   res.status(404).json({ ok: false, error: 'not_found' });
 });
 
-export const api = onRequest({ secrets: [telegramBotToken, telegramChatId] }, app);
+export const api = onRequest({ secrets: [telegramBotToken, telegramChatId, crmIntakeKey] }, app);
 
 const SUPPORTED = ['he', 'ru', 'en'] as const;
 const DEFAULT_LANG = 'ru';

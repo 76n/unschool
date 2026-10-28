@@ -146,6 +146,20 @@ firebase functions:secrets:set TELEGRAM_CHAT_ID --project unschool-cool
 To find the chat ID, message the bot (or add it to the team group), then open
 `https://api.telegram.org/bot<token>/getUpdates` and copy `chat.id`. Group IDs are negative.
 
+Each request is also forwarded to the CRM intake API (promo code, UTM tags and both consents
+included). Create the key in the CRM (Settings, Leads, "Create key"), store it as a secret and set
+the URL in `functions/.env`. The secret is bound to the `api` function, so it must exist before the
+next deploy; while the URL is empty nothing is forwarded:
+
+```bash
+firebase functions:secrets:set CRM_INTAKE_KEY --project unschool-cool
+# functions/.env
+CRM_INTAKE_URL=https://crm.unschool.cool/api/intake/unschool
+```
+
+A request the CRM rejects or cannot reach is still stored and posted to Telegram; the failure is
+logged and the lead document keeps `crmSent: false`.
+
 Customer email (order receipts, download links, the parent's copy of a request) expects the
 Firebase "Trigger Email" extension watching the `mail` collection; until it is installed, those
 messages queue in Firestore without being sent.

@@ -36,6 +36,9 @@ export const config = {
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean),
 
+  /** For example https://crm.unschool.cool/api/intake/unschool; leads are not forwarded while empty. */
+  crmIntakeUrl: env('CRM_INTAKE_URL'),
+
   downloadTtlMinutes: Number(env('DOWNLOAD_TTL_MINUTES', '4320')),
   catalogCacheSeconds: Number(env('CATALOG_CACHE_SECONDS', '60')),
 };
