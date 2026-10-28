@@ -42,6 +42,7 @@ const teachingLanguages = [
 const contactMethods = [
   { value: 'phone', label: t('diagnostic.contactMethod.phone') },
   { value: 'whatsapp', label: t('diagnostic.contactMethod.whatsapp') },
+  { value: 'telegram', label: t('diagnostic.contactMethod.telegram') },
   { value: 'email', label: t('diagnostic.contactMethod.email') },
 ];
 
@@ -196,6 +197,31 @@ const jsonLd = freeDiagnosticService(
           <textarea name="notes" rows="4"></textarea>
         </label>
 
+        <label class="field">
+          <span class="field-label">
+            {t('diagnostic.field.promoCode')}
+            <span class="field-hint">{t('diagnostic.field.promoCode.hint')}</span>
+          </span>
+          <input type="text" name="promoCode" autocomplete="off" maxlength="40" dir="ltr" />
+        </label>
+
+        <div class="consents">
+          <label class="consent" data-field="consentTerms">
+            <input type="checkbox" name="consentTerms" />
+            <span>
+              {t('diagnostic.consent.terms')}{' '}
+              <a href={localePath(lang, 'privacy')}>{t('footer.privacy')}</a>
+              {' · '}
+              <a href={localePath(lang, 'terms')}>{t('footer.terms')}</a>
+            </span>
+          </label>
+          <span class="field-error" data-error="consentTerms" hidden></span>
+          <label class="consent">
+            <input type="checkbox" name="consentMarketing" />
+            <span>{t('diagnostic.consent.marketing')}</span>
+          </label>
+        </div>
+
         <div class="honeypot" aria-hidden="true">
           <label>
             Company
@@ -207,10 +233,6 @@ const jsonLd = freeDiagnosticService(
           {t('diagnostic.submit')}
           <Icon name="arrow" size={18} class="flip-rtl" />
         </button>
-        <p class="cta-note privacy">
-          {t('diagnostic.privacy')}
-          <a href={localePath(lang, 'privacy')}>{t('footer.privacy')}</a>
-        </p>
       </form>
     </div>
 
@@ -238,6 +260,7 @@ const jsonLd = freeDiagnosticService(
       parentName: t('diagnostic.error.name'),
       contactRequired: t('diagnostic.error.contact'),
       contactInvalid: t('diagnostic.error.contactInvalid'),
+      consentTerms: t('diagnostic.error.consentTerms'),
       server: t('diagnostic.error.server'),
       sending: t('common.sending'),
     },
@@ -296,11 +319,20 @@ const jsonLd = freeDiagnosticService(
       clearErrors();
 
       const data = new FormData(form);
+      const { consentTerms, consentMarketing, ...fields } = Object.fromEntries(data.entries());
+      let utm = {};
+      try {
+        utm = JSON.parse(sessionStorage.getItem('unschool:utm') || '{}');
+      } catch {
+        // Without storage the lead simply arrives without UTM tags.
+      }
       const payload = {
-        ...Object.fromEntries(data.entries()),
+        ...fields,
         subjects: data.getAll('subjects'),
         goals: data.getAll('goals'),
         lang: form.dataset.lang,
+        utm,
+        consents: { terms: consentTerms === 'on', marketing: consentMarketing === 'on' },
       };
       const problems = [];
 
@@ -316,6 +348,7 @@ const jsonLd = freeDiagnosticService(
       if (!contact) problems.push(['contact', messages.contactRequired]);
       else if (!isEmail(contact) && !isPhone(contact))
         problems.push(['contact', messages.contactInvalid]);
+      if (!payload.consents.terms) problems.push(['consentTerms', messages.consentTerms]);
 
       if (problems.length > 0) {
         problems.forEach(([name, message]) => showError(name, message));
@@ -410,8 +443,36 @@ const jsonLd = freeDiagnosticService(
     padding: 0;
   }
 
-  .privacy {
-    text-align: center;
+  .consents {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s3);
+  }
+
+  .consent span {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .consent {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s3);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .consent input {
+    flex: none;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    margin-block-start: 0.15rem;
+    accent-color: var(--grape);
+  }
+
+  .consent[data-invalid] span {
+    color: var(--danger);
   }
 
   .reassure {

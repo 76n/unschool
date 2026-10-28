@@ -13,6 +13,7 @@ export interface LeadDetails {
   contact: string;
   contactMethod: string;
   notes: string;
+  promoCode: string;
 }
 
 const SUBJECTS: Record<string, string> = {
@@ -49,6 +50,7 @@ const LTR = '\u200E';
 const CONTACT_METHODS: Record<string, { icon: string; ask: string }> = {
   phone: { icon: '📞', ask: 'просит позвонить' },
   whatsapp: { icon: '💬', ask: 'просит написать в WhatsApp' },
+  telegram: { icon: '✈️', ask: 'просит написать в Telegram' },
   email: { icon: '✉️', ask: 'просит ответить на почту' },
 };
 
@@ -122,6 +124,8 @@ export function leadMessage(
     `🎯 ${escapeHtml(lead.goals.map(goalLabel).join(', '))}`,
     `🗣 Язык занятий: ${escapeHtml(languageLabel(lead.teachingLanguage))}`,
   ];
+
+  if (lead.promoCode) lines.push(`🎟 Промокод: <code>${escapeHtml(lead.promoCode)}</code>`);
 
   if (lead.notes) lines.push('', `<blockquote expandable>${escapeHtml(lead.notes)}</blockquote>`);
 
