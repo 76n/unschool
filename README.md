@@ -10,7 +10,7 @@ product checkout and secure delivery.
 
 ## Requirements
 
-Node 20, Java 17 (for the Firestore emulator). Everything else installs with `npm install` at the
+Node 24 (`.nvmrc`), Java 21 (for the Firestore emulator). Everything else installs with `npm install` at the
 repository root, which covers both workspaces.
 
 ## Running locally
