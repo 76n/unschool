@@ -5,10 +5,11 @@
   "description": "Unschool — trilingual school website with digital product shop",
   "workspaces": [
     "site",
-    "functions"
+    "functions",
+    "tools/shims/*"
   ],
   "engines": {
-    "node": "20"
+    "node": "24"
   },
   "scripts": {
     "dev": "concurrently -n emulators,site -c magenta,cyan \"npm:dev:emulators\" \"npm:dev:site\"",
@@ -27,9 +28,21 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
-    "firebase-tools": "^13.35.1",
+    "firebase-tools": "^15.34.1",
     "playwright": "^1.64.0",
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1"
+  },
+  "overrides": {
+    "glob": "^13.0.6",
+    "uuid": "^11.1.1",
+    "@grpc/grpc-js": "^1.14.6",
+    "@opentelemetry/core": "^2.12.0"
+  },
+  "allowScripts": {
+    "@firebase/util@1.12.1": true,
+    "protobufjs@7.6.6": true,
+    "re2@1.27.0": true,
+    "fsevents": false
   }
 }

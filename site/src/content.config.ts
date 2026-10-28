@@ -1,4 +1,5 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { file, glob } from 'astro/loaders';
 import { LANGS } from './i18n/config';
 import { PRODUCT_TYPES, STAGES, SUBJECTS } from './data/taxonomy';

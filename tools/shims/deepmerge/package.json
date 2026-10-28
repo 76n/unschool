@@ -1,0 +1,8 @@
+{
+  "name": "deepmerge",
+  "version": "4.4.0",
+  "description": "Deep merge without prototype keys, for @rollup/plugin-node-resolve",
+  "private": true,
+  "type": "module",
+  "exports": "./index.js"
+}

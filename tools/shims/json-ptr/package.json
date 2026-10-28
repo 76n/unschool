@@ -1,0 +1,8 @@
+{
+  "name": "json-ptr",
+  "version": "3.1.1",
+  "description": "RFC 6901 JSON Pointer helpers used by exegesis (Firebase Auth emulator)",
+  "private": true,
+  "type": "module",
+  "exports": "./index.js"
+}
