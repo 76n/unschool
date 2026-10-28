@@ -445,7 +445,13 @@ const jsonLd = freeDiagnosticService(
 
   .consents {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s3);
+  }
+
+  .consent span {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
   }
 
   .consent {
