@@ -131,7 +131,11 @@ const t = useTranslations(lang);
         }
 
         show('paid');
-        window.track?.('purchase_confirmed', { item_id: order.productSlug, value: order.price });
+        window.track?.('purchase_confirmed', {
+          item_id: order.productSlug,
+          value: order.price,
+          currency: order.currency,
+        });
         return;
       }
 
