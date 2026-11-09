@@ -98,15 +98,17 @@ amount is checked against the price stored on the order.
 
 ## Deployment
 
-The site lives in the existing `unschool-cool` Firebase project, alongside the current
-unschool.cool app. It is deployed to a **second hosting site** so nothing about the live site
-changes until cutover.
+The site is the default hosting site of the `unschool-cool` Firebase project and serves
+https://unschool.cool. The previous app's paths (login, chats, personal area, admin panel) redirect
+to the new pages in `firebase.json`; its earlier releases stay in the Hosting release history for a
+rollback.
 
-|                |                                                  |
-| -------------- | ------------------------------------------------ |
-| Preview URL    | https://unschool-v2.web.app                      |
-| Hosting target | `site` → `unschool-v2` (mapped in `.firebaserc`) |
-| Functions      | `api` and `rootRedirect` in `europe-west3`       |
+|                |                                                      |
+| -------------- | ---------------------------------------------------- |
+| URL            | https://unschool.cool                                |
+| Hosting target | `site` → `unschool-cool` (mapped in `.firebaserc`)   |
+| Functions      | `api` and `rootRedirect` in `europe-west3`           |
+| Analytics      | `G-H3B9T59E1G`, the property of the previous version |
 
 ```bash
 npm run deploy          # site + both functions
@@ -115,24 +117,16 @@ npm run deploy:hosting  # site only, faster
 
 ### Safety rules for this project
 
-The project still serves the old app, so a deploy must never be run unscoped:
+The project still holds the previous app's data and functions, so a deploy must never be run
+unscoped:
 
 - **Never run bare `firebase deploy`.** `firestore.rules` and `storage.rules` in this repo deny all
-  client access, which is correct for this codebase but would break the old app that reads
-  Firestore from the browser. The npm scripts always pass `--only`.
-- The old app's functions are named `*Function` and run in `europe-west3`; ours are `api` and
+  client access, which would cut off the previous app's data. The npm scripts always pass `--only`.
+  Deploy the rules from this repo only once that data is retired.
+- The previous app's functions are named `*Function` and run in `europe-west3`; ours are `api` and
   `rootRedirect`, so there is no collision. Always deploy them by name.
-- The preview site sends `X-Robots-Tag: noindex, nofollow` on every response so it cannot compete
-  with unschool.cool in search.
-
-### Cutover to production
-
-1. Point the target at the live site in `.firebaserc`: `"site": ["unschool-cool"]`.
-2. Remove the `X-Robots-Tag: noindex` header block from `firebase.json`.
-3. Set `PUBLIC_SITE_URL=https://unschool.cool` in the deploy scripts and `PUBLIC_GA4_ID=G-C2V9VG57QF`
-   in `site/.env.production`.
-4. Deploy the Firestore and Storage rules from this repo only once the old app is retired.
-5. Delete the `unschool-v2` site: `firebase hosting:sites:delete unschool-v2`.
+- The CRM's hosting sites (`unschool-crm`, `unschool-crm-staging`) live in the same project and are
+  deployed from the CRM repository.
 
 Diagnostic requests are stored in Firestore and posted to the team's Telegram chat. The bot token
 and the chat ID are Secret Manager secrets bound to the `api` function, so they must exist before
