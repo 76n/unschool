@@ -6,7 +6,7 @@ role: עברית · כיתות א׳–י״ב
 subjects: [hebrew]
 teachingLanguages: [עברית, רוסית]
 order: 30
-seoTitle: מורה לעברית — Unschool
+seoTitle: מורה לעברית | Unschool
 seoDescription: "הפרופיל של המורה לעברית ב-Unschool: הכיתות שאיתן הוא עובד, שפות ההוראה והתוכניות שהוא מעביר, מקריאה ראשונה ועד לשון לבגרות."
 ---
 

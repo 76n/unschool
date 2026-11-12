@@ -6,7 +6,7 @@ role: מתמטיקה · כיתות א׳–י״ב
 subjects: [math]
 teachingLanguages: [עברית, רוסית, אנגלית]
 order: 10
-seoTitle: מורה למתמטיקה — Unschool
+seoTitle: מורה למתמטיקה | Unschool
 seoDescription: "הפרופיל של המורה למתמטיקה ב-Unschool: הכיתות שאיתן הוא עובד, שפות ההוראה והתוכניות שהוא מעביר, מבית הספר היסודי ועד הבגרות."
 ---
 

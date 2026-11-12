@@ -26,6 +26,10 @@ export function isPhone(value: string): boolean {
   return PHONE_RE.test(value);
 }
 
+export function isCountry(value: string): boolean {
+  return /^[A-Z]{2}$/.test(value);
+}
+
 export function isLang(value: unknown): value is Lang {
   return typeof value === 'string' && (LANGS as readonly string[]).includes(value);
 }

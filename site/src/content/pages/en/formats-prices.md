@@ -16,7 +16,7 @@ formats:
   - name: Assessment meeting
     details: An online meeting of about 30 minutes, meeting your child and recommending a format.
     price: Free
-seoTitle: Lesson formats and prices — Unschool
+seoTitle: Lesson formats and prices | Unschool
 seoDescription: Group and one-to-one lessons, bagrut preparation and a free assessment meeting. We match the format once we have met your child.
 ---
 

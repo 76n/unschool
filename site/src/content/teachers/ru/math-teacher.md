@@ -6,7 +6,7 @@ role: Математика · 1–12 классы
 subjects: [math]
 teachingLanguages: [Иврит, Русский, Английский]
 order: 10
-seoTitle: Преподаватель математики — Unschool
+seoTitle: Преподаватель математики | Unschool
 seoDescription: "Профиль преподавателя математики Unschool: предметы, языки преподавания и программы."
 ---
 

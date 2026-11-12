@@ -6,7 +6,7 @@ role: Английский · 1–12 классы
 subjects: [english]
 teachingLanguages: [Английский, Иврит, Русский]
 order: 20
-seoTitle: Преподаватель английского — Unschool
+seoTitle: Преподаватель английского | Unschool
 seoDescription: "Профиль преподавателя английского Unschool: предметы, языки преподавания и программы."
 ---
 

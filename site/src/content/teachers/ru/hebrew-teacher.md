@@ -6,7 +6,7 @@ role: Иврит · 1–12 классы
 subjects: [hebrew]
 teachingLanguages: [Иврит, Русский]
 order: 30
-seoTitle: Преподаватель иврита — Unschool
+seoTitle: Преподаватель иврита | Unschool
 seoDescription: "Профиль преподавателя иврита Unschool: предметы, языки преподавания и программы."
 ---
 

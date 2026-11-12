@@ -4,7 +4,7 @@ lang: en
 title: Accessibility statement
 subtitle: How we make the site usable for every visitor
 updated: "2026-10-11"
-seoTitle: Site accessibility — Unschool
+seoTitle: Site accessibility | Unschool
 seoDescription: How the Unschool site works with a keyboard, screen readers and mobile devices.
 ---
 

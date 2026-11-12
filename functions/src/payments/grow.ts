@@ -41,6 +41,7 @@ export class GrowProvider implements PaymentProvider {
       description: input.order.title,
       pageField: JSON.stringify({
         fullName: input.order.name,
+        phone: input.order.phone,
         email: input.order.email,
       }),
       cField1: input.order.id,

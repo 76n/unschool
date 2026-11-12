@@ -12,10 +12,14 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
+const PHONE = '+972515097499';
+const EMAIL = 'hello@unschool.cool';
+const PAY_URL = 'https://crm.unschool.cool/school/unschool/pay';
 
 const sections = [
   { href: localePath(lang, 'how-it-works'), label: t('nav.howItWorks') },
   { href: localePath(lang, 'formats-prices'), label: t('nav.formatsPrices') },
+  { href: PAY_URL, label: t('footer.payLessons') },
   { href: localePath(lang, 'teachers'), label: t('nav.teachers') },
   { href: localePath(lang, 'shop'), label: t('nav.materials') },
   { href: localePath(lang, 'about'), label: t('nav.about') },
@@ -47,6 +51,12 @@ const legal = [
       <div class="footer-brand">
         <p class="wordmark">unschool<span class="wordmark-dot"></span></p>
         <p class="footer-about">{t('footer.about')}</p>
+        <address class="footer-business" aria-label={t('footer.businessTitle')}>
+          <span>{t('footer.business')}</span>
+          <span>{t('footer.address')}</span>
+          <a href={`tel:${PHONE}`} dir="ltr">+972 51-509-7499</a>
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+        </address>
       </div>
 
       <nav aria-label={t('a11y.footerNav')} class="footer-nav">
@@ -159,6 +169,27 @@ const legal = [
     max-width: 30ch;
     color: #c9c2e4;
     font-size: 0.9375rem;
+  }
+
+  .footer-business {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s1);
+    margin-top: var(--s4);
+    font-style: normal;
+    color: #c9c2e4;
+    font-size: 0.875rem;
+  }
+
+  .footer-business a {
+    color: var(--paper);
+    text-decoration: none;
+  }
+
+  .footer-business a:hover {
+    color: var(--accent);
+    text-decoration: underline;
   }
 
   .footer-nav {

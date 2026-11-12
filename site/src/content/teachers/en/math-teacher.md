@@ -6,7 +6,7 @@ role: Maths · grades 1–12
 subjects: [math]
 teachingLanguages: [Hebrew, Russian, English]
 order: 10
-seoTitle: Maths teacher — Unschool
+seoTitle: Maths teacher | Unschool
 seoDescription: "The Unschool maths teacher profile: subjects, teaching languages and programs."
 ---
 

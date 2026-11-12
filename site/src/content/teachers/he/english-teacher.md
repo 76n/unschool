@@ -6,7 +6,7 @@ role: אנגלית · כיתות א׳–י״ב
 subjects: [english]
 teachingLanguages: [אנגלית, עברית, רוסית]
 order: 20
-seoTitle: מורה לאנגלית — Unschool
+seoTitle: מורה לאנגלית | Unschool
 seoDescription: "הפרופיל של המורה לאנגלית ב-Unschool: הכיתות שאיתן הוא עובד, שפות ההוראה והתוכניות שהוא מעביר, מהמילים הראשונות ועד הבגרות."
 ---
 
