@@ -82,6 +82,7 @@ const titles = Object.fromEntries(
       freeTitle: t('order.free.title'),
       freeText: t('order.free.text'),
       slow: t('order.pending.slow'),
+      free: t('common.free'),
     },
   }}
 >
@@ -137,7 +138,9 @@ const titles = Object.fromEntries(
           : messages.paidText;
         document.querySelector('[data-order-title]').textContent =
           titles[order.productId] ?? order.productName;
-        document.querySelector('[data-order-total]').textContent = money(order.amount / 100);
+        document.querySelector('[data-order-total]').textContent = free
+          ? messages.free
+          : money(order.amount / 100);
         document.querySelector('[data-order-email]').textContent = order.emailHint;
 
         const download = document.getElementById('order-download');
