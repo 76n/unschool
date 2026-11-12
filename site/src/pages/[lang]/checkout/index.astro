@@ -13,6 +13,7 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 const countries = countryOptions(lang);
+const PAY_METHODS = ['card', 'bit', 'applePay', 'googlePay', 'paypal'] as const;
 const products = (await listByLang('products', lang)).map(({ data }) => ({
   slug: data.slug,
   title: data.title,
@@ -126,14 +127,14 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
 
     <fieldset class="methods" data-field="method" hidden>
       <legend class="field-label">{t('checkout.method')}</legend>
-      <label class="method" data-method="card">
-        <input type="radio" name="method" value="card" />
-        <span>{t('checkout.method.card')}</span>
-      </label>
-      <label class="method" data-method="bit">
-        <input type="radio" name="method" value="bit" />
-        <span>{t('checkout.method.bit')}</span>
-      </label>
+      {
+        PAY_METHODS.map((method) => (
+          <label class="method" data-method={method}>
+            <input type="radio" name="method" value={method} />
+            <span>{t(`checkout.method.${method}`)}</span>
+          </label>
+        ))
+      }
     </fieldset>
 
     <div class="terms" data-field="marketing">

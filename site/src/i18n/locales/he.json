@@ -302,5 +302,8 @@
   "order.free.text": "שלחנו את קישור ההורדה גם למייל שלך.",
   "order.pending.slow": "האישור לוקח יותר זמן מהרגיל. ברגע שהתשלום יאושר, הקובץ יגיע למייל.",
   "diagnostic.field.coupon": "קופון",
-  "diagnostic.field.coupon.hint": "אם יש לכם: מאיתנו, מבלוגר או מחבר"
+  "diagnostic.field.coupon.hint": "אם יש לכם: מאיתנו, מבלוגר או מחבר",
+  "checkout.method.applePay": "Apple Pay",
+  "checkout.method.googlePay": "Google Pay",
+  "checkout.method.paypal": "PayPal"
 }

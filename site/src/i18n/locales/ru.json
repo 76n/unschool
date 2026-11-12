@@ -302,5 +302,8 @@
   "order.free.text": "Мы также отправили ссылку на файл на вашу почту.",
   "order.pending.slow": "Подтверждение занимает больше времени, чем обычно. Как только оплата подтвердится, файл придёт на почту.",
   "diagnostic.field.coupon": "Купон",
-  "diagnostic.field.coupon.hint": "Если есть: от нас, блогера или друга"
+  "diagnostic.field.coupon.hint": "Если есть: от нас, блогера или друга",
+  "checkout.method.applePay": "Apple Pay",
+  "checkout.method.googlePay": "Google Pay",
+  "checkout.method.paypal": "PayPal"
 }

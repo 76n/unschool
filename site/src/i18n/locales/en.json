@@ -302,5 +302,8 @@
   "order.free.text": "We have also sent the download link to your email.",
   "order.pending.slow": "Confirmation is taking longer than usual. As soon as the payment is confirmed, the file will arrive by email.",
   "diagnostic.field.coupon": "Coupon",
-  "diagnostic.field.coupon.hint": "If you have one: from us, a blogger or a friend"
+  "diagnostic.field.coupon.hint": "If you have one: from us, a blogger or a friend",
+  "checkout.method.applePay": "Apple Pay",
+  "checkout.method.googlePay": "Google Pay",
+  "checkout.method.paypal": "PayPal"
 }
