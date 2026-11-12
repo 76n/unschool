@@ -5,6 +5,7 @@ import { useTranslations } from '~/i18n/ui';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { countryOptions } from '~/data/countries';
 import { listByLang } from '~/lib/content';
+import Icon from '~/components/Icon.astro';
 
 export function getStaticPaths() {
   return langParams();
@@ -28,151 +29,178 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
   description={t('checkout.guest')}
   noindex
   stickyCta={false}
-  narrow
+  footerCta={false}
 >
-  <h1 data-title>{t('checkout.title')}</h1>
+  <div class="checkout">
+    <header class="checkout-head">
+      <h1 data-title>{t('checkout.title')}</h1>
+      <p class="checkout-guest">
+        <Icon name="check" size={16} />
+        {t('checkout.guest')}
+      </p>
+    </header>
 
-  <p class="form-status form-status--error" id="checkout-error" hidden role="alert"></p>
-
-  <section class="summary" id="order-summary" hidden aria-labelledby="summary-title">
-    <h2 id="summary-title" class="summary-heading">{t('checkout.order')}</h2>
-    <p class="summary-product" data-summary-title></p>
-    <div class="summary-row" data-row="list" hidden>
-      <span>{t('checkout.listPrice')}</span>
-      <s data-summary-list></s>
-    </div>
-    <div class="summary-row" data-row="price">
-      <span>{t('checkout.price')}</span>
-      <span data-summary-price></span>
-    </div>
-    <div class="summary-row summary-row--discount" data-row="coupon" hidden>
-      <span data-summary-coupon></span>
-      <span data-summary-discount></span>
-    </div>
-    <div class="summary-total">
-      <span>{t('checkout.total')}</span>
-      <span data-summary-total></span>
-    </div>
-  </section>
-
-  <form class="checkout-form" id="checkout-form" novalidate hidden data-lang={lang}>
-    <div class="name-row" data-paid-only>
-      <label class="field" data-field="firstName">
-        <span class="field-label">{t('checkout.firstName')}</span>
-        <input type="text" name="firstName" autocomplete="given-name" maxlength="60" />
-        <span class="field-error" data-error="firstName" hidden></span>
-      </label>
-      <label class="field" data-field="lastName">
-        <span class="field-label">{t('checkout.lastName')}</span>
-        <input type="text" name="lastName" autocomplete="family-name" maxlength="60" />
-        <span class="field-error" data-error="lastName" hidden></span>
-      </label>
-    </div>
-
-    <label class="field" data-free-only hidden>
-      <span class="field-label">
-        {t('checkout.name')}
-        <span class="field-hint">{t('common.optional')}</span>
-      </span>
-      <input type="text" name="name" autocomplete="given-name" maxlength="60" />
-    </label>
-
-    <label class="field" data-field="phone" data-paid-only>
-      <span class="field-label">{t('checkout.phone')}</span>
-      <input type="tel" name="phone" inputmode="tel" autocomplete="tel" dir="ltr" />
-      <span class="field-error" data-error="phone" hidden></span>
-    </label>
-
-    <label class="field" data-field="country" data-paid-only>
-      <span class="field-label">{t('checkout.country')}</span>
-      <select name="country" autocomplete="country">
-        {countries.map((country) => <option value={country.value}>{country.label}</option>)}
-      </select>
-    </label>
-
-    <label class="field" data-field="email">
-      <span class="field-label">
-        {t('checkout.email')}
-        <span class="field-hint" data-paid-only>{t('checkout.emailHint')}</span>
-        <span class="field-hint" data-free-only hidden>{t('checkout.emailFreeHint')}</span>
-      </span>
-      <input type="email" name="email" inputmode="email" autocomplete="email" dir="ltr" required />
-      <span class="field-error" data-error="email" hidden></span>
-    </label>
-
-    <div class="field" data-field="coupon">
-      <label class="field-label" for="checkout-coupon">
-        {t('checkout.coupon')}
-        <span class="field-hint">{t('common.optional')}</span>
-      </label>
-      <div class="coupon-row">
-        <input
-          id="checkout-coupon"
-          class="code-input"
-          type="text"
-          name="coupon"
-          autocomplete="off"
-          autocapitalize="characters"
-          spellcheck="false"
-          maxlength="40"
-          dir="ltr"
-        />
-        <button class="btn btn--outline" type="button" data-coupon-apply>
-          {t('checkout.couponApply')}
-        </button>
+    <section class="summary" id="order-summary" hidden aria-labelledby="summary-title">
+      <h2 id="summary-title" class="summary-heading">{t('checkout.order')}</h2>
+      <p class="summary-product" data-summary-title></p>
+      <div class="summary-row" data-row="list" hidden>
+        <span>{t('checkout.listPrice')}</span>
+        <s data-summary-list></s>
       </div>
-      <span class="field-ok" data-coupon-ok hidden></span>
-      <span class="field-error" data-error="coupon" hidden></span>
-    </div>
+      <div class="summary-row" data-row="price">
+        <span>{t('checkout.price')}</span>
+        <span data-summary-price></span>
+      </div>
+      <div class="summary-row summary-row--discount" data-row="coupon" hidden>
+        <span data-summary-coupon></span>
+        <span data-summary-discount></span>
+      </div>
+      <div class="summary-total">
+        <span>{t('checkout.total')}</span>
+        <span data-summary-total></span>
+      </div>
+    </section>
 
-    <fieldset class="methods" data-field="method" hidden>
-      <legend class="field-label">{t('checkout.method')}</legend>
-      {
-        PAY_METHODS.map((method) => (
-          <label class="method" data-method={method}>
-            <input type="radio" name="method" value={method} />
-            <span>{t(`checkout.method.${method}`)}</span>
+    <div class="checkout-body">
+      <p class="form-status form-status--error" id="checkout-error" hidden role="alert"></p>
+
+      <form class="checkout-form" id="checkout-form" novalidate hidden data-lang={lang}>
+        <div class="name-row" data-paid-only>
+          <label class="field" data-field="firstName">
+            <span class="field-label">{t('checkout.firstName')}</span>
+            <input type="text" name="firstName" autocomplete="given-name" maxlength="60" />
+            <span class="field-error" data-error="firstName" hidden></span>
           </label>
-        ))
-      }
-    </fieldset>
+          <label class="field" data-field="lastName">
+            <span class="field-label">{t('checkout.lastName')}</span>
+            <input type="text" name="lastName" autocomplete="family-name" maxlength="60" />
+            <span class="field-error" data-error="lastName" hidden></span>
+          </label>
+        </div>
 
-    <div class="terms" data-field="marketing">
-      <label class="terms-check">
-        <input type="checkbox" name="marketing" />
-        <span>
-          {t('checkout.marketing')}{' '}
-          <a href={localePath(lang, 'privacy')} target="_blank">{t('footer.privacy')}</a>
-        </span>
-      </label>
-      <span class="field-error" data-error="marketing" hidden></span>
+        <label class="field" data-free-only hidden>
+          <span class="field-label">
+            {t('checkout.name')}
+            <span class="field-hint">{t('common.optional')}</span>
+          </span>
+          <input type="text" name="name" autocomplete="given-name" maxlength="60" />
+        </label>
+
+        <label class="field" data-field="phone" data-paid-only>
+          <span class="field-label">{t('checkout.phone')}</span>
+          <input type="tel" name="phone" inputmode="tel" autocomplete="tel" dir="ltr" />
+          <span class="field-error" data-error="phone" hidden></span>
+        </label>
+
+        <label class="field" data-field="country" data-paid-only>
+          <span class="field-label">{t('checkout.country')}</span>
+          <select name="country" autocomplete="country">
+            {countries.map((country) => <option value={country.value}>{country.label}</option>)}
+          </select>
+        </label>
+
+        <label class="field" data-field="email">
+          <span class="field-label">
+            {t('checkout.email')}
+            <span class="field-hint" data-paid-only>{t('checkout.emailHint')}</span>
+            <span class="field-hint" data-free-only hidden>{t('checkout.emailFreeHint')}</span>
+          </span>
+          <input
+            type="email"
+            name="email"
+            inputmode="email"
+            autocomplete="email"
+            dir="ltr"
+            required
+          />
+          <span class="field-error" data-error="email" hidden></span>
+        </label>
+
+        <div class="field" data-field="coupon">
+          <label class="field-label" for="checkout-coupon">
+            {t('checkout.coupon')}
+            <span class="field-hint">{t('common.optional')}</span>
+          </label>
+          <div class="coupon-row">
+            <input
+              id="checkout-coupon"
+              class="code-input"
+              type="text"
+              name="coupon"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              maxlength="40"
+              dir="ltr"
+            />
+            <button class="btn btn--outline" type="button" data-coupon-apply>
+              {t('checkout.couponApply')}
+            </button>
+          </div>
+          <span class="field-ok" data-coupon-ok hidden></span>
+          <span class="field-error" data-error="coupon" hidden></span>
+        </div>
+
+        <fieldset class="field methods" data-field="method" hidden>
+          <legend class="field-label">{t('checkout.method')}</legend>
+          <div class="choice-grid">
+            {
+              PAY_METHODS.map((method) => (
+                <label class="choice" data-method={method}>
+                  <input type="radio" name="method" value={method} />
+                  <span>{t(`checkout.method.${method}`)}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="consents">
+          <div data-field="marketing">
+            <label class="check">
+              <input type="checkbox" name="marketing" />
+              <span>
+                {t('checkout.marketing')}{' '}
+                <a href={localePath(lang, 'privacy')} target="_blank">{t('footer.privacy')}</a>
+              </span>
+            </label>
+            <span class="field-error" data-error="marketing" hidden></span>
+          </div>
+
+          <div data-field="acceptTerms" data-paid-only>
+            <label class="check">
+              <input type="checkbox" name="acceptTerms" />
+              <span>
+                {t('checkout.acceptTerms')}{' '}
+                <a href={localePath(lang, 'terms')} target="_blank">{t('footer.terms')}</a>
+              </span>
+            </label>
+            <span class="field-error" data-error="acceptTerms" hidden></span>
+          </div>
+        </div>
+
+        <div class="honeypot" aria-hidden="true">
+          <label
+            >Company <input type="text" name="company" tabindex="-1" autocomplete="off" /></label
+          >
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn--primary btn--block" type="submit" data-submit
+            >{t('checkout.pay')}</button
+          >
+        </div>
+      </form>
+
+      <div class="checkout-missing" id="checkout-missing" hidden>
+        <p>{t('checkout.missingProduct')}</p>
+        <a class="btn btn--primary" href={localePath(lang, 'shop')}>
+          {t('cta.toCatalog')}
+          <Icon name="arrow" size={18} class="flip-rtl" />
+        </a>
+      </div>
     </div>
-
-    <div class="terms" data-field="acceptTerms" data-paid-only>
-      <label class="terms-check">
-        <input type="checkbox" name="acceptTerms" />
-        <span>
-          {t('checkout.acceptTerms')}{' '}
-          <a href={localePath(lang, 'terms')} target="_blank">{t('footer.terms')}</a>
-        </span>
-      </label>
-      <span class="field-error" data-error="acceptTerms" hidden></span>
-    </div>
-
-    <div class="honeypot" aria-hidden="true">
-      <label>Company <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
-    </div>
-
-    <button class="btn btn--primary btn--block" type="submit" data-submit
-      >{t('checkout.pay')}</button
-    >
-    <p class="cta-note">{t('checkout.guest')}</p>
-  </form>
-
-  <p class="muted" id="checkout-missing" hidden>
-    {t('checkout.missingProduct')}
-    <a href={localePath(lang, 'shop')}>{t('cta.toCatalog')}</a>
-  </p>
+  </div>
 </BaseLayout>
 
 <script
@@ -497,12 +525,66 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
 </script>
 
 <style>
-  /* A short form should not stretch across a desktop page. */
-  .summary,
-  .checkout-form,
-  #checkout-error,
-  #checkout-missing {
-    max-width: 34rem;
+  .checkout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s5);
+    padding-block: clamp(2rem, 6vw, 3.5rem) clamp(3rem, 8vw, 5rem);
+  }
+
+  .checkout-head h1 {
+    margin-bottom: var(--s2);
+    font-size: clamp(1.85rem, 6vw, 3rem);
+  }
+
+  .checkout-guest {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+  }
+
+  .checkout-guest :global(svg) {
+    flex: none;
+    color: var(--ok);
+  }
+
+  @media (min-width: 60rem) {
+    .checkout {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+      grid-template-areas:
+        'head summary'
+        'body summary';
+      grid-template-rows: auto 1fr;
+      column-gap: clamp(3rem, 7vw, 6rem);
+      row-gap: var(--s6);
+    }
+
+    .checkout-head {
+      grid-area: head;
+    }
+
+    .summary {
+      grid-area: summary;
+      position: sticky;
+      top: calc(var(--header-h) + var(--s5));
+      align-self: start;
+    }
+
+    .checkout-body {
+      grid-area: body;
+    }
+  }
+
+  .checkout-body,
+  .checkout-head {
+    max-width: 36rem;
+  }
+
+  .checkout-body > .form-status {
+    margin-bottom: var(--s5);
   }
 
   .name-row {
@@ -518,10 +600,9 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
 
   .name-row[hidden],
   .field[hidden],
-  .cta-note[hidden],
-  .terms[hidden],
+  .consents [hidden],
   .methods[hidden],
-  .method[hidden] {
+  .choice[hidden] {
     display: none;
   }
 
@@ -535,68 +616,40 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
     min-width: 0;
   }
 
+  .coupon-row .btn {
+    flex: none;
+    min-height: 3.25rem;
+    padding-inline: var(--s5);
+  }
+
   .methods {
-    margin: 0 0 var(--s5);
-    padding: 0;
     border: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s3);
+    padding: 0;
+    margin-inline: 0;
   }
 
   .methods legend {
-    margin-bottom: var(--s2);
+    padding: 0;
   }
 
-  .method {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--s2);
-    padding: var(--s2) var(--s4);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-pill);
-    cursor: pointer;
-  }
-
-  .method input {
-    accent-color: var(--grape);
-  }
-
-  .terms {
-    margin-bottom: var(--s5);
-  }
-
-  .terms-check {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--s3);
-    font-size: 0.875rem;
-    line-height: 1.5;
-    cursor: pointer;
-  }
-
-  .terms-check input {
-    flex: none;
-    inline-size: 1.125rem;
-    block-size: 1.125rem;
-    margin-block-start: 0.15rem;
-    accent-color: var(--grape);
-  }
-
-  .terms[data-invalid] .terms-check span {
-    color: var(--danger);
+  .checkout-missing {
+    padding: var(--s6);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
   }
 
   .summary {
-    margin-block: var(--s6) var(--s5);
     padding: var(--s5);
-    background: var(--paper-2);
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: var(--r-md);
+    box-shadow: var(--shadow-sm);
   }
 
   .summary-heading {
     font-family: var(--font-body);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -605,8 +658,11 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
   }
 
   .summary-product {
-    margin: 0 0 var(--s3);
-    font-weight: 600;
+    margin: 0 0 var(--s4);
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.3;
   }
 
   .summary-row,
@@ -616,12 +672,17 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
     gap: var(--s3);
   }
 
-  .summary-row[hidden] {
-    display: none;
+  .summary-row + .summary-row {
+    margin-top: var(--s2);
   }
 
-  .summary-row s {
+  .summary-row {
+    font-size: 0.9375rem;
     color: var(--ink-soft);
+  }
+
+  .summary-row[hidden] {
+    display: none;
   }
 
   .summary-row--discount {
@@ -629,11 +690,12 @@ const products = (await listByLang('products', lang)).map(({ data }) => ({
   }
 
   .summary-total {
-    margin-top: var(--s3);
-    padding-top: var(--s3);
-    border-top: 1px solid var(--line-strong);
+    align-items: baseline;
+    margin-top: var(--s4);
+    padding-top: var(--s4);
+    border-top: 1px solid var(--line);
     font-family: var(--font-display);
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 700;
   }
 </style>

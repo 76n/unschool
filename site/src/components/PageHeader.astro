@@ -112,6 +112,17 @@ const trail =
     max-width: 38rem;
   }
 
+  /* The title may run wider than the text under it, so long words stay whole. */
+  @media (min-width: 48rem) {
+    .page-header-copy {
+      max-width: 52rem;
+    }
+
+    .page-header-copy > :global(:not(h1)) {
+      max-width: 38rem;
+    }
+  }
+
   .page-header :global(.eyebrow) {
     color: var(--accent);
   }

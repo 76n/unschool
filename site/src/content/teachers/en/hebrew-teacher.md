@@ -10,7 +10,5 @@ seoTitle: Hebrew teacher | Unschool
 seoDescription: "The Unschool Hebrew teacher profile: subjects, teaching languages and programs."
 ---
 
-This profile is being prepared: the teacher's name, photo and experience will appear here soon.
-
 The teacher works with Hebrew as the language of school: following lessons, reading, writing and
 bagrut preparation.

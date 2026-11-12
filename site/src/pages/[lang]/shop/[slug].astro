@@ -13,6 +13,7 @@ import SectionHead from '~/components/SectionHead.astro';
 import InfoCard from '~/components/InfoCard.astro';
 import ProductCard from '~/components/ProductCard.astro';
 import Icon from '~/components/Icon.astro';
+import Callout from '~/components/Callout.astro';
 
 export async function getStaticPaths() {
   const slugs = await listSlugs('products');
@@ -124,7 +125,16 @@ const terms = [
           {isFree ? t('product.getFree') : t('product.buy')}
           <Icon name="arrow" size={18} class="flip-rtl" />
         </a>
-        <p class="buy-access">{data.accessNote}</p>
+        <ul class="buy-facts">
+          <li>
+            <Icon name="file" size={16} />
+            <span>{data.fileFormat}</span>
+          </li>
+          <li>
+            <Icon name="download" size={16} />
+            <span>{data.accessNote}</span>
+          </li>
+        </ul>
         {
           companionEntry && (
             <a
@@ -145,12 +155,26 @@ const terms = [
           <section class="section section--tight" aria-labelledby="preview-title">
             <SectionHead title={t('product.preview')} id="preview-title" />
             <ul class="previews">
-              {data.previews.map((preview) => (
+              {data.previews.map((preview, index) => (
                 <li>
-                  <img src={preview} alt="" width="400" height="560" loading="lazy" />
+                  <button
+                    class="preview-open"
+                    type="button"
+                    data-preview={preview}
+                    aria-label={t('product.previewOpen').replace('{n}', String(index + 1))}
+                  >
+                    <img src={preview} alt="" width="400" height="560" loading="lazy" />
+                  </button>
                 </li>
               ))}
             </ul>
+            <dialog class="preview-dialog" data-preview-dialog>
+              <button class="preview-close" type="button" data-preview-close>
+                <Icon name="close" size={20} />
+                <span class="visually-hidden">{t('product.previewClose')}</span>
+              </button>
+              <img src={data.previews[0]} alt="" width="794" height="1123" />
+            </dialog>
           </section>
         )
       }
@@ -161,15 +185,17 @@ const terms = [
 
       <section class="section section--tight" aria-labelledby="details-title">
         <SectionHead title={t('product.whatYouGet')} id="details-title" />
-        <div class="grid grid--2">
+        <div class="details">
           {
             data.contents.length > 0 && (
-              <InfoCard
-                icon="file"
-                label={t('product.contents')}
-                items={data.contents}
-                accent={theme.accent}
-              />
+              <div class="details-contents">
+                <InfoCard
+                  icon="file"
+                  label={t('product.contents')}
+                  items={data.contents}
+                  accent={theme.accent}
+                />
+              </div>
             )
           }
           <InfoCard
@@ -261,25 +287,44 @@ const terms = [
     )
   }
 
-  <section class="section section--tight">
+  <section class="section section--tight help">
     <div class="wrap">
-      <p class="muted">{t('product.relatedDiagnostic')}</p>
-      <a class="arrow-link" href={localePath(lang, 'diagnostic')}>
-        {t('cta.bookFree')}
-        <Icon name="arrow" size={16} class="flip-rtl" />
-      </a>
+      <Callout
+        title={t('home.unsure.title')}
+        text={t('product.relatedDiagnostic')}
+        href={localePath(lang, 'diagnostic')}
+        linkLabel={t('cta.bookFree')}
+      />
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-preview-dialog]');
+  const image = dialog?.querySelector('img');
+  document.querySelectorAll<HTMLButtonElement>('[data-preview]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!dialog || !image) return;
+      image.src = button.dataset.preview ?? '';
+      dialog.showModal();
+    });
+  });
+  dialog?.querySelector('[data-preview-close]')?.addEventListener('click', () => dialog.close());
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+</script>
+
 <style>
   .cover {
+    display: block;
     width: 100%;
     aspect-ratio: 3 / 2;
     object-fit: cover;
+    border: 1px solid var(--line);
     border-radius: var(--r-lg);
-    background: var(--soft);
-    margin-bottom: var(--s5);
+    background: var(--surface);
+    margin-bottom: var(--s6);
   }
 
   .meta-chips {
@@ -297,7 +342,7 @@ const terms = [
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(9rem, 40%), 1fr));
     gap: var(--s3);
   }
 
@@ -305,12 +350,102 @@ const terms = [
     margin: 0;
   }
 
-  .previews img {
+  .preview-open {
+    display: block;
     width: 100%;
-    height: auto;
+    padding: 0;
     border: 1px solid var(--line);
     border-radius: var(--r-sm);
     background: var(--surface);
+    overflow: hidden;
+    cursor: zoom-in;
+    transition:
+      transform 0.18s var(--ease),
+      box-shadow 0.18s var(--ease);
+  }
+
+  .preview-open:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .preview-open img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .preview-dialog {
+    max-width: min(48rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    overflow: auto;
+  }
+
+  .preview-dialog::backdrop {
+    background: rgba(23, 20, 42, 0.6);
+  }
+
+  .preview-dialog img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .preview-close {
+    position: sticky;
+    top: var(--s3);
+    float: inline-end;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: var(--s3);
+    margin-bottom: -3.5rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .details {
+    display: grid;
+    gap: var(--s4);
+  }
+
+  .details > * {
+    min-width: 0;
+  }
+
+  .details-contents :global(ul) {
+    column-gap: var(--s6);
+  }
+
+  @media (min-width: 40rem) {
+    .details {
+      grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    }
+
+    .details-contents {
+      grid-column: 1 / -1;
+    }
+
+    .details-contents :global(ul) {
+      columns: 2;
+    }
+
+    .details-contents :global(li) {
+      break-inside: avoid;
+    }
+  }
+
+  .help {
+    padding-top: 0;
   }
 
   .modules {
@@ -409,10 +544,28 @@ const terms = [
     margin-top: var(--s4);
   }
 
-  .buy-access {
-    margin: var(--s3) 0 0;
-    font-size: 0.8125rem;
+  .buy-facts {
+    display: grid;
+    gap: var(--s2);
+    margin: var(--s4) 0 0;
+    padding: var(--s4) 0 0;
+    border-top: 1px solid var(--line);
+    list-style: none;
+    font-size: 0.875rem;
     color: var(--ink-soft);
+  }
+
+  .buy-facts li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s2);
+    margin: 0;
+  }
+
+  .buy-facts :global(svg) {
+    flex: none;
+    margin-top: 0.2em;
+    color: var(--brand);
   }
 
   @media (min-width: 64rem) {
@@ -437,10 +590,6 @@ const terms = [
       position: sticky;
       top: calc(var(--header-h) + 1.5rem);
       margin-bottom: 0;
-    }
-
-    .previews {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

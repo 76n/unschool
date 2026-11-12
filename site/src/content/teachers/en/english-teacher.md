@@ -10,6 +10,4 @@ seoTitle: English teacher | Unschool
 seoDescription: "The Unschool English teacher profile: subjects, teaching languages and programs."
 ---
 
-This profile is being prepared: the teacher's name, photo and experience will appear here soon.
-
 The teacher works on English, including the SPEAKABLE speaking track and exam preparation.

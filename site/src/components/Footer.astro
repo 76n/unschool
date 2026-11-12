@@ -7,9 +7,10 @@ import Icon from './Icon.astro';
 
 interface Props {
   lang: Lang;
+  cta?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, cta = true } = Astro.props;
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
 const PHONE = '+972515097499';
@@ -36,16 +37,20 @@ const legal = [
 
 <footer class="site-footer on-dark" data-site-footer>
   <div class="wrap">
-    <div class="footer-cta">
-      <div>
-        <h2>{t('home.final.title')}</h2>
-        <p class="footer-cta-text">{t('cta.bookNote')}</p>
-      </div>
-      <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_footer">
-        {t('cta.book')}
-        <Icon name="arrow" size={18} class="flip-rtl" />
-      </a>
-    </div>
+    {
+      cta && (
+        <div class="footer-cta">
+          <div>
+            <h2>{t('home.final.title')}</h2>
+            <p class="footer-cta-text">{t('cta.bookNote')}</p>
+          </div>
+          <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_footer">
+            {t('cta.book')}
+            <Icon name="arrow" size={18} class="flip-rtl" />
+          </a>
+        </div>
+      )
+    }
 
     <div class="footer-cols">
       <div class="footer-brand">

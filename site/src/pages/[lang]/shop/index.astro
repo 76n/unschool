@@ -16,6 +16,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import PageHeader from '~/components/PageHeader.astro';
 import ProductCard from '~/components/ProductCard.astro';
 import Callout from '~/components/Callout.astro';
+import Icon from '~/components/Icon.astro';
 
 export function getStaticPaths() {
   return langParams();
@@ -60,47 +61,59 @@ const jsonLd = {
   />
 
   <div class="wrap page">
-    <form class="filters" id="shop-filters" aria-label={t('shop.title')}>
-      <label class="filter">
-        <span class="filter-label">{t('shop.filter.subject')}</span>
-        <select name="subject">
-          <option value="">{t('shop.filter.all')}</option>
-          {SUBJECTS.map((subject) => <option value={subject}>{t(subjectNameKey(subject))}</option>)}
-        </select>
-      </label>
+    <details class="filters-box" open data-filters-box>
+      <summary class="filters-toggle">
+        <Icon name="chevron" size={16} />
+        {t('shop.filter.title')}
+      </summary>
+      <form class="filters" id="shop-filters" aria-label={t('shop.title')}>
+        <label class="filter">
+          <span class="filter-label">{t('shop.filter.subject')}</span>
+          <select name="subject">
+            <option value="">{t('shop.filter.all')}</option>
+            {
+              SUBJECTS.map((subject) => (
+                <option value={subject}>{t(subjectNameKey(subject))}</option>
+              ))
+            }
+          </select>
+        </label>
 
-      <label class="filter">
-        <span class="filter-label">{t('shop.filter.stage')}</span>
-        <select name="stage">
-          <option value="">{t('shop.filter.all')}</option>
-          {STAGES.map((stage) => <option value={stage}>{t(stageNameKey(stage))}</option>)}
-        </select>
-      </label>
+        <label class="filter">
+          <span class="filter-label">{t('shop.filter.stage')}</span>
+          <select name="stage">
+            <option value="">{t('shop.filter.all')}</option>
+            {STAGES.map((stage) => <option value={stage}>{t(stageNameKey(stage))}</option>)}
+          </select>
+        </label>
 
-      <label class="filter">
-        <span class="filter-label">{t('shop.filter.type')}</span>
-        <select name="type">
-          <option value="">{t('shop.filter.all')}</option>
-          {PRODUCT_TYPES.map((type) => <option value={type}>{t(productTypeKey(type))}</option>)}
-        </select>
-      </label>
+        <label class="filter">
+          <span class="filter-label">{t('shop.filter.type')}</span>
+          <select name="type">
+            <option value="">{t('shop.filter.all')}</option>
+            {PRODUCT_TYPES.map((type) => <option value={type}>{t(productTypeKey(type))}</option>)}
+          </select>
+        </label>
 
-      <label class="filter">
-        <span class="filter-label">{t('shop.filter.language')}</span>
-        <select name="language">
-          <option value="">{t('shop.filter.all')}</option>
-          {LANGS.map((code) => <option value={code}>{LANG_NAME[code]}</option>)}
-        </select>
-      </label>
+        <label class="filter">
+          <span class="filter-label">{t('shop.filter.language')}</span>
+          <select name="language">
+            <option value="">{t('shop.filter.all')}</option>
+            {LANGS.map((code) => <option value={code}>{LANG_NAME[code]}</option>)}
+          </select>
+        </label>
+      </form>
+    </details>
 
-      <button class="btn btn--outline btn--sm reset" type="reset" data-reset>
+    <div class="results">
+      <p class="small muted" id="shop-results" aria-live="polite">
+        {t('shop.results', { count: products.length })}
+      </p>
+      <button class="reset" type="reset" form="shop-filters" data-reset hidden>
+        <Icon name="close" size={14} />
         {t('shop.filter.reset')}
       </button>
-    </form>
-
-    <p class="results tiny muted" id="shop-results" aria-live="polite">
-      {t('shop.results', { count: products.length })}
-    </p>
+    </div>
 
     <div class="grid grid--3" id="shop-grid">
       {
@@ -131,6 +144,11 @@ const jsonLd = {
   const results = document.getElementById('shop-results');
   const empty = document.getElementById('shop-empty');
 
+  const box = document.querySelector('[data-filters-box]');
+  if (box instanceof HTMLDetailsElement && !window.matchMedia('(min-width: 48rem)').matches) {
+    box.open = false;
+  }
+
   if (form instanceof HTMLFormElement && grid && results && empty) {
     const cards = Array.from(grid.querySelectorAll('[data-product-card]'));
 
@@ -157,6 +175,8 @@ const jsonLd = {
 
       results.textContent = resultsTemplate.replace('__count__', String(visible));
       empty.hidden = visible > 0;
+      const reset = document.querySelector('[data-reset]');
+      if (reset) reset.hidden = !(subject || stage || type || language);
     };
 
     form.addEventListener('change', apply);
@@ -167,15 +187,54 @@ const jsonLd = {
 <style>
   /* A closed select cannot wrap, so a column is never narrower than the longest
      option plus the select's padding and arrow. */
+  .filters-box {
+    margin-bottom: var(--s4);
+    background: var(--paper-2);
+    border-radius: var(--r-md);
+  }
+
+  .filters-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    min-height: 3rem;
+    padding: 0 var(--s4);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .filters-toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .filters-toggle :global(svg) {
+    transform: rotate(90deg);
+    transition: transform 0.2s var(--ease);
+  }
+
+  .filters-box[open] .filters-toggle :global(svg) {
+    transform: rotate(-90deg);
+  }
+
+  @media (min-width: 48rem) {
+    .filters-toggle {
+      display: none;
+    }
+  }
+
   .filters {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
     align-items: end;
     gap: var(--s3);
-    padding: var(--s4);
-    margin-bottom: var(--s4);
-    background: var(--paper-2);
-    border-radius: var(--r-md);
+    padding: 0 var(--s4) var(--s4);
+  }
+
+  @media (min-width: 48rem) {
+    .filters {
+      padding-top: var(--s4);
+    }
   }
 
   .filter-label {
@@ -193,23 +252,45 @@ const jsonLd = {
     font-size: 1rem;
   }
 
-  .reset {
-    grid-column: 1 / -1;
-    justify-self: start;
+  .results {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s2) var(--s4);
+    min-height: 2.75rem;
+    margin-bottom: var(--s4);
   }
 
-  .results {
-    margin-bottom: var(--s4);
+  .results p {
+    margin: 0;
+  }
+
+  .reset {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    min-height: 2.75rem;
+    padding: 0 var(--s3);
+    border: 0;
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--brand-deep);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .reset:hover {
+    background: var(--brand-soft);
+  }
+
+  .reset[hidden] {
+    display: none;
   }
 
   .empty {
     margin-top: var(--s5);
-  }
-
-  @media (min-width: 48rem) {
-    .reset {
-      grid-column: auto;
-      justify-self: stretch;
-    }
   }
 </style>
