@@ -13,7 +13,7 @@ export interface LeadDetails {
   contact: string;
   contactMethod: string;
   notes: string;
-  promoCode: string;
+  coupon: string | null;
 }
 
 const SUBJECTS: Record<string, string> = {
@@ -125,7 +125,7 @@ export function leadMessage(
     `🗣 Язык занятий: ${escapeHtml(languageLabel(lead.teachingLanguage))}`,
   ];
 
-  if (lead.promoCode) lines.push(`🎟 Промокод: <code>${escapeHtml(lead.promoCode)}</code>`);
+  if (lead.coupon) lines.push(`🎟 Купон: <code>${escapeHtml(lead.coupon)}</code>`);
 
   if (lead.notes) lines.push('', `<blockquote expandable>${escapeHtml(lead.notes)}</blockquote>`);
 

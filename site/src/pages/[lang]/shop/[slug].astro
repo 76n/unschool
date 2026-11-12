@@ -32,10 +32,9 @@ const translations = await translatedLangs('products', slug);
 const { data } = entry;
 const theme = SUBJECT_THEME[data.subject];
 
-const isDemo = data.status === 'demo';
-// Demo products can only be bought in a local emulator run, never in production.
-const demoCheckout = import.meta.env.PUBLIC_DEMO_CHECKOUT === 'true';
-const canBuy = !isDemo || demoCheckout;
+const isFree = data.price === 0;
+const companion = data.sample ?? data.full;
+const companionEntry = companion ? await findLocalized('products', lang, companion) : null;
 
 const related = sortByOrder(
   (await listByLang('products', lang)).filter(
@@ -54,7 +53,6 @@ const jsonLd = digitalProduct(
     grades: data.grades,
     fileFormat: data.fileFormat,
     materialLanguage: data.materialLanguage,
-    purchasable: data.status === 'published',
   },
   new URL(Astro.url.pathname, Astro.site ?? 'https://unschool.cool'),
   Astro.site
@@ -98,9 +96,9 @@ const terms = [
       <li><span class="chip chip--outline">{data.grades}</span></li>
       <li><span class="chip chip--outline">{LANG_NAME[data.materialLanguage]}</span></li>
       {
-        isDemo && (
+        isFree && (
           <li>
-            <span class="chip chip--accent">{t('shop.demoBadge')}</span>
+            <span class="chip chip--accent">{t('common.free')}</span>
           </li>
         )
       }
@@ -114,25 +112,30 @@ const terms = [
 
     <aside class="product-aside">
       <div class="buy-box">
-        <p class="buy-price">{formatPrice(lang, data.price)}</p>
+        <p class:list={['buy-price', { 'buy-price--free': isFree }]}>
+          {isFree ? t('common.free') : formatPrice(lang, data.price)}
+          {data.listPrice && <s class="buy-list-price">{formatPrice(lang, data.listPrice)}</s>}
+        </p>
+        <a
+          class="btn btn--primary btn--block"
+          href={`${localePath(lang, 'checkout')}?product=${data.slug}`}
+          data-track="checkout_start"
+        >
+          {isFree ? t('product.getFree') : t('product.buy')}
+          <Icon name="arrow" size={18} class="flip-rtl" />
+        </a>
+        <p class="buy-access">{data.accessNote}</p>
         {
-          canBuy ? (
+          companionEntry && (
             <a
-              class="btn btn--primary btn--block"
-              href={`${localePath(lang, 'checkout')}?product=${data.slug}`}
-              data-track="checkout_start"
+              class="arrow-link buy-companion"
+              href={localePath(lang, `shop/${companionEntry.entry.data.slug}`)}
             >
-              {t('product.buy')}
-              <Icon name="arrow" size={18} class="flip-rtl" />
+              {data.sample ? t('product.trySample') : t('product.getFull')}
+              <Icon name="arrow" size={16} class="flip-rtl" />
             </a>
-          ) : (
-            <p class="btn btn--outline btn--block" aria-disabled="true">
-              {t('product.notForSale')}
-            </p>
           )
         }
-        {isDemo && <p class="buy-note">{t('shop.demoNotice')}</p>}
-        <p class="buy-access">{data.accessNote}</p>
       </div>
     </aside>
 
@@ -381,6 +384,9 @@ const terms = [
   }
 
   .buy-price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s3);
     margin: 0 0 var(--s4);
     font-family: var(--font-display);
     font-size: 2rem;
@@ -388,16 +394,19 @@ const terms = [
     letter-spacing: -0.03em;
   }
 
-  .buy-box p.btn {
-    margin: 0;
+  .buy-price--free {
+    font-size: 1.5rem;
+    overflow-wrap: anywhere;
   }
 
-  .buy-note {
-    margin: var(--s3) 0 0;
-    padding: var(--s3);
-    background: var(--accent-soft);
-    border-radius: var(--r-xs);
-    font-size: 0.8125rem;
+  .buy-list-price {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .buy-companion {
+    margin-top: var(--s4);
   }
 
   .buy-access {

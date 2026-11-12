@@ -704,6 +704,26 @@ textarea:focus {
   font-weight: 500;
 }
 
+.field-ok {
+  display: block;
+  margin-top: var(--s2);
+  color: var(--ok);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Coupon codes are upper case everywhere; the script uppercases the value too. */
+.code-input {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field-hint[hidden],
+.field-error[hidden],
+.field-ok[hidden] {
+  display: none;
+}
+
 .field[data-invalid] input,
 .field[data-invalid] select,
 .field[data-invalid] textarea {

@@ -4,9 +4,8 @@ import { setGlobalOptions } from 'firebase-functions/v2';
 import { REGION } from './config';
 import { adminRouter } from './admin';
 import { crmIntakeKey } from './crm';
-import { downloadRouter } from './delivery';
 import { leadsRouter } from './leads';
-import { ordersRouter, paymentsRouter } from './orders';
+import { shopRouter } from './shop';
 import { telegramBotToken, telegramChatId } from './telegram';
 
 setGlobalOptions({ region: REGION, maxInstances: 10 });
@@ -17,9 +16,7 @@ app.use(express.json({ limit: '64kb' }));
 app.use(express.urlencoded({ extended: false, limit: '64kb' }));
 
 app.use('/api/leads', leadsRouter);
-app.use('/api/orders', ordersRouter);
-app.use('/api/payments', paymentsRouter);
-app.use('/api/download', downloadRouter);
+app.use('/api/shop', shopRouter);
 app.use('/api/admin', adminRouter);
 
 app.get('/api/health', (_req, res) => {

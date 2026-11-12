@@ -203,7 +203,6 @@ export function digitalProduct(
     grades,
     fileFormat,
     materialLanguage,
-    purchasable,
   }: {
     title: string;
     summary: string;
@@ -214,28 +213,24 @@ export function digitalProduct(
     grades: string;
     fileFormat: string;
     materialLanguage: string;
-    purchasable: boolean;
   },
   url: URL,
   site: Site
 ): Node {
-  // Demo materials are shown but cannot be bought, so they carry no Offer.
-  const offers = purchasable
-    ? {
-        '@type': 'Offer',
-        price,
-        priceCurrency: currency,
-        availability: 'https://schema.org/InStock',
-        itemCondition: 'https://schema.org/NewCondition',
-        url: url.toString(),
-        seller: { '@id': orgId(site) },
-        hasMerchantReturnPolicy: {
-          '@type': 'MerchantReturnPolicy',
-          applicableCountry: 'IL',
-          returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
-        },
-      }
-    : undefined;
+  const offers = {
+    '@type': 'Offer',
+    price,
+    priceCurrency: currency,
+    availability: 'https://schema.org/InStock',
+    itemCondition: 'https://schema.org/NewCondition',
+    url: url.toString(),
+    seller: { '@id': orgId(site) },
+    hasMerchantReturnPolicy: {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'IL',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+    },
+  };
 
   return {
     '@context': 'https://schema.org',
@@ -250,7 +245,7 @@ export function digitalProduct(
     inLanguage: materialLanguage,
     audience: { '@type': 'EducationalAudience', educationalRole: 'student', audienceType: grades },
     encodingFormat: fileFormat,
-    ...(offers ? { offers } : {}),
+    offers,
   };
 }
 

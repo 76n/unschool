@@ -197,12 +197,24 @@ const jsonLd = freeDiagnosticService(
           <textarea name="notes" rows="4"></textarea>
         </label>
 
-        <label class="field">
+        <label class="field" data-field="coupon">
           <span class="field-label">
-            {t('diagnostic.field.promoCode')}
-            <span class="field-hint">{t('diagnostic.field.promoCode.hint')}</span>
+            {t('diagnostic.field.coupon')}
+            <span class="field-hint">{t('diagnostic.field.coupon.hint')}</span>
           </span>
-          <input type="text" name="promoCode" autocomplete="off" maxlength="40" dir="ltr" />
+          <input
+            type="text"
+            name="coupon"
+            class="code-input"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            maxlength="40"
+            dir="ltr"
+            data-coupon-input
+          />
+          <span class="field-ok" data-coupon-ok hidden></span>
+          <span class="field-error" data-error="coupon" hidden></span>
         </label>
 
         <div class="consents">
@@ -263,6 +275,12 @@ const jsonLd = freeDiagnosticService(
       consentTerms: t('diagnostic.error.consentTerms'),
       server: t('diagnostic.error.server'),
       sending: t('common.sending'),
+      couponValid: t('coupon.valid'),
+      coupon: {
+        couponNotStarted: t('coupon.error.couponNotStarted'),
+        couponExpired: t('coupon.error.couponExpired'),
+        couponExhausted: t('coupon.error.couponExhausted'),
+      },
     },
   }}
 >
@@ -311,6 +329,42 @@ const jsonLd = freeDiagnosticService(
       if (errorBox) errorBox.hidden = true;
     };
 
+    // An unknown code may still be a blogger's code, so only a known coupon gets feedback.
+    const couponInput = form.querySelector('[data-coupon-input]');
+    const couponOk = form.querySelector('[data-coupon-ok]');
+    const couponError = form.querySelector('[data-error="coupon"]');
+    if (couponInput instanceof HTMLInputElement && couponOk && couponError) {
+      couponInput.addEventListener('input', () => {
+        const start = couponInput.selectionStart;
+        couponInput.value = couponInput.value.toUpperCase();
+        couponInput.setSelectionRange(start, start);
+        couponOk.hidden = true;
+        couponError.hidden = true;
+      });
+      couponInput.addEventListener('change', async () => {
+        const code = couponInput.value.trim();
+        if (!code) return;
+        try {
+          const response = await fetch('/api/shop/coupons/check', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ code }),
+          });
+          const result = await response.json();
+          if (!response.ok || couponInput.value.trim() !== code) return;
+          if (!result.error) {
+            couponOk.textContent = messages.couponValid.replace('{code}', result.code);
+            couponOk.hidden = false;
+          } else if (messages.coupon[result.error]) {
+            couponError.textContent = messages.coupon[result.error];
+            couponError.hidden = false;
+          }
+        } catch {
+          // The check is a convenience: the CRM validates the code again on intake.
+        }
+      });
+    }
+
     const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(value);
     const isPhone = (value) => /^[+]?[\d\s()-]{7,20}$/.test(value);
 
@@ -328,6 +382,9 @@ const jsonLd = freeDiagnosticService(
       }
       const payload = {
         ...fields,
+        coupon: String(fields.coupon ?? '')
+          .trim()
+          .toUpperCase(),
         subjects: data.getAll('subjects'),
         goals: data.getAll('goals'),
         lang: form.dataset.lang,

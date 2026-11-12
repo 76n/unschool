@@ -42,14 +42,12 @@ since `/` and the order pages rely on hosting rewrites.
 
 - The diagnostic form writes to Firestore and queues both emails; the email bodies are printed in
   the emulator log.
-- The shop uses the mock payment provider: the Buy button leads to a simulated payment page, and
-  the order only becomes `paid` through a server-to-server notification.
-- Demo products are purchasable **only** locally (`ALLOW_DEMO_ORDERS` in
-  `functions/.env.demo-unschool` and `PUBLIC_DEMO_CHECKOUT` in `site/.env.development`). Both must
-  stay off in production.
+- The shop and lead forwarding need a CRM: set `CRM_URL` in `functions/.env.demo-unschool` (for
+  example the staging CRM, `https://unschool-crm-staging.web.app`) and its intake key as
+  `CRM_INTAKE_KEY` in `functions/.secret.local`. Without them the checkout shows "not available
+  right now".
 - `/admin/` needs a Google sign-in through the Auth emulator with an address listed in
   `ADMIN_EMAILS` (`admin@example.test` by default).
-- Downloads need a file in the Storage emulator at the product's `storagePath`.
 
 ## Editing content
 
@@ -60,7 +58,7 @@ subjects/{lang}/{math|english|hebrew}.md
 stages/{lang}/{elementary|middle|high}.md
 programs/{lang}/{slug}.md      # one canonical page, listed from both subject and stage
 teachers/{lang}/{slug}.md
-products/{lang}/{slug}.md      # status: demo | published
+products/{lang}/{slug}.md      # slug must match the CRM product id
 pages/{lang}/{slug}.md         # about, how-it-works, formats-prices, contact, join, legal pages
 faq.yaml                       # all languages in one file
 ```
@@ -72,7 +70,10 @@ Notes for editors:
 - Quote any frontmatter value that contains a colon followed by a space.
 - A slug that exists in one language but not another still gets a page: it shows the available
   language with an honest notice, and that page is excluded from the sitemap and hreflang.
-- `status: demo` products are visible but never purchasable and carry no Product schema.
+- A product's `price` and `listPrice` are what the page shows. What an order costs, the file and
+  whether marketing consent is required live on the CRM product with the same slug (Settings,
+  Products). Keep both in step. `price: 0` makes the product a free download; `sample` and `full`
+  link a free sample and its full product to each other.
 - `priceFrom: null` renders "price confirmed after the assessment" instead of a number.
 
 ## Configuration
@@ -81,20 +82,24 @@ Copy the example files and fill them in:
 
 - `site/.env.example` → `site/.env` — public values baked into the HTML (GA4 id, Firebase web
   config for the admin sign-in).
-- `functions/.env.example` → `functions/.env` — school email, payment provider, admin allow-list.
+- `functions/.env.example` → `functions/.env` — school email, admin allow-list, CRM URL.
 
-## Payments
+## Shop
 
-`PAYMENT_PROVIDER` selects the implementation behind a single interface
-(`functions/src/payments/provider.ts`):
+The CRM runs the shop: products, coupons, orders, payment (Morning) and delivery of the file by
+email. The site's `api` function only proxies `/api/shop/*` to
+`${CRM_URL}/api/shop/${CRM_SCHOOL_ID}/*` with the `CRM_INTAKE_KEY` bearer:
 
-- `mock` — the local simulator, the default until Grow is live.
-- `grow` — Grow (Meshulam) light server API, refusing to start without credentials.
+| Site route                            | Purpose                                         |
+| ------------------------------------- | ----------------------------------------------- |
+| `POST /api/shop/quote`                | Price for a product and an optional coupon      |
+| `POST /api/shop/coupons/check`        | Is a coupon valid (used by the diagnostic form) |
+| `POST /api/shop/orders`               | Place an order: payment link, or a free file    |
+| `GET /api/shop/orders/:token`         | Order status for the success page               |
+| `POST /api/shop/orders/:token/resend` | Email the download link again                   |
 
-Switching to live payments means setting `GROW_USER_ID`, `GROW_PAGE_CODE`, `GROW_API_KEY`,
-`GROW_SANDBOX=false` and `PAYMENT_PROVIDER=grow`. No other code changes are needed. An order is
-only marked paid by a verified server notification, duplicate notifications are ignored, and the
-amount is checked against the price stored on the order.
+Every order also creates or updates the lead in the CRM. Coupons are typed in any case and sent in
+upper case. The CRM docs (`docs/integrations/shop.md` there) describe the API in full.
 
 ## Deployment
 
@@ -140,21 +145,22 @@ firebase functions:secrets:set TELEGRAM_CHAT_ID --project unschool-cool
 To find the chat ID, message the bot (or add it to the team group), then open
 `https://api.telegram.org/bot<token>/getUpdates` and copy `chat.id`. Group IDs are negative.
 
-Each request is also forwarded to the CRM intake API (promo code, UTM tags and both consents
+Each request is also forwarded to the CRM intake API (coupon, UTM tags and both consents
 included). Create the key in the CRM (Settings, Leads, "Create key"), store it as a secret and set
-the URL in `functions/.env`. The secret is bound to the `api` function, so it must exist before the
-next deploy; while the URL is empty nothing is forwarded:
+the CRM URL in `functions/.env`. The secret is bound to the `api` function, so it must exist before
+the next deploy; while the URL is empty nothing is forwarded and the shop is unavailable:
 
 ```bash
 firebase functions:secrets:set CRM_INTAKE_KEY --project unschool-cool
 # functions/.env
-CRM_INTAKE_URL=https://crm.unschool.cool/api/intake/unschool
+CRM_URL=https://crm.unschool.cool
+CRM_SCHOOL_ID=unschool
 ```
 
 A request the CRM rejects or cannot reach is still stored and posted to Telegram; the failure is
 logged and the lead document keeps `crmSent: false`.
 
-Customer email (order receipts, download links, the parent's copy of a request) expects the
+Order emails (download links) are sent by the CRM. The parent's copy of a request expects the
 Firebase "Trigger Email" extension watching the `mail` collection; until it is installed, those
 messages queue in Firestore without being sent.
 
@@ -164,13 +170,12 @@ messages queue in Firestore without being sent.
   `firebase functions:config` replacements via `functions/.env` and redeploy the `api` function.
 - Real logo files and brand assets; the header currently uses a text wordmark.
 - Teacher names, photos and confirmed profiles (the current entries are labelled placeholders).
-- Confirmed prices per program, and real digital products with files uploaded to Storage.
-- Grow credentials, invoicing and the refund policy; approve the privacy, terms and accessibility
-  texts, which are drafts.
+- Confirmed prices per program.
+- The refund policy; approve the privacy, terms and accessibility texts, which are drafts.
 - A real Open Graph image (`site/public/images/og-default.svg` is a placeholder, and social
   networks need a PNG or JPEG).
 - Pull the old unschool.cool URL list from Search Console and extend the redirects in
   `firebase.json`.
 - Set `PUBLIC_GA4_ID` and verify the events: `view_subject`, `view_stage`, `view_program`,
-  `view_product`, `lead_start`, `lead_submitted`, `checkout_start`, `purchase_confirmed`,
-  `payment_failed`.
+  `view_product`, `lead_start`, `lead_submitted`, `checkout_start`, `checkout_error`,
+  `free_download`, `purchase_confirmed`.

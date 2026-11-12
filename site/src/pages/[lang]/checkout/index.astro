@@ -4,6 +4,7 @@ import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { countryOptions } from '~/data/countries';
+import { listByLang } from '~/lib/content';
 
 export function getStaticPaths() {
   return langParams();
@@ -12,6 +13,13 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 const countries = countryOptions(lang);
+const PAY_METHODS = ['card', 'bit', 'applePay', 'googlePay', 'paypal'] as const;
+const products = (await listByLang('products', lang)).map(({ data }) => ({
+  slug: data.slug,
+  title: data.title,
+  price: data.price,
+  listPrice: data.listPrice ?? null,
+}));
 ---
 
 <BaseLayout
@@ -22,17 +30,25 @@ const countries = countryOptions(lang);
   stickyCta={false}
   narrow
 >
-  <h1>{t('checkout.title')}</h1>
+  <h1 data-title>{t('checkout.title')}</h1>
 
   <p class="form-status form-status--error" id="checkout-error" hidden role="alert"></p>
 
   <section class="summary" id="order-summary" hidden aria-labelledby="summary-title">
     <h2 id="summary-title" class="summary-heading">{t('checkout.order')}</h2>
-    <div class="summary-row">
-      <span data-summary-title></span>
+    <p class="summary-product" data-summary-title></p>
+    <div class="summary-row" data-row="list" hidden>
+      <span>{t('checkout.listPrice')}</span>
+      <s data-summary-list></s>
+    </div>
+    <div class="summary-row" data-row="price">
+      <span>{t('checkout.price')}</span>
       <span data-summary-price></span>
     </div>
-    <p class="summary-note muted small" data-summary-demo hidden>{t('shop.demoNotice')}</p>
+    <div class="summary-row summary-row--discount" data-row="coupon" hidden>
+      <span data-summary-coupon></span>
+      <span data-summary-discount></span>
+    </div>
     <div class="summary-total">
       <span>{t('checkout.total')}</span>
       <span data-summary-total></span>
@@ -40,28 +56,36 @@ const countries = countryOptions(lang);
   </section>
 
   <form class="checkout-form" id="checkout-form" novalidate hidden data-lang={lang}>
-    <div class="name-row">
+    <div class="name-row" data-paid-only>
       <label class="field" data-field="firstName">
         <span class="field-label">{t('checkout.firstName')}</span>
-        <input type="text" name="firstName" autocomplete="given-name" maxlength="60" required />
+        <input type="text" name="firstName" autocomplete="given-name" maxlength="60" />
         <span class="field-error" data-error="firstName" hidden></span>
       </label>
       <label class="field" data-field="lastName">
         <span class="field-label">{t('checkout.lastName')}</span>
-        <input type="text" name="lastName" autocomplete="family-name" maxlength="60" required />
+        <input type="text" name="lastName" autocomplete="family-name" maxlength="60" />
         <span class="field-error" data-error="lastName" hidden></span>
       </label>
     </div>
 
-    <label class="field" data-field="phone">
+    <label class="field" data-free-only hidden>
+      <span class="field-label">
+        {t('checkout.name')}
+        <span class="field-hint">{t('common.optional')}</span>
+      </span>
+      <input type="text" name="name" autocomplete="given-name" maxlength="60" />
+    </label>
+
+    <label class="field" data-field="phone" data-paid-only>
       <span class="field-label">{t('checkout.phone')}</span>
-      <input type="tel" name="phone" inputmode="tel" autocomplete="tel" dir="ltr" required />
+      <input type="tel" name="phone" inputmode="tel" autocomplete="tel" dir="ltr" />
       <span class="field-error" data-error="phone" hidden></span>
     </label>
 
-    <label class="field" data-field="country">
+    <label class="field" data-field="country" data-paid-only>
       <span class="field-label">{t('checkout.country')}</span>
-      <select name="country" autocomplete="country" required>
+      <select name="country" autocomplete="country">
         {countries.map((country) => <option value={country.value}>{country.label}</option>)}
       </select>
     </label>
@@ -69,15 +93,64 @@ const countries = countryOptions(lang);
     <label class="field" data-field="email">
       <span class="field-label">
         {t('checkout.email')}
-        <span class="field-hint">{t('checkout.emailHint')}</span>
+        <span class="field-hint" data-paid-only>{t('checkout.emailHint')}</span>
+        <span class="field-hint" data-free-only hidden>{t('checkout.emailFreeHint')}</span>
       </span>
       <input type="email" name="email" inputmode="email" autocomplete="email" dir="ltr" required />
       <span class="field-error" data-error="email" hidden></span>
     </label>
 
-    <div class="terms" data-field="acceptTerms">
+    <div class="field" data-field="coupon">
+      <label class="field-label" for="checkout-coupon">
+        {t('checkout.coupon')}
+        <span class="field-hint">{t('common.optional')}</span>
+      </label>
+      <div class="coupon-row">
+        <input
+          id="checkout-coupon"
+          class="code-input"
+          type="text"
+          name="coupon"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          maxlength="40"
+          dir="ltr"
+        />
+        <button class="btn btn--outline" type="button" data-coupon-apply>
+          {t('checkout.couponApply')}
+        </button>
+      </div>
+      <span class="field-ok" data-coupon-ok hidden></span>
+      <span class="field-error" data-error="coupon" hidden></span>
+    </div>
+
+    <fieldset class="methods" data-field="method" hidden>
+      <legend class="field-label">{t('checkout.method')}</legend>
+      {
+        PAY_METHODS.map((method) => (
+          <label class="method" data-method={method}>
+            <input type="radio" name="method" value={method} />
+            <span>{t(`checkout.method.${method}`)}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <div class="terms" data-field="marketing">
       <label class="terms-check">
-        <input type="checkbox" name="acceptTerms" required />
+        <input type="checkbox" name="marketing" />
+        <span>
+          {t('checkout.marketing')}{' '}
+          <a href={localePath(lang, 'privacy')} target="_blank">{t('footer.privacy')}</a>
+        </span>
+      </label>
+      <span class="field-error" data-error="marketing" hidden></span>
+    </div>
+
+    <div class="terms" data-field="acceptTerms" data-paid-only>
+      <label class="terms-check">
+        <input type="checkbox" name="acceptTerms" />
         <span>
           {t('checkout.acceptTerms')}{' '}
           <a href={localePath(lang, 'terms')} target="_blank">{t('footer.terms')}</a>
@@ -105,16 +178,34 @@ const countries = countryOptions(lang);
 <script
   define:vars={{
     lang,
+    catalog: products,
     messages: {
       email: t('checkout.error.email'),
       required: t('checkout.error.required'),
       phone: t('checkout.error.phone'),
       terms: t('checkout.error.terms'),
+      marketing: t('checkout.error.marketing'),
       server: t('checkout.error.server'),
-      notForSale: t('product.notForSale'),
+      unavailable: t('checkout.error.unavailable'),
+      payUnavailable: t('checkout.error.payUnavailable'),
+      rateLimited: t('checkout.error.rateLimited'),
       sending: t('common.sending'),
+      free: t('common.free'),
+      title: t('checkout.title'),
+      titleFree: t('checkout.titleFree'),
+      pay: t('checkout.pay'),
+      getFile: t('checkout.getFile'),
+      couponLine: t('checkout.couponLine'),
+      couponApplied: t('checkout.couponApplied'),
+      couponSaved: t('checkout.couponSaved'),
+      coupon: {
+        couponNotFound: t('coupon.error.couponNotFound'),
+        couponNotStarted: t('coupon.error.couponNotStarted'),
+        couponExpired: t('coupon.error.couponExpired'),
+        couponExhausted: t('coupon.error.couponExhausted'),
+        couponNotApplicable: t('coupon.error.couponNotApplicable'),
+      },
     },
-    shopUrl: localePath(lang, 'shop'),
   }}
 >
   const form = document.getElementById('checkout-form');
@@ -122,94 +213,222 @@ const countries = countryOptions(lang);
   const missing = document.getElementById('checkout-missing');
   const errorBox = document.getElementById('checkout-error');
 
-  const slug = new URLSearchParams(window.location.search).get('product');
+  const params = new URLSearchParams(window.location.search);
+  const product = catalog.find((item) => item.slug === params.get('product'));
 
-  const showMissing = () => {
-    if (missing) missing.hidden = false;
-  };
-
+  const fill = (text, values) => text.replace(/\{(\w+)\}/g, (match, name) => values[name] ?? match);
   const money = (amount) =>
     new Intl.NumberFormat(`${lang}-IL`, {
       style: 'currency',
       currency: 'ILS',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
     }).format(amount);
+  const minor = (amount) => amount / 100;
+  const select = (selector) => summary.querySelector(selector);
+  const fieldError = (name) => form.querySelector(`[data-error="${name}"]`);
 
-  async function init() {
-    if (!slug || !(form instanceof HTMLFormElement) || !summary) {
-      showMissing();
-      return;
+  const showError = (name, message) => {
+    form.querySelector(`[data-field="${name}"]`)?.setAttribute('data-invalid', 'true');
+    const error = fieldError(name);
+    if (error) {
+      error.textContent = message;
+      error.hidden = false;
     }
+  };
 
-    let product;
+  const clearError = (name) => {
+    form.querySelector(`[data-field="${name}"]`)?.removeAttribute('data-invalid');
+    const error = fieldError(name);
+    if (error) error.hidden = true;
+  };
+
+  const showBanner = (message) => {
+    if (!errorBox) return;
+    errorBox.textContent = message;
+    errorBox.hidden = !message;
+  };
+
+  const errorMessage = (key) => {
+    if (!key) return messages.server;
+    if (key.startsWith('errors.coupon')) return messages.coupon[key.slice(7)] ?? messages.server;
+    if (key === 'shop.unavailable' || key === 'shop.orderNotFound' || key === 'unavailable')
+      return messages.unavailable;
+    if (key === 'pay.unavailable') return messages.payUnavailable;
+    if (key === 'shop.marketingRequired') return messages.marketing;
+    if (key === 'shop.termsRequired') return messages.terms;
+    if (key === 'rate_limited') return messages.rateLimited;
+    return messages.server;
+  };
+
+  let quote = null;
+  let isFree = false;
+
+  function setMode(free) {
+    isFree = free;
+    document.querySelector('[data-title]').textContent = free ? messages.titleFree : messages.title;
+    form.querySelectorAll('[data-paid-only]').forEach((node) => {
+      node.hidden = free;
+    });
+    form.querySelectorAll('[data-free-only]').forEach((node) => {
+      node.hidden = !free;
+    });
+    const submit = form.querySelector('[data-submit]');
+    if (submit) submit.textContent = free ? messages.getFile : messages.pay;
+  }
+
+  function renderSummary({ listPrice, unitPrice, discount, amount, code }) {
+    select('[data-summary-title]').textContent = product.title;
+    select('[data-row="list"]').hidden = !listPrice;
+    if (listPrice) select('[data-summary-list]').textContent = money(listPrice);
+    select('[data-summary-price]').textContent = unitPrice ? money(unitPrice) : messages.free;
+    select('[data-row="coupon"]').hidden = !discount;
+    if (discount) {
+      select('[data-summary-coupon]').textContent = fill(messages.couponLine, { code });
+      select('[data-summary-discount]').textContent = `−${money(discount)}`;
+    }
+    select('[data-summary-total]').textContent = amount ? money(amount) : messages.free;
+  }
+
+  function renderMethods(methods) {
+    const box = form.querySelector('[data-field="method"]');
+    form.querySelectorAll('[data-method]').forEach((label) => {
+      const offered = methods.includes(label.dataset.method);
+      label.hidden = !offered;
+      const input = label.querySelector('input');
+      if (!offered) input.checked = false;
+    });
+    box.hidden = isFree || methods.length < 2;
+    const offered = [...form.querySelectorAll('input[name="method"]')].filter(
+      (input) => !input.closest('label').hidden
+    );
+    if (offered.length > 0 && !offered.some((input) => input.checked)) offered[0].checked = true;
+  }
+
+  const couponInput = form?.querySelector('input[name="coupon"]');
+  const couponOk = form?.querySelector('[data-coupon-ok]');
+  const couponValue = () => couponInput.value.trim().toUpperCase();
+
+  async function requestQuote() {
+    const code = couponValue();
+    const response = await fetch('/api/shop/quote', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ productId: product.slug, coupon: code || null }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'shop.failed');
+    return result;
+  }
+
+  async function applyQuote({ showCoupon }) {
+    clearError('coupon');
+    if (couponOk) couponOk.hidden = true;
     try {
-      const catalog = await fetch('/catalog.json').then((response) => response.json());
-      product =
-        catalog.find((item) => item.slug === slug && item.lang === lang) ??
-        catalog.find((item) => item.slug === slug);
-    } catch {
-      showMissing();
+      quote = await requestQuote();
+    } catch (error) {
+      quote = null;
+      showBanner(errorMessage(error.message));
+      return;
+    }
+    showBanner('');
+    setMode(quote.amount === 0 && quote.unitPrice === 0);
+    const couponFailed = Boolean(quote.coupon?.error);
+    renderSummary({
+      listPrice: quote.listPrice ? minor(quote.listPrice) : null,
+      unitPrice: minor(quote.unitPrice),
+      discount: couponFailed ? 0 : minor(quote.discount),
+      amount: minor(quote.amount),
+      code: quote.coupon?.code ?? '',
+    });
+    renderMethods(quote.methods);
+    const marketing = form.querySelector('[data-field="marketing"] input');
+    if (marketing) marketing.required = quote.marketingRequired;
+    if (!showCoupon || !quote.coupon) return;
+    if (couponFailed) {
+      showError('coupon', messages.coupon[quote.coupon.error] ?? messages.server);
+    } else if (couponOk) {
+      couponOk.textContent = fill(isFree ? messages.couponSaved : messages.couponApplied, {
+        code: quote.coupon.code,
+      });
+      couponOk.hidden = false;
+    }
+  }
+
+  function init() {
+    if (!product || !(form instanceof HTMLFormElement) || !summary) {
+      if (missing) missing.hidden = false;
       return;
     }
 
-    if (!product) {
-      showMissing();
-      return;
-    }
+    const initialCoupon = params.get('coupon');
+    if (initialCoupon) couponInput.value = initialCoupon.toUpperCase().slice(0, 40);
 
-    summary.querySelector('[data-summary-title]').textContent = product.title;
-    summary.querySelector('[data-summary-price]').textContent = money(product.price);
-    summary.querySelector('[data-summary-total]').textContent = money(product.price);
-    if (product.status === 'demo') {
-      summary.querySelector('[data-summary-demo]').hidden = false;
-    }
-
+    setMode(product.price === 0);
+    renderSummary({
+      listPrice: product.listPrice,
+      unitPrice: product.price,
+      discount: 0,
+      amount: product.price,
+      code: '',
+    });
     summary.hidden = false;
     form.hidden = false;
     window.track?.('checkout_start', { item_id: product.slug });
+    applyQuote({ showCoupon: Boolean(initialCoupon) });
+
+    couponInput.addEventListener('input', () => {
+      const start = couponInput.selectionStart;
+      couponInput.value = couponInput.value.toUpperCase();
+      couponInput.setSelectionRange(start, start);
+    });
+    couponInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      applyQuote({ showCoupon: true });
+    });
+    form
+      .querySelector('[data-coupon-apply]')
+      ?.addEventListener('click', () => applyQuote({ showCoupon: true }));
 
     const submit = form.querySelector('[data-submit]');
-    const submitLabel = submit?.textContent ?? '';
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const data = Object.fromEntries(new FormData(form).entries());
-      const value = (name) => String(data[name] ?? '').trim();
-      const payload = {
-        firstName: value('firstName'),
-        lastName: value('lastName'),
-        phone: value('phone'),
-        country: value('country'),
-        email: value('email'),
-        acceptTerms: data.acceptTerms === 'on',
-      };
+      const data = new FormData(form);
+      const value = (name) => String(data.get(name) ?? '').trim();
+      const marketing = data.get('marketing') === 'on';
+      const acceptTerms = data.get('acceptTerms') === 'on';
+      const email = value('email');
+      const buyer = isFree
+        ? { firstName: value('name'), lastName: '', phone: '', country: '', email }
+        : {
+            firstName: value('firstName'),
+            lastName: value('lastName'),
+            phone: value('phone'),
+            country: value('country'),
+            email,
+          };
 
-      form
-        .querySelectorAll('[data-field]')
-        .forEach((field) => field.removeAttribute('data-invalid'));
-      form.querySelectorAll('[data-error]').forEach((error) => {
-        error.hidden = true;
-      });
-      if (errorBox) errorBox.hidden = true;
+      ['firstName', 'lastName', 'phone', 'email', 'marketing', 'acceptTerms'].forEach(clearError);
+      showBanner('');
 
       const problems = [];
-      if (!payload.firstName) problems.push(['firstName', messages.required]);
-      if (!payload.lastName) problems.push(['lastName', messages.required]);
-      if (!/^[+]?[\d\s()-]{7,20}$/.test(payload.phone)) problems.push(['phone', messages.phone]);
-      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(payload.email))
-        problems.push(['email', messages.email]);
-      if (!payload.acceptTerms) problems.push(['acceptTerms', messages.terms]);
+      if (!isFree) {
+        if (!buyer.firstName) problems.push(['firstName', messages.required]);
+        if (!buyer.lastName) problems.push(['lastName', messages.required]);
+        if (!/^[+]?[\d\s()-]{7,20}$/.test(buyer.phone)) problems.push(['phone', messages.phone]);
+        if (!acceptTerms) problems.push(['acceptTerms', messages.terms]);
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) problems.push(['email', messages.email]);
+      if ((quote?.marketingRequired ?? isFree) && !marketing)
+        problems.push(['marketing', messages.marketing]);
 
       if (problems.length) {
-        for (const [name, message] of problems) {
-          form.querySelector(`[data-field="${name}"]`)?.setAttribute('data-invalid', 'true');
-          const error = form.querySelector(`[data-error="${name}"]`);
-          if (error) {
-            error.textContent = message;
-            error.hidden = false;
-          }
-        }
+        problems.forEach(([name, message]) => showError(name, message));
+        form
+          .querySelector('[data-invalid]')
+          ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
         return;
       }
 
@@ -218,39 +437,57 @@ const countries = countryOptions(lang);
         submit.textContent = messages.sending;
       }
 
+      let utm = {};
       try {
-        const response = await fetch('/api/orders', {
+        utm = JSON.parse(sessionStorage.getItem('unschool:utm') || '{}');
+      } catch {
+        utm = {};
+      }
+
+      try {
+        const response = await fetch('/api/shop/orders', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
-            slug: product.slug,
-            lang,
-            ...payload,
-            company: data.company,
+            productId: product.slug,
+            coupon: couponValue() || null,
+            locale: lang,
+            buyer,
+            method: isFree ? null : data.get('method') || null,
+            acceptTerms,
+            marketing,
+            utm,
+            returnUrl: `${window.location.origin}/${lang}/order/{token}/success/`,
+            company: value('company'),
           }),
         });
-        const result = await response.json();
+        const result = await response.json().catch(() => ({}));
 
         if (!response.ok || !result.ok) {
-          if (errorBox) {
-            errorBox.textContent =
-              result.error === 'not_for_sale' ? messages.notForSale : messages.server;
-            errorBox.hidden = false;
+          const key = result.error;
+          if (typeof key === 'string' && key.startsWith('errors.coupon')) {
+            showError('coupon', errorMessage(key));
+          } else if (key === 'shop.marketingRequired') {
+            showError('marketing', messages.marketing);
+          } else {
+            showBanner(errorMessage(key));
           }
-          window.track?.('checkout_error', { item_id: product.slug });
+          window.track?.('checkout_error', { item_id: product.slug, error: key });
           return;
         }
 
-        window.location.assign(result.redirectUrl);
-      } catch {
-        if (errorBox) {
-          errorBox.textContent = messages.server;
-          errorBox.hidden = false;
+        if (result.status === 'paid') {
+          window.track?.('free_download', { item_id: product.slug });
+          window.location.assign(`/${lang}/order/${result.token}/success/`);
+          return;
         }
+        window.location.assign(result.url);
+      } catch {
+        showBanner(messages.server);
       } finally {
         if (submit instanceof HTMLButtonElement) {
           submit.disabled = false;
-          submit.textContent = submitLabel;
+          submit.textContent = isFree ? messages.getFile : messages.pay;
         }
       }
     });
@@ -277,6 +514,52 @@ const countries = countryOptions(lang);
     .name-row {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+
+  .name-row[hidden],
+  .field[hidden],
+  .cta-note[hidden],
+  .terms[hidden],
+  .methods[hidden],
+  .method[hidden] {
+    display: none;
+  }
+
+  .coupon-row {
+    display: flex;
+    gap: var(--s2);
+  }
+
+  .coupon-row input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .methods {
+    margin: 0 0 var(--s5);
+    padding: 0;
+    border: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+  }
+
+  .methods legend {
+    margin-bottom: var(--s2);
+  }
+
+  .method {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    padding: var(--s2) var(--s4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-pill);
+    cursor: pointer;
+  }
+
+  .method input {
+    accent-color: var(--grape);
   }
 
   .terms {
@@ -321,6 +604,11 @@ const countries = countryOptions(lang);
     margin-bottom: var(--s3);
   }
 
+  .summary-product {
+    margin: 0 0 var(--s3);
+    font-weight: 600;
+  }
+
   .summary-row,
   .summary-total {
     display: flex;
@@ -328,8 +616,16 @@ const countries = countryOptions(lang);
     gap: var(--s3);
   }
 
-  .summary-note {
-    margin: var(--s2) 0 0;
+  .summary-row[hidden] {
+    display: none;
+  }
+
+  .summary-row s {
+    color: var(--ink-soft);
+  }
+
+  .summary-row--discount {
+    color: var(--ok);
   }
 
   .summary-total {
