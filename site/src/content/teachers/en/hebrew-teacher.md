@@ -6,7 +6,7 @@ role: Hebrew · grades 1–12
 subjects: [hebrew]
 teachingLanguages: [Hebrew, Russian]
 order: 30
-seoTitle: Hebrew teacher — Unschool
+seoTitle: Hebrew teacher | Unschool
 seoDescription: "The Unschool Hebrew teacher profile: subjects, teaching languages and programs."
 ---
 

@@ -8,7 +8,7 @@ import { getPaymentProvider } from './payments';
 import { mockSignature } from './payments/mock';
 import type { OrderStatus } from './payments/provider';
 import { clientIp, withinRateLimit } from './rateLimit';
-import { asSlug, asString, isEmail, isLang } from './validation';
+import { asSlug, asString, isCountry, isEmail, isLang, isPhone } from './validation';
 
 export const ordersRouter: Router = Router();
 export const paymentsRouter: Router = Router();
@@ -30,14 +30,26 @@ ordersRouter.post('/', async (req, res) => {
   const lang = isLang(body.lang) ? body.lang : 'ru';
   const slug = asSlug(body.slug);
   const email = asString(body.email, 160);
-  const name = asString(body.name, 120);
+  const firstName = asString(body.firstName, 60);
+  const lastName = asString(body.lastName, 60);
+  const phone = asString(body.phone, 30);
+  const country = asString(body.country, 2);
+  const name = `${firstName} ${lastName}`;
 
   if (!slug) {
     res.status(400).json({ ok: false, errors: { slug: 'required' } });
     return;
   }
-  if (!isEmail(email)) {
-    res.status(400).json({ ok: false, errors: { email: 'invalid' } });
+  const errors = {
+    ...(firstName ? {} : { firstName: 'required' }),
+    ...(lastName ? {} : { lastName: 'required' }),
+    ...(isPhone(phone) ? {} : { phone: 'invalid' }),
+    ...(isCountry(country) ? {} : { country: 'invalid' }),
+    ...(isEmail(email) ? {} : { email: 'invalid' }),
+    ...(body.acceptTerms === true ? {} : { acceptTerms: 'required' }),
+  };
+  if (Object.keys(errors).length) {
+    res.status(400).json({ ok: false, errors });
     return;
   }
 
@@ -66,6 +78,11 @@ ordersRouter.post('/', async (req, res) => {
       storagePath: product.storagePath ?? null,
       email,
       name,
+      firstName,
+      lastName,
+      phone,
+      country,
+      termsAcceptedAt: FieldValue.serverTimestamp(),
       provider: getPaymentProvider().name,
       isDemoProduct: product.status === 'demo',
       createdAt: FieldValue.serverTimestamp(),
@@ -81,6 +98,7 @@ ordersRouter.post('/', async (req, res) => {
         currency: product.currency,
         email,
         name,
+        phone,
         lang,
       },
       successUrl: `${baseUrl}/${lang}/order/${orderRef.id}/success/`,

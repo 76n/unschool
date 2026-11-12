@@ -3,6 +3,7 @@ import { langParams, type Lang } from '~/i18n/config';
 import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import { countryOptions } from '~/data/countries';
 
 export function getStaticPaths() {
   return langParams();
@@ -10,6 +11,7 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
+const countries = countryOptions(lang);
 ---
 
 <BaseLayout
@@ -38,22 +40,51 @@ const t = useTranslations(lang);
   </section>
 
   <form class="checkout-form" id="checkout-form" novalidate hidden data-lang={lang}>
+    <div class="name-row">
+      <label class="field" data-field="firstName">
+        <span class="field-label">{t('checkout.firstName')}</span>
+        <input type="text" name="firstName" autocomplete="given-name" maxlength="60" required />
+        <span class="field-error" data-error="firstName" hidden></span>
+      </label>
+      <label class="field" data-field="lastName">
+        <span class="field-label">{t('checkout.lastName')}</span>
+        <input type="text" name="lastName" autocomplete="family-name" maxlength="60" required />
+        <span class="field-error" data-error="lastName" hidden></span>
+      </label>
+    </div>
+
+    <label class="field" data-field="phone">
+      <span class="field-label">{t('checkout.phone')}</span>
+      <input type="tel" name="phone" inputmode="tel" autocomplete="tel" dir="ltr" required />
+      <span class="field-error" data-error="phone" hidden></span>
+    </label>
+
+    <label class="field" data-field="country">
+      <span class="field-label">{t('checkout.country')}</span>
+      <select name="country" autocomplete="country" required>
+        {countries.map((country) => <option value={country.value}>{country.label}</option>)}
+      </select>
+    </label>
+
     <label class="field" data-field="email">
       <span class="field-label">
         {t('checkout.email')}
         <span class="field-hint">{t('checkout.emailHint')}</span>
       </span>
-      <input type="email" name="email" inputmode="email" autocomplete="email" required />
+      <input type="email" name="email" inputmode="email" autocomplete="email" dir="ltr" required />
       <span class="field-error" data-error="email" hidden></span>
     </label>
 
-    <label class="field">
-      <span class="field-label">
-        {t('checkout.name')}
-        <span class="field-hint">{t('common.optional')}</span>
-      </span>
-      <input type="text" name="name" autocomplete="name" />
-    </label>
+    <div class="terms" data-field="acceptTerms">
+      <label class="terms-check">
+        <input type="checkbox" name="acceptTerms" required />
+        <span>
+          {t('checkout.acceptTerms')}{' '}
+          <a href={localePath(lang, 'terms')} target="_blank">{t('footer.terms')}</a>
+        </span>
+      </label>
+      <span class="field-error" data-error="acceptTerms" hidden></span>
+    </div>
 
     <div class="honeypot" aria-hidden="true">
       <label>Company <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
@@ -63,10 +94,6 @@ const t = useTranslations(lang);
       >{t('checkout.pay')}</button
     >
     <p class="cta-note">{t('checkout.guest')}</p>
-    <p class="small muted">
-      {t('checkout.terms')}
-      <a href={localePath(lang, 'terms')}>{t('footer.terms')}</a>
-    </p>
   </form>
 
   <p class="muted" id="checkout-missing" hidden>
@@ -80,6 +107,9 @@ const t = useTranslations(lang);
     lang,
     messages: {
       email: t('checkout.error.email'),
+      required: t('checkout.error.required'),
+      phone: t('checkout.error.phone'),
+      terms: t('checkout.error.terms'),
       server: t('checkout.error.server'),
       notForSale: t('product.notForSale'),
       sending: t('common.sending'),
@@ -145,19 +175,40 @@ const t = useTranslations(lang);
       event.preventDefault();
 
       const data = Object.fromEntries(new FormData(form).entries());
-      const email = String(data.email ?? '').trim();
-      const field = form.querySelector('[data-field="email"]');
-      const fieldError = form.querySelector('[data-error="email"]');
+      const value = (name) => String(data[name] ?? '').trim();
+      const payload = {
+        firstName: value('firstName'),
+        lastName: value('lastName'),
+        phone: value('phone'),
+        country: value('country'),
+        email: value('email'),
+        acceptTerms: data.acceptTerms === 'on',
+      };
 
-      field?.removeAttribute('data-invalid');
-      if (fieldError) fieldError.hidden = true;
+      form
+        .querySelectorAll('[data-field]')
+        .forEach((field) => field.removeAttribute('data-invalid'));
+      form.querySelectorAll('[data-error]').forEach((error) => {
+        error.hidden = true;
+      });
       if (errorBox) errorBox.hidden = true;
 
-      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
-        field?.setAttribute('data-invalid', 'true');
-        if (fieldError) {
-          fieldError.textContent = messages.email;
-          fieldError.hidden = false;
+      const problems = [];
+      if (!payload.firstName) problems.push(['firstName', messages.required]);
+      if (!payload.lastName) problems.push(['lastName', messages.required]);
+      if (!/^[+]?[\d\s()-]{7,20}$/.test(payload.phone)) problems.push(['phone', messages.phone]);
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(payload.email))
+        problems.push(['email', messages.email]);
+      if (!payload.acceptTerms) problems.push(['acceptTerms', messages.terms]);
+
+      if (problems.length) {
+        for (const [name, message] of problems) {
+          form.querySelector(`[data-field="${name}"]`)?.setAttribute('data-invalid', 'true');
+          const error = form.querySelector(`[data-error="${name}"]`);
+          if (error) {
+            error.textContent = message;
+            error.hidden = false;
+          }
         }
         return;
       }
@@ -174,8 +225,7 @@ const t = useTranslations(lang);
           body: JSON.stringify({
             slug: product.slug,
             lang,
-            email,
-            name: data.name,
+            ...payload,
             company: data.company,
           }),
         });
@@ -216,6 +266,42 @@ const t = useTranslations(lang);
   #checkout-error,
   #checkout-missing {
     max-width: 34rem;
+  }
+
+  .name-row {
+    display: grid;
+    column-gap: var(--s4);
+  }
+
+  @media (min-width: 30rem) {
+    .name-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .terms {
+    margin-bottom: var(--s5);
+  }
+
+  .terms-check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s3);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .terms-check input {
+    flex: none;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    margin-block-start: 0.15rem;
+    accent-color: var(--grape);
+  }
+
+  .terms[data-invalid] .terms-check span {
+    color: var(--danger);
   }
 
   .summary {

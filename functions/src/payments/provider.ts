@@ -7,6 +7,7 @@ export interface PaymentOrder {
   currency: 'ILS';
   email: string;
   name: string;
+  phone: string;
   lang: string;
 }
 
