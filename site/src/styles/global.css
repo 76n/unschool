@@ -718,6 +718,7 @@ textarea:focus {
   letter-spacing: 0.04em;
 }
 
+.field-hint[hidden],
 .field-error[hidden],
 .field-ok[hidden] {
   display: none;
