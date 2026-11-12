@@ -103,13 +103,14 @@ const products = defineCollection({
     contents: z.array(z.string()).default([]),
     level: z.string().optional(),
     outcome: z.string().optional(),
-    price: z.number(),
+    /** Shown on the site; the CRM product with the same slug decides what an order costs. */
+    price: z.number().min(0),
+    listPrice: z.number().positive().optional(),
     currency: z.literal('ILS').default('ILS'),
     cover: z.string(),
     previews: z.array(z.string()).default([]),
-    /** "demo" products are visible but never purchasable. */
-    status: z.enum(['demo', 'published']).default('demo'),
-    storagePath: z.string().optional(),
+    sample: z.string().optional(),
+    full: z.string().optional(),
     accessNote: z.string(),
     compatibilityNote: z.string(),
     usageNote: z.string(),

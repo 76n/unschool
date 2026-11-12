@@ -5,6 +5,7 @@ import { FieldValue, collections } from './firebase';
 import { LEAD_CONFIRMATION } from './emails';
 import { goalLabel, languageLabel, leadMessage } from './leadMessage';
 import { queueMail } from './mail';
+import { asCoupon } from './shop';
 import { clientIp, withinRateLimit } from './rateLimit';
 import { sendTelegram } from './telegram';
 import { asString, asStringList, isEmail, isLang, isPhone } from './validation';
@@ -39,7 +40,7 @@ leadsRouter.post('/', async (req, res) => {
   const contact = asString(body.contact, 160);
   const contactMethod = asString(body.contactMethod, 20);
   const notes = asString(body.notes, 1500);
-  const promoCode = asString(body.promoCode, 40);
+  const coupon = asCoupon(body.coupon);
   const rawUtm = (body.utm ?? {}) as Record<string, unknown>;
   const utm = Object.fromEntries(
     UTM_KEYS.map((key) => [key, asString(rawUtm[key], 120)]).filter(([, value]) => value)
@@ -74,7 +75,7 @@ leadsRouter.post('/', async (req, res) => {
     contact,
     contactMethod: CONTACT_METHODS.includes(contactMethod) ? contactMethod : 'phone',
     notes,
-    promoCode,
+    coupon,
     utm,
     consents,
     handled: false,
@@ -111,7 +112,7 @@ leadsRouter.post('/', async (req, res) => {
       goals: goals.map(goalLabel),
       teachingLanguage: languageLabel(teachingLanguage),
       ...(notes && { notes }),
-      ...(promoCode && { promoCode }),
+      ...(coupon && { coupon }),
       source: 'site',
       utm,
       consents,

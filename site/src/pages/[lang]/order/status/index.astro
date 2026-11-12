@@ -1,9 +1,9 @@
 ---
 import { langParams, type Lang } from '~/i18n/config';
-import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Icon from '~/components/Icon.astro';
+import { listByLang } from '~/lib/content';
 
 export function getStaticPaths() {
   return langParams();
@@ -11,6 +11,9 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
+const titles = Object.fromEntries(
+  (await listByLang('products', lang)).map(({ data }) => [data.slug, data.title])
+);
 ---
 
 <BaseLayout
@@ -24,8 +27,8 @@ const t = useTranslations(lang);
     <h1 class="visually-hidden">{t('order.success.title')}</h1>
     <div id="order-paid" hidden>
       <span class="status-icon status-icon--ok"><Icon name="check" size={28} /></span>
-      <h2 class="state-title">{t('order.success.title')}</h2>
-      <p class="lede">{t('order.success.text')}</p>
+      <h2 class="state-title" data-paid-title></h2>
+      <p class="lede" data-paid-text></p>
 
       <dl class="order-meta">
         <div>
@@ -57,13 +60,7 @@ const t = useTranslations(lang);
     <div id="order-pending">
       <span class="status-icon status-icon--wait"><Icon name="wallet" size={26} /></span>
       <h2 class="state-title">{t('order.pending.title')}</h2>
-      <p class="lede">{t('order.pending.text')}</p>
-    </div>
-
-    <div id="order-failed" hidden>
-      <h2 class="state-title">{t('order.failed.title')}</h2>
-      <p class="lede">{t('order.failed.text')}</p>
-      <a class="btn btn--secondary" href={localePath(lang, 'shop')}>{t('cta.toCatalog')}</a>
+      <p class="lede" data-pending-text>{t('order.pending.text')}</p>
     </div>
 
     <div id="order-missing" hidden>
@@ -75,23 +72,34 @@ const t = useTranslations(lang);
   </section>
 </BaseLayout>
 
-<script define:vars={{ lang }}>
+<script
+  define:vars={{
+    lang,
+    titles,
+    messages: {
+      paidTitle: t('order.success.title'),
+      paidText: t('order.success.text'),
+      freeTitle: t('order.free.title'),
+      freeText: t('order.free.text'),
+      slow: t('order.pending.slow'),
+    },
+  }}
+>
   const views = {
     paid: document.getElementById('order-paid'),
     pending: document.getElementById('order-pending'),
-    failed: document.getElementById('order-failed'),
     missing: document.getElementById('order-missing'),
   };
 
-  // URL shape is /{lang}/order/{id}/success/, rewritten to this page by hosting.
+  // URL shape is /{lang}/order/{token}/success/, rewritten to this page by hosting.
   const match = window.location.pathname.match(/\/order\/([^/]+)\/success/);
-  const orderId = match?.[1] ?? new URLSearchParams(window.location.search).get('order');
+  const token = match?.[1] ?? '';
 
   const money = (amount) =>
     new Intl.NumberFormat(`${lang}-IL`, {
       style: 'currency',
       currency: 'ILS',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
     }).format(amount);
 
   const show = (name) => {
@@ -103,62 +111,72 @@ const t = useTranslations(lang);
   let attempts = 0;
 
   async function poll() {
-    if (!orderId) {
+    if (!token) {
       show('missing');
       return;
     }
 
     try {
-      const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
+      const response = await fetch(`/api/shop/orders/${encodeURIComponent(token)}`, {
         cache: 'no-store',
       });
       if (response.status === 404) {
         show('missing');
         return;
       }
-
-      const { order } = await response.json();
+      const order = await response.json();
+      if (!response.ok) throw new Error(order.error);
 
       if (order.status === 'paid') {
-        document.querySelector('[data-order-title]').textContent = order.title;
-        document.querySelector('[data-order-total]').textContent = money(order.price);
+        const free = order.amount === 0;
+        document.querySelector('[data-paid-title]').textContent = free
+          ? messages.freeTitle
+          : messages.paidTitle;
+        document.querySelector('[data-paid-text]').textContent = free
+          ? messages.freeText
+          : messages.paidText;
+        document.querySelector('[data-order-title]').textContent =
+          titles[order.productId] ?? order.productName;
+        document.querySelector('[data-order-total]').textContent = money(order.amount / 100);
         document.querySelector('[data-order-email]').textContent = order.emailHint;
 
         const download = document.getElementById('order-download');
-        if (download && order.downloadToken) {
-          download.href = `/api/download/${order.downloadToken}`;
+        if (download && order.downloadUrl) {
+          download.href = order.downloadUrl;
           download.hidden = false;
         }
 
         show('paid');
-        window.track?.('purchase_confirmed', {
-          item_id: order.productSlug,
-          value: order.price,
-          currency: order.currency,
-        });
-        return;
-      }
-
-      if (order.status === 'failed' || order.status === 'cancelled') {
-        show('failed');
-        window.track?.('payment_failed', { item_id: order.productSlug });
+        if (!free) {
+          window.track?.('purchase_confirmed', {
+            item_id: order.productId,
+            value: order.amount / 100,
+            currency: order.currency,
+          });
+        }
         return;
       }
 
       show('pending');
       attempts += 1;
-      if (attempts < 20) window.setTimeout(poll, 3000);
+      if (attempts < 40) {
+        window.setTimeout(poll, 3000);
+      } else {
+        document.querySelector('[data-pending-text]').textContent = messages.slow;
+      }
     } catch {
-      show('missing');
+      attempts += 1;
+      if (attempts < 40) window.setTimeout(poll, 3000);
+      else show('missing');
     }
   }
 
   const resend = document.getElementById('order-resend');
   resend?.addEventListener('click', async () => {
-    if (!orderId) return;
+    if (!token) return;
     resend.disabled = true;
     try {
-      const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}/resend`, {
+      const response = await fetch(`/api/shop/orders/${encodeURIComponent(token)}/resend`, {
         method: 'POST',
       });
       const result = await response.json();

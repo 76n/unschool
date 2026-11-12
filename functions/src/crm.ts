@@ -13,10 +13,10 @@ const TIMEOUT_MS = 5000;
  */
 export async function forwardToCrm(payload: Record<string, unknown>): Promise<boolean> {
   const key = crmIntakeKey.value();
-  if (!config.crmIntakeUrl || !key) return false;
+  if (!config.crmUrl || !key) return false;
 
   try {
-    const response = await fetch(config.crmIntakeUrl, {
+    const response = await fetch(`${config.crmUrl}/api/intake/${config.crmSchoolId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
       body: JSON.stringify(payload),

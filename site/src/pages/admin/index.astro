@@ -64,27 +64,6 @@ const firebaseConfig = {
           </div>
         </section>
 
-        <section aria-labelledby="orders-title">
-          <h2 id="orders-title">Заказы</h2>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Дата</th>
-                  <th>Товар</th>
-                  <th>Сумма</th>
-                  <th>Статус</th>
-                  <th>Почта</th>
-                  <th>Оплата</th>
-                  <th>Выдача</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="orders-body"></tbody>
-            </table>
-          </div>
-        </section>
-
         <section aria-labelledby="mail-title">
           <h2 id="mail-title">Письма</h2>
           <div class="table-wrap">
@@ -214,50 +193,6 @@ const firebaseConfig = {
           });
         };
 
-        const renderOrders = (orders: any[]) => {
-          const body = document.getElementById('orders-body');
-          if (!body) return;
-          body.innerHTML = '';
-
-          orders.forEach((order) => {
-            const row = document.createElement('tr');
-            [
-              formatDate(order.createdAt),
-              `${text(order.title)}${order.isDemoProduct ? ' (демо)' : ''}`,
-              `${text(order.price)} ${text(order.currency)}`,
-              text(order.status),
-              text(order.email),
-              `${text(order.provider)} ${text(order.providerRef ?? '')}`.trim(),
-              text(order.deliveryStatus ?? '—'),
-            ].forEach((value) => {
-              const cell = document.createElement('td');
-              cell.textContent = value;
-              row.append(cell);
-            });
-
-            const actionCell = document.createElement('td');
-            if (order.status === 'paid') {
-              const button = document.createElement('button');
-              button.type = 'button';
-              button.className = 'btn btn--ghost';
-              button.textContent = 'Отправить письмо';
-              button.addEventListener('click', async () => {
-                button.disabled = true;
-                try {
-                  await request(`/api/admin/orders/${order.id}/resend`, { method: 'POST' });
-                  button.textContent = 'Отправлено';
-                } catch (error) {
-                  fail((error as Error).message);
-                  button.disabled = false;
-                }
-              });
-              actionCell.append(button);
-            }
-            row.append(actionCell);
-            body.append(row);
-          });
-        };
-
         const renderMail = (mail: any[]) => {
           const body = document.getElementById('mail-body');
           if (!body) return;
@@ -284,13 +219,11 @@ const firebaseConfig = {
           if (loading) loading.hidden = false;
           if (errorBox) errorBox.hidden = true;
           try {
-            const [leads, orders, mail] = await Promise.all([
+            const [leads, mail] = await Promise.all([
               request('/api/admin/leads'),
-              request('/api/admin/orders'),
               request('/api/admin/mail'),
             ]);
             renderLeads(leads.leads ?? []);
-            renderOrders(orders.orders ?? []);
             renderMail(mail.mail ?? []);
             if (content) content.hidden = false;
             if (loading) loading.hidden = true;

@@ -6,36 +6,145 @@
     "trailingSlash": true,
     "ignore": ["**/.*", "**/node_modules/**"],
     "rewrites": [
-      { "source": "/api/**", "function": "api", "region": "europe-west3" },
-      { "source": "/ru/order/*/success", "destination": "/ru/order/status/index.html" },
-      { "source": "/he/order/*/success", "destination": "/he/order/status/index.html" },
-      { "source": "/en/order/*/success", "destination": "/en/order/status/index.html" },
-      { "source": "/", "function": "rootRedirect", "region": "europe-west3" }
+      {
+        "source": "/api/**",
+        "function": "api",
+        "region": "europe-west3"
+      },
+      {
+        "source": "/ru/order/*/success",
+        "destination": "/ru/order/status/index.html"
+      },
+      {
+        "source": "/he/order/*/success",
+        "destination": "/he/order/status/index.html"
+      },
+      {
+        "source": "/en/order/*/success",
+        "destination": "/en/order/status/index.html"
+      },
+      {
+        "source": "/",
+        "function": "rootRedirect",
+        "region": "europe-west3"
+      }
     ],
     "redirects": [
-      { "source": "/index.html", "destination": "/", "type": 301 },
-      { "source": "/math{,/**}", "destination": "/ru/subjects/math/", "type": 301 },
-      { "source": "/english{,/**}", "destination": "/ru/subjects/english/", "type": 301 },
-      { "source": "/hebrew{,/**}", "destination": "/ru/subjects/hebrew/", "type": 301 },
-      { "source": "/contacts{,/**}", "destination": "/ru/contact/", "type": 301 },
-      { "source": "/signup{,/**}", "destination": "/ru/diagnostic/", "type": 301 },
-      { "source": "/login{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/cabinet{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/lk{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/join-the-team{,/**}", "destination": "/ru/join/", "type": 301 },
-      { "source": "/join-us-leads{,/**}", "destination": "/ru/join/", "type": 301 },
-      { "source": "/courses{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/courses-leads{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/topics{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/chat{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/chats{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/admin-panel{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/my-personal-area{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/students{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/groups{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/users{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/redirect{,/**}", "destination": "/ru/", "type": 301 },
-      { "source": "/reset-password{,/**}", "destination": "/ru/", "type": 301 },
+      {
+        "source": "/index.html",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/math{,/**}",
+        "destination": "/ru/subjects/math/",
+        "type": 301
+      },
+      {
+        "source": "/english{,/**}",
+        "destination": "/ru/subjects/english/",
+        "type": 301
+      },
+      {
+        "source": "/hebrew{,/**}",
+        "destination": "/ru/subjects/hebrew/",
+        "type": 301
+      },
+      {
+        "source": "/contacts{,/**}",
+        "destination": "/ru/contact/",
+        "type": 301
+      },
+      {
+        "source": "/signup{,/**}",
+        "destination": "/ru/diagnostic/",
+        "type": 301
+      },
+      {
+        "source": "/login{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/cabinet{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/lk{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/join-the-team{,/**}",
+        "destination": "/ru/join/",
+        "type": 301
+      },
+      {
+        "source": "/join-us-leads{,/**}",
+        "destination": "/ru/join/",
+        "type": 301
+      },
+      {
+        "source": "/courses{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/courses-leads{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/topics{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/chat{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/chats{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/admin-panel{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/my-personal-area{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/students{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/groups{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/users{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/redirect{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
+      {
+        "source": "/reset-password{,/**}",
+        "destination": "/ru/",
+        "type": 301
+      },
       {
         "source": "/:lang/programs/math-foundations{,/**}",
         "destination": "/:lang/subjects/math/foundations/",
@@ -66,42 +175,93 @@
         "destination": "/:lang/subjects/hebrew/bagrut/",
         "type": 301
       },
-      { "source": "/:lang/programs{,/**}", "destination": "/:lang/", "type": 301 }
+      {
+        "source": "/:lang/shop/math-workbook-multiplication-he{,/**}",
+        "destination": "/:lang/shop/math-workbook-multiplication/",
+        "type": 301
+      },
+      {
+        "source": "/:lang/programs{,/**}",
+        "destination": "/:lang/",
+        "type": 301
+      }
     ],
     "headers": [
       {
         "comment": "Clean URLs never match **/*.html, so page defaults live here and the asset rules below override Cache-Control.",
         "source": "**",
         "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-          { "key": "X-Content-Type-Options", "value": "nosniff" },
-          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-          { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, must-revalidate"
+          },
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "SAMEORIGIN"
+          }
         ]
       },
       {
         "source": "/_astro/**",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
       },
       {
         "source": "/fonts/**",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
       },
       {
         "source": "**/*.@(jpg|jpeg|png|gif|webp|avif|svg|ico)",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=604800"
+          }
+        ]
       },
       {
         "source": "/*/checkout/**",
-        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+        "headers": [
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow"
+          }
+        ]
       },
       {
         "source": "/*/order/**",
-        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+        "headers": [
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow"
+          }
+        ]
       },
       {
         "source": "/admin/**",
-        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+        "headers": [
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow"
+          }
+        ]
       }
     ]
   },
@@ -122,12 +282,31 @@
     "rules": "storage.rules"
   },
   "emulators": {
-    "hosting": { "port": 5321, "host": "127.0.0.1" },
-    "functions": { "port": 5322, "host": "127.0.0.1" },
-    "firestore": { "port": 5323, "host": "127.0.0.1" },
-    "auth": { "port": 5324, "host": "127.0.0.1" },
-    "storage": { "port": 5325, "host": "127.0.0.1" },
-    "ui": { "enabled": true, "port": 5326, "host": "127.0.0.1" },
+    "hosting": {
+      "port": 5321,
+      "host": "127.0.0.1"
+    },
+    "functions": {
+      "port": 5322,
+      "host": "127.0.0.1"
+    },
+    "firestore": {
+      "port": 5323,
+      "host": "127.0.0.1"
+    },
+    "auth": {
+      "port": 5324,
+      "host": "127.0.0.1"
+    },
+    "storage": {
+      "port": 5325,
+      "host": "127.0.0.1"
+    },
+    "ui": {
+      "enabled": true,
+      "port": 5326,
+      "host": "127.0.0.1"
+    },
     "singleProjectMode": true
   }
 }

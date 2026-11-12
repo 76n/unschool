@@ -1,7 +1,6 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import { logger } from 'firebase-functions/v2';
-import { config, siteBaseUrl } from './config';
-import { deliverOrder, type OrderRecord } from './delivery';
+import { config } from './config';
 import { FieldValue, auth, collections } from './firebase';
 import { goalLabel, languageLabel, subjectLabel } from './leadMessage';
 
@@ -76,51 +75,6 @@ adminRouter.post('/leads/:id/handled', async (req, res) => {
     handledAt: handled ? FieldValue.serverTimestamp() : null,
   });
   res.json({ ok: true });
-});
-
-adminRouter.get('/orders', async (_req, res) => {
-  const snap = await collections.orders.orderBy('createdAt', 'desc').limit(100).get();
-  res.setHeader('Cache-Control', 'no-store');
-  res.json({
-    ok: true,
-    orders: snap.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        createdAt: toIso(data.createdAt),
-        paidAt: toIso(data.paidAt),
-        status: data.status,
-        title: data.title,
-        price: data.price,
-        currency: data.currency,
-        productSlug: data.productSlug,
-        email: data.email,
-        provider: data.provider,
-        providerRef: data.providerRef ?? null,
-        deliveryStatus: data.deliveryStatus ?? null,
-        isDemoProduct: Boolean(data.isDemoProduct),
-      };
-    }),
-  });
-});
-
-adminRouter.post('/orders/:id/resend', async (req, res) => {
-  const orderId = String(req.params.id);
-  const snap = await collections.orders.doc(orderId).get();
-  const order = snap.data() as (OrderRecord & { status: string }) | undefined;
-
-  if (!order || order.status !== 'paid') {
-    res.status(404).json({ ok: false, error: 'not_found' });
-    return;
-  }
-
-  try {
-    await deliverOrder(orderId, order, siteBaseUrl(req));
-    res.json({ ok: true });
-  } catch (error) {
-    logger.error('Admin resend failed', error);
-    res.status(500).json({ ok: false, error: 'server_error' });
-  }
 });
 
 adminRouter.get('/mail', async (_req, res) => {

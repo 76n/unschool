@@ -30,7 +30,7 @@ const theme = SUBJECT_THEME[data.subject];
   <span class="product-cover">
     <img src={data.cover} alt="" width="320" height="214" loading="lazy" decoding="async" />
     <span class="product-type">{t(productTypeKey(data.type))}</span>
-    {data.status === 'demo' && <span class="product-demo">{t('shop.demoBadge')}</span>}
+    {data.price === 0 && <span class="product-free">{t('common.free')}</span>}
   </span>
 
   <span class="product-body">
@@ -39,7 +39,10 @@ const theme = SUBJECT_THEME[data.subject];
     </span>
     <span class="product-title">{data.title}</span>
     <span class="product-summary">{data.summary}</span>
-    <span class="product-price">{formatPrice(lang, data.price)}</span>
+    <span class="product-price">
+      {data.price === 0 ? t('common.free') : formatPrice(lang, data.price)}
+      {data.listPrice && <s class="product-list-price">{formatPrice(lang, data.listPrice)}</s>}
+    </span>
   </span>
 </a>
 
@@ -85,7 +88,7 @@ const theme = SUBJECT_THEME[data.subject];
   }
 
   .product-type,
-  .product-demo {
+  .product-free {
     position: absolute;
     top: var(--s3);
     padding: 0.25rem var(--s3);
@@ -102,7 +105,7 @@ const theme = SUBJECT_THEME[data.subject];
   }
 
   /* Sits below the type badge so long translations never collide. */
-  .product-demo {
+  .product-free {
     top: auto;
     bottom: var(--s3);
     inset-inline-start: var(--s3);
@@ -140,10 +143,19 @@ const theme = SUBJECT_THEME[data.subject];
   }
 
   .product-price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s2);
     margin-top: auto;
     padding-top: var(--s3);
     font-family: var(--font-display);
     font-size: 1.25rem;
     font-weight: 700;
+  }
+
+  .product-list-price {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ink-soft);
   }
 </style>
