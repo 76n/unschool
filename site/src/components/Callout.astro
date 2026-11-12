@@ -13,21 +13,26 @@ const { title, text, href, linkLabel } = Astro.props;
 ---
 
 <aside class="callout">
-  <Doodle variant="sparkle" color="var(--grape)" />
-  <p class="callout-title">{title}</p>
-  <p class="callout-text">{text}</p>
-  {
-    href && linkLabel && (
-      <a class="arrow-link callout-link" href={href}>
-        {linkLabel}
-        <Icon name="arrow" size={16} class="flip-rtl" />
-      </a>
-    )
-  }
+  <div class="callout-inner">
+    <div>
+      <Doodle variant="sparkle" color="var(--grape)" />
+      <p class="callout-title">{title}</p>
+      <p class="callout-text">{text}</p>
+    </div>
+    {
+      href && linkLabel && (
+        <a class="arrow-link callout-link" href={href}>
+          {linkLabel}
+          <Icon name="arrow" size={16} class="flip-rtl" />
+        </a>
+      )
+    }
+  </div>
 </aside>
 
 <style>
   .callout {
+    container-type: inline-size;
     padding: var(--s5);
     background: var(--accent);
     border-radius: var(--r-md);
@@ -65,5 +70,23 @@ const { title, text, href, linkLabel } = Astro.props;
 
   .callout-link:hover {
     color: var(--ink);
+  }
+
+  @container (min-width: 44rem) {
+    .callout-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s6);
+    }
+
+    .callout-text {
+      max-width: 52ch;
+    }
+
+    .callout-link {
+      flex: none;
+      margin-top: 0;
+    }
   }
 </style>

@@ -27,6 +27,7 @@ const translations = await translatedLangs('pages', slug);
 const { data } = entry;
 
 const isLegal = ['privacy', 'terms', 'accessibility'].includes(slug);
+const bookCta = !isLegal && slug !== 'join';
 const [emailUser, emailDomain] = data.contact?.email?.split('@') ?? [];
 
 const PAGE_TYPES: Record<string, string> = {
@@ -136,7 +137,7 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
     }
 
     {
-      !isLegal && (
+      bookCta && (
         <section class="section section--tight">
           <a class="btn btn--primary" href={localePath(lang, 'diagnostic')} data-track="cta_page">
             {t('cta.bookFree')}
@@ -218,7 +219,8 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
 
   .format-list li {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 2rem minmax(0, 1fr);
+    align-items: start;
     gap: var(--s3) var(--s4);
     margin: 0;
     padding: var(--s5) 0;
@@ -230,8 +232,9 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
     font-size: 0.8125rem;
     font-weight: 700;
     letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
     color: var(--brand);
-    padding-top: 0.3rem;
+    padding-top: 0.45rem;
   }
 
   .format-list h3 {
@@ -254,12 +257,12 @@ const pageType = PAGE_TYPES[slug] ?? 'WebPage';
 
   @media (min-width: 40rem) {
     .format-list li {
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
+      grid-template-columns: 2rem minmax(0, 1fr) auto;
     }
 
     .format-price {
       grid-column: auto;
+      align-self: center;
       text-align: end;
     }
   }

@@ -67,6 +67,7 @@ const jsonLd = freeDiagnosticService(
   description={t('diagnostic.seoDescription')}
   jsonLd={jsonLd}
   stickyCta={false}
+  footerCta={false}
   bleed
 >
   <PageHeader
@@ -218,17 +219,19 @@ const jsonLd = freeDiagnosticService(
         </label>
 
         <div class="consents">
-          <label class="consent" data-field="consentTerms">
-            <input type="checkbox" name="consentTerms" />
-            <span>
-              {t('diagnostic.consent.terms')}{' '}
-              <a href={localePath(lang, 'privacy')}>{t('footer.privacy')}</a>
-              {' · '}
-              <a href={localePath(lang, 'terms')}>{t('footer.terms')}</a>
-            </span>
-          </label>
-          <span class="field-error" data-error="consentTerms" hidden></span>
-          <label class="consent">
+          <div data-field="consentTerms">
+            <label class="check">
+              <input type="checkbox" name="consentTerms" />
+              <span>
+                {t('diagnostic.consent.terms')}{' '}
+                <a href={localePath(lang, 'privacy')}>{t('footer.privacy')}</a>
+                {' · '}
+                <a href={localePath(lang, 'terms')}>{t('footer.terms')}</a>
+              </span>
+            </label>
+            <span class="field-error" data-error="consentTerms" hidden></span>
+          </div>
+          <label class="check">
             <input type="checkbox" name="consentMarketing" />
             <span>{t('diagnostic.consent.marketing')}</span>
           </label>
@@ -241,10 +244,13 @@ const jsonLd = freeDiagnosticService(
           </label>
         </div>
 
-        <button class="btn btn--primary btn--block" type="submit" data-submit>
-          {t('diagnostic.submit')}
-          <Icon name="arrow" size={18} class="flip-rtl" />
-        </button>
+        <div class="form-actions">
+          <button class="btn btn--primary btn--block" type="submit" data-submit>
+            {t('diagnostic.submit')}
+            <Icon name="arrow" size={18} class="flip-rtl" />
+          </button>
+          <p class="cta-note">{t('cta.bookNote')}</p>
+        </div>
       </form>
     </div>
 
@@ -498,38 +504,6 @@ const jsonLd = freeDiagnosticService(
 
   legend.field-label {
     padding: 0;
-  }
-
-  .consents {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--s3);
-  }
-
-  .consent span {
-    min-inline-size: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .consent {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--s3);
-    font-size: 0.875rem;
-    line-height: 1.5;
-    cursor: pointer;
-  }
-
-  .consent input {
-    flex: none;
-    inline-size: 1.125rem;
-    block-size: 1.125rem;
-    margin-block-start: 0.15rem;
-    accent-color: var(--grape);
-  }
-
-  .consent[data-invalid] span {
-    color: var(--danger);
   }
 
   .reassure {

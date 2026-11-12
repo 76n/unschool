@@ -19,6 +19,8 @@ interface Props {
   bleed?: boolean;
   narrow?: boolean;
   stickyCta?: boolean;
+  /** The closing call to book an assessment, above the footer links. */
+  footerCta?: boolean;
   fallbackFrom?: Lang | null;
   image?: string;
   imageAlt?: string;
@@ -38,6 +40,7 @@ const {
   bleed = false,
   narrow = false,
   stickyCta = true,
+  footerCta = true,
   fallbackFrom = null,
   image,
   imageAlt,
@@ -85,7 +88,7 @@ const mainClass = bleed ? '' : `wrap page${narrow ? ' wrap--narrow' : ''}`;
       <slot />
     </main>
 
-    <Footer lang={lang} />
+    <Footer lang={lang} cta={footerCta} />
 
     {
       stickyCta && (

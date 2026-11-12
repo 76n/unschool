@@ -1,5 +1,6 @@
 ---
 import { langParams, type Lang } from '~/i18n/config';
+import { localePath } from '~/i18n/routes';
 import { useTranslations } from '~/i18n/ui';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Icon from '~/components/Icon.astro';
@@ -22,6 +23,7 @@ const titles = Object.fromEntries(
   description={t('order.success.text')}
   noindex
   stickyCta={false}
+  footerCta={false}
 >
   <section class="order" id="order-view" data-lang={lang}>
     <h1 class="visually-hidden">{t('order.success.title')}</h1>
@@ -45,15 +47,18 @@ const titles = Object.fromEntries(
         </div>
       </dl>
 
-      <a class="btn btn--primary btn--block" id="order-download" href="#" hidden>
-        {t('order.download')}
-      </a>
-      <p class="small muted">{t('order.linkNote')}</p>
-
-      <button class="btn btn--secondary btn--block" type="button" id="order-resend">
-        {t('order.resend')}
-      </button>
-      <p class="form-status form-status--ok" id="order-resent" hidden>{t('order.resent')}</p>
+      <div class="order-actions">
+        <a class="btn btn--primary btn--block" id="order-download" href="#" hidden>
+          <Icon name="download" size={18} />
+          {t('order.download')}
+        </a>
+        <button class="btn btn--outline btn--block" type="button" id="order-resend">
+          <Icon name="mail" size={18} />
+          {t('order.resend')}
+        </button>
+        <p class="form-status form-status--ok" id="order-resent" hidden>{t('order.resent')}</p>
+        <p class="small muted">{t('order.linkNote')}</p>
+      </div>
     </div>
 
     <!-- Shown first: the seconds right after paying are the anxious ones. -->
@@ -64,10 +69,17 @@ const titles = Object.fromEntries(
     </div>
 
     <div id="order-missing" hidden>
+      <span class="status-icon status-icon--warn"><Icon name="info" size={26} /></span>
       <h2 class="state-title">{t('order.notFound')}</h2>
       <p class="lede">
         {t('order.support')}: <a href="mailto:hello@unschool.cool">hello@unschool.cool</a>
       </p>
+      <div class="order-actions order-actions--row">
+        <a class="btn btn--primary" href={localePath(lang, 'shop')}>
+          {t('cta.toCatalog')}
+          <Icon name="arrow" size={18} class="flip-rtl" />
+        </a>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -195,21 +207,25 @@ const titles = Object.fromEntries(
 
 <style>
   .order {
-    padding-block: var(--s8);
-    max-width: 34rem;
+    padding-block: clamp(3rem, 9vw, 6rem);
+    max-width: 36rem;
+  }
+
+  .order [hidden] {
+    display: none;
   }
 
   .state-title {
-    font-size: var(--fs-h1);
+    font-size: clamp(1.85rem, 6vw, 3rem);
     margin-bottom: var(--s3);
   }
 
   .status-icon {
     display: inline-grid;
     place-items: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    margin-bottom: var(--s4);
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: var(--s5);
     border-radius: 50%;
     background: var(--ok-soft);
     color: var(--ok);
@@ -220,14 +236,23 @@ const titles = Object.fromEntries(
     color: var(--brand-deep);
   }
 
+  .status-icon--warn {
+    background: var(--accent-soft);
+    color: var(--honey);
+  }
+
   .order-meta {
     margin: var(--s6) 0;
+    padding: var(--s5);
     display: grid;
     gap: var(--s4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
   }
 
   .order-meta dt {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -236,10 +261,22 @@ const titles = Object.fromEntries(
 
   .order-meta dd {
     margin: 0;
-    font-weight: 500;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
 
-  #order-resend {
-    margin-top: var(--s3);
+  .order-actions {
+    display: grid;
+    gap: var(--s3);
+    margin-top: var(--s6);
+  }
+
+  .order-actions--row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .order-actions p {
+    margin: 0;
   }
 </style>
